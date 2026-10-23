@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'chat_screen.dart';
+
 void main() {
   runApp(const DaskoApp());
 }
@@ -28,56 +30,7 @@ class DaskoApp extends StatelessWidget {
           surface: Colors.black,
         ),
       ),
-      home: const WelcomeScreen(),
-    );
-  }
-}
-
-class WelcomeScreen extends StatelessWidget {
-  const WelcomeScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 88,
-                  height: 88,
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Color(0xFF1A1A1A),
-                  ),
-                  child: const Icon(
-                    Icons.auto_awesome,
-                    size: 44,
-                    color: Color(0xFF8AB4F8),
-                  ),
-                ),
-                const SizedBox(height: 24),
-                const Text(
-                  'Dasko AI',
-                  style: TextStyle(
-                    fontSize: 32,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  'رفيقك الشخصي الذكي',
-                  style: TextStyle(fontSize: 16, color: Colors.white60),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
+      home: const ChatScreen(),
     );
   }
 }
