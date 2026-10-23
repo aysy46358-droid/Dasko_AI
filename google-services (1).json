@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "104074680791",
+    "project_id": "dasko-ai",
+    "storage_bucket": "dasko-ai.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:104074680791:android:1c75b57dc3f47e5249d392",
+        "android_client_info": {
+          "package_name": "Com.Dasko.Dasko_AI"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCzvohZJPPLK86KTpPVj9TDyYX4wJXif8w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:104074680791:android:3acb4bb6a7bce3a449d392",
+        "android_client_info": {
+          "package_name": "com.dasko.dasko_ai"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCzvohZJPPLK86KTpPVj9TDyYX4wJXif8w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
