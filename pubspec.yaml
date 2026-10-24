@@ -1,3 +1,4 @@
+
 name: dasko_ai
 description: "Dasko AI - Local-first Flutter AI companion."
 publish_to: 'none'
@@ -5,24 +6,25 @@ publish_to: 'none'
 version: 1.0.0+1
 
 environment:
-sdk: '>=3.4.0 <4.0.0'
+  sdk: '>=3.4.0 <4.0.0'
 
 dependencies:
-flutter:
-sdk: flutter
-cupertino_icons: ^1.0.8
-firebase_core: ^4.2.1
-sqlite3: ^3.7.1
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  firebase_core: ^4.2.1
+  sqlite3: ^3.7.1
 
 dev_dependencies:
-flutter_test:
-sdk: flutter
-flutter_lints: ^4.0.0
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
 
 flutter:
-uses-material-design: true
+  uses-material-design: true
 
 hooks:
-user_defines:
-sqlite3:
-source: sqlite3mc
+  user_defines:
+    sqlite3:
+      source: sqlite3mc
+      
