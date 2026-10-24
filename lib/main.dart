@@ -1,20 +1,32 @@
+
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
 
-import 'chat_screen.dart';
-import 'spike/encryption_spike.dart';
+import 'package:dasko_ai/spike/encryption_spike.dart';
 
-Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+void main() {
+  runApp(const SpikeApp());
+}
 
-  await Firebase.initializeApp();
+class SpikeApp extends StatelessWidget {
+  const SpikeApp({super.key});
 
-  await runEncryptionSpike();
-
-  runApp(
-    const MaterialApp(
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: ChatScreen(),
-    ),
-  );
+      locale: const Locale('ar'),
+      builder: (context, child) {
+        return Directionality(
+          textDirection: TextDirection.rtl,
+          child: child ?? const SizedBox.shrink(),
+        );
+      },
+      theme: ThemeData(
+        useMaterial3: true,
+        brightness: Brightness.dark,
+        scaffoldBackgroundColor: Colors.black,
+      ),
+      home: const EncryptionSpikeScreen(),
+    );
+  }
 }
