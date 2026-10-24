@@ -1,121 +1,261 @@
 
+import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:sqlite3/sqlite3.dart';
 
-/// اختبار تجريبي فقط، وليس محرك الذاكرة الإنتاجي لـ Dasko AI.
-Future<void> runEncryptionSpike() async {
-  final tempDir =
-      await Directory.systemTemp.createTemp('dasko_encryption_spike_');
+class SpikeStep {
+  const SpikeStep(this.name, this.passed, this.detail);
 
-  final dbPath = '${tempDir.path}/dasko_spike.db';
+  final String name;
+  final bool passed;
+  final String detail;
+}
 
-  // مفتاح اختباري فقط. لا تستخدمه في بيانات حقيقية.
-  const testKey = 'Dasko-Spike-Test-Key-2026';
-  const wrongKey = 'Definitely-Wrong-Test-Key';
+Future<List<SpikeStep>> runEncryptionSpike() async {
+  final steps = <SpikeStep>[];
+
+  void step(String name, String Function() body) {
+    try {
+      steps.add(SpikeStep(name, true, body()));
+    } catch (error) {
+      steps.add(SpikeStep(name, false, error.toString()));
+    }
+  }
+
+  final directory = await getApplicationSupportDirectory();
+  final path = '${directory.path}/dasko_spike.db';
+
+  for (final suffix in const ['', '-wal', '-shm', '-journal']) {
+    final file = File('$path$suffix');
+    if (file.existsSync()) {
+      file.deleteSync();
+    }
+  }
+
+  final random = Random.secure();
+  final passphrase = base64UrlEncode(
+    List<int>.generate(32, (_) => random.nextInt(256)),
+  ).replaceAll('=', '');
+
+  const arabicText = 'مرحباً بك في داسكو';
 
   Database? db;
-  Database? wrongDb;
 
   try {
-    // 1. فتح قاعدة جديدة وضبط المفتاح قبل أي استعلام آخر.
-    db = sqlite3.open(dbPath);
-    db.execute("PRAGMA key = '$testKey'");
+    step('فتح قاعدة وتفعيل مفتاح التشفير', () {
+      db = sqlite3.open(path);
+      final cipher = db!.select('PRAGMA cipher;');
 
-    // 2. إنشاء جدول وكتابة بيانات عربية.
-    db.execute('''
-      CREATE TABLE notes (
-        id INTEGER PRIMARY KEY,
-        body TEXT NOT NULL
-      )
-    ''');
+      if (cipher.isEmpty) {
+        throw StateError('المحرك لا يدعم التشفير (PRAGMA cipher فارغ)');
+      }
 
-    db.execute(
-      'INSERT INTO notes (body) VALUES (?)',
-      ['الذاكرة العربية المشفرة في Dasko AI'],
-    );
+      db!.execute("PRAGMA key = '$passphrase';");
+      return 'المحرك: ${cipher.first.columnAt(0)}';
+    });
 
-    final rows = db.select('SELECT body FROM notes');
-
-    if (rows.isEmpty ||
-        rows.first['body'] != 'الذاكرة العربية المشفرة في Dasko AI') {
-      throw StateError('FAIL: Arabic read/write test');
+    if (db == null) {
+      return steps;
     }
 
-    print('PASS: Arabic read/write');
-
-    // 3. التحقق من توفر FTS5 والبحث عن كلمة عربية.
-    db.execute('CREATE VIRTUAL TABLE notes_fts USING fts5(body)');
-
-    db.execute(
-      'INSERT INTO notes_fts (body) VALUES (?)',
-      ['الذاكرة العربية المشفرة في Dasko AI'],
-    );
-
-    final matches = db.select(
-      'SELECT body FROM notes_fts WHERE notes_fts MATCH ?',
-      ['الذاكرة'],
-    );
-
-    if (matches.isEmpty) {
-      throw StateError('FAIL: Arabic FTS5 search');
-    }
-
-    print('PASS: Arabic FTS5 search');
-
-    // 4. التأكد من أن الملف لا يبدأ بترويسة SQLite العادية.
-    final bytes = await File(dbPath).readAsBytes();
-    const sqliteHeader = <int>[
-      83, 81, 76, 105, 116, 101, 32, 102,
-      111, 114, 109, 97, 116, 32, 51, 0,
-    ];
-
-    final headerIsPlainSqlite = bytes.length >= 16 &&
-        List<int>.generate(16, (i) => bytes[i]).toString() ==
-            sqliteHeader.toString();
-
-    if (headerIsPlainSqlite) {
-      throw StateError(
-        'FAIL: Database still has the standard SQLite header',
+    step('كتابة وقراءة نص عربي', () {
+      db!.execute(
+        'CREATE TABLE messages (id TEXT PRIMARY KEY, content TEXT NOT NULL)',
       );
-    }
 
-    print('PASS: No standard plaintext SQLite header');
+      db!.execute(
+        'INSERT INTO messages (id, content) VALUES (?, ?)',
+        ['m1', arabicText],
+      );
 
-    // 5. إغلاق الاتصال الصحيح قبل تجربة المفتاح الخاطئ.
-    db.dispose();
-    db = null;
+      final rows = db!.select(
+        'SELECT content FROM messages WHERE id = ?',
+        ['m1'],
+      );
 
-    var wrongKeyRejected = false;
+      if (rows.isEmpty || rows.first['content'] != arabicText) {
+        throw StateError('النص المقروء لا يطابق المكتوب');
+      }
 
-    try {
-      wrongDb = sqlite3.open(dbPath);
-      wrongDb.execute("PRAGMA key = '$wrongKey'");
+      return 'تمت القراءة بنجاح';
+    });
 
-      // قراءة البيانات هي الاختبار؛ ضبط المفتاح وحده لا يكفي.
-      wrongDb.select('SELECT * FROM notes');
-    } catch (_) {
-      wrongKeyRejected = true;
-    } finally {
-      wrongDb?.dispose();
-      wrongDb = null;
-    }
+    step('بحث FTS5 بالعربية', () {
+      db!.execute('CREATE VIRTUAL TABLE memory_fts USING fts5(content)');
 
-    if (!wrongKeyRejected) {
-      throw StateError('FAIL: Wrong key was not rejected');
-    }
+      db!.execute(
+        'INSERT INTO memory_fts (content) VALUES (?)',
+        ['أحب القهوة الصباحية وأعمل على مشروع داسكو'],
+      );
 
-    print('PASS: Wrong key rejected');
+      final hits = db!.select(
+        'SELECT content FROM memory_fts WHERE memory_fts MATCH ?',
+        ['القهوة'],
+      );
 
-    print('SQLite version: ${sqlite3.version}');
-    print('ALL SPIKE CHECKS PASSED');
+      if (hits.isEmpty) {
+        throw StateError('لم يُعثر على نتيجة');
+      }
+
+      return 'عدد النتائج: ${hits.length}';
+    });
+
+    step('إصدار SQLite', () {
+      final row = db!.select('SELECT sqlite_version() AS v').first;
+      return '${row['v']}';
+    });
+
+    step('إغلاق قاعدة البيانات', () {
+      db!.close();
+      db = null;
+      return 'تم الإغلاق';
+    });
+
+    step('ترويسة الملف ليست SQLite عادياً', () {
+      final raf = File(path).openSync();
+
+      try {
+        final header = String.fromCharCodes(raf.readSync(15));
+
+        if (header == 'SQLite format 3') {
+          throw StateError('ترويسة الملف مكشوفة: القاعدة غير مشفّرة');
+        }
+
+        return 'الترويسة مشفّرة';
+      } finally {
+        raf.closeSync();
+      }
+    });
+
+    step('إعادة الفتح بالمفتاح الصحيح', () {
+      final reopened = sqlite3.open(path);
+
+      try {
+        reopened.execute("PRAGMA key = '$passphrase';");
+
+        final rows = reopened.select(
+          'SELECT content FROM messages WHERE id = ?',
+          ['m1'],
+        );
+
+        if (rows.isEmpty || rows.first['content'] != arabicText) {
+          throw StateError('البيانات لم تُسترجع');
+        }
+
+        return 'البيانات سليمة بعد الإغلاق والفتح';
+      } finally {
+        reopened.close();
+      }
+    });
+
+    step('رفض المفتاح الخاطئ', () {
+      final wrong = sqlite3.open(path);
+
+      try {
+        wrong.execute("PRAGMA key = 'wrong-key-123';");
+        wrong.select('SELECT count(*) FROM sqlite_master');
+      } on SqliteException {
+        return 'رُفض المفتاح الخاطئ كما هو متوقع';
+      } finally {
+        wrong.close();
+      }
+
+      throw StateError('فُتحت القاعدة بمفتاح خاطئ');
+    });
   } finally {
-    db?.dispose();
-    wrongDb?.dispose();
+    db?.close();
+  }
 
-    // قاعدة مؤقتة للاختبار فقط؛ تُحذف بعد انتهاء الاختبار.
-    if (await tempDir.exists()) {
-      await tempDir.delete(recursive: true);
-    }
+  return steps;
+}
+
+class EncryptionSpikeScreen extends StatefulWidget {
+  const EncryptionSpikeScreen({super.key});
+
+  @override
+  State<EncryptionSpikeScreen> createState() =>
+      _EncryptionSpikeScreenState();
+}
+
+class _EncryptionSpikeScreenState extends State<EncryptionSpikeScreen> {
+  late final Future<List<SpikeStep>> _future;
+
+  @override
+  void initState() {
+    super.initState();
+    _future = runEncryptionSpike();
+  }
+
+  String _report(List<SpikeStep> steps) {
+    return steps
+        .map((s) => '${s.passed ? 'PASS' : 'FAIL'} | ${s.name} | ${s.detail}')
+        .join('\n');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('تجربة القاعدة المشفّرة'),
+        backgroundColor: Colors.black,
+      ),
+      body: FutureBuilder<List<SpikeStep>>(
+        future: _future,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState != ConnectionState.done) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (snapshot.hasError) {
+            return Padding(
+              padding: const EdgeInsets.all(16),
+              child: SelectableText('خطأ غير متوقع:\n${snapshot.error}'),
+            );
+          }
+
+          final steps = snapshot.data ?? const <SpikeStep>[];
+          final passedCount = steps.where((s) => s.passed).length;
+
+          return ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              Text(
+                'النتيجة: $passedCount من ${steps.length}',
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 12),
+              for (final s in steps)
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: Icon(
+                    s.passed ? Icons.check_circle : Icons.cancel,
+                    color: s.passed
+                        ? Colors.greenAccent
+                        : Colors.redAccent,
+                  ),
+                  title: Text(s.name),
+                  subtitle: Text(s.detail),
+                ),
+              const SizedBox(height: 16),
+              FilledButton.icon(
+                onPressed: () => Clipboard.setData(
+                  ClipboardData(text: _report(steps)),
+                ),
+                icon: const Icon(Icons.copy),
+                label: const Text('نسخ النتيجة'),
+              ),
+            ],
+          );
+        },
+      ),
+    );
   }
 }
