@@ -1,6 +1,5 @@
-
 name: dasko_ai
-description: "Dasko AI - Local-first Flutter AI companion."
+description: "Dasko AI - Advanced personal AI companion with clean architecture."
 publish_to: 'none'
 
 version: 1.0.0+1
@@ -14,11 +13,34 @@ dependencies:
   cupertino_icons: ^1.0.8
   firebase_core: ^4.2.1
 
+  # State management
+  flutter_riverpod: ^2.6.1
+  riverpod_annotation: ^2.6.1
+
+  # Functional programming & equality
+  equatable: ^2.0.7
+  dartz: ^0.10.1
+
+  # Local storage & security (prepared for later phases)
+  flutter_secure_storage: ^9.2.4
+  shared_preferences: ^2.3.5
+
+  # Utilities
+  uuid: ^4.5.1
+  intl: ^0.19.0
+  logger: ^2.5.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^4.0.0
+  riverpod_generator: ^2.6.3
+  build_runner: ^2.4.13
+  json_serializable: ^6.9.0
+  json_annotation: ^4.9.0
 
 flutter:
   uses-material-design: true
-  
+
+  assets:
+    - assets/persona/
