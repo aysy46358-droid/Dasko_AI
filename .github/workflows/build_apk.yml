@@ -40,7 +40,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          SOURCE="google-services (1).json"
+          SOURCE="google-services.json"
 
           if [ ! -f "$SOURCE" ]; then
             echo "ERROR: Firebase configuration file not found: $SOURCE"
