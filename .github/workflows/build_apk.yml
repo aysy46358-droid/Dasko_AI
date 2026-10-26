@@ -4,7 +4,11 @@ on:
   push:
     branches:
       - main
+      - experimental-work
   workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   build:
@@ -111,13 +115,27 @@ jobs:
       - name: Get Flutter dependencies
         run: flutter pub get
 
+      - name: Check Dart formatting
+        run: dart format --output=none --set-exit-if-changed .
+
       - name: Analyze project
-        run: flutter analyze --no-fatal-infos || true
+        run: flutter analyze
+
+      - name: Run automated tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -d "test" ] && find test -type f -name '*_test.dart' -print -quit | grep -q .; then
+            flutter test --reporter expanded
+          else
+            echo "::warning::No *_test.dart files found under test/. Automated tests were not executed."
+          fi
 
       - name: Build release APK
         run: flutter build apk --release
 
       - name: Upload APK
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: dasko-apk
