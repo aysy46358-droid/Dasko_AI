@@ -63,14 +63,16 @@ class _InteractiveDaskoRobotState extends State<InteractiveDaskoRobot>
 }
 
 class _HolographicRobotPainter extends CustomPainter {
-  const _HolographicRobotPainter({required this.phase, required this.state});
+  const _HolographicRobotPainter({
+    required this.phase,
+    required this.state,
+  });
 
   final double phase;
   final DaskoRobotState state;
 
   static const Color cyan = Color(0xFF00E5FF);
   static const Color violet = Color(0xFF7C4DFF);
-  static const Color deep = Color(0xFF0B0F19);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -91,7 +93,6 @@ class _HolographicRobotPainter extends CustomPainter {
       ).createShader(Rect.fromCircle(center: center, radius: size.width * .49));
     canvas.drawCircle(center, size.width * .49, glowPaint);
 
-    // Three independently tilted orbital rings create a holographic volume.
     for (var i = 0; i < 3; i++) {
       canvas.save();
       canvas.translate(center.dx, center.dy + 7 * unit);
@@ -125,7 +126,10 @@ class _HolographicRobotPainter extends CustomPainter {
       width: size.width * 0.55,
       height: size.height * 0.43,
     );
-    final head = RRect.fromRectAndRadius(headRect, Radius.circular(25 * unit));
+    final head = RRect.fromRectAndRadius(
+      headRect,
+      Radius.circular(25 * unit),
+    );
 
     final glow = Paint()
       ..color = cyan.withValues(alpha: 0.26 * pulse)
@@ -152,7 +156,6 @@ class _HolographicRobotPainter extends CustomPainter {
         ).createShader(headRect),
     );
 
-    // Side ear/antenna modules.
     final sidePaint = Paint()..color = const Color(0xFF1C3653);
     canvas.drawRRect(
       RRect.fromRectAndRadius(
@@ -184,7 +187,6 @@ class _HolographicRobotPainter extends CustomPainter {
     canvas.drawCircle(Offset(headRect.left - 1 * unit, c.dy), 2.5 * unit, led);
     canvas.drawCircle(Offset(headRect.right + 1 * unit, c.dy), 2.5 * unit, led);
 
-    // Visor, rendered as glass rather than a stock face icon.
     final visorRect = Rect.fromCenter(
       center: Offset(c.dx, c.dy + 1 * unit),
       width: headRect.width * 0.77,
@@ -205,12 +207,13 @@ class _HolographicRobotPainter extends CustomPainter {
         ..color = cyan.withValues(alpha: 0.75),
     );
 
-    final eyeY =
-        visorRect.center.dy -
+    final eyeY = visorRect.center.dy -
         (state == DaskoRobotState.thinking ? 1 : 0) * unit;
     final eyeRadius = (state == DaskoRobotState.thinking ? 2.4 : 3.4) * unit;
     final eyePaint = Paint()
-      ..color = state == DaskoRobotState.happy ? const Color(0xFFB9A2FF) : cyan
+      ..color = state == DaskoRobotState.happy
+          ? const Color(0xFFB9A2FF)
+          : cyan
       ..maskFilter = MaskFilter.blur(BlurStyle.normal, 4 * unit);
     canvas.drawCircle(
       Offset(visorRect.left + visorRect.width * 0.27, eyeY),
@@ -251,7 +254,6 @@ class _HolographicRobotPainter extends CustomPainter {
         ..strokeWidth = 1.8 * unit,
     );
 
-    // Antenna and floating holographic status light.
     final antenna = Paint()
       ..color = cyan.withValues(alpha: 0.8)
       ..style = PaintingStyle.stroke
@@ -276,7 +278,10 @@ class _HolographicRobotPainter extends CustomPainter {
       width: size.width * 0.43,
       height: size.height * 0.24,
     );
-    final body = RRect.fromRectAndRadius(bodyRect, Radius.circular(18 * unit));
+    final body = RRect.fromRectAndRadius(
+      bodyRect,
+      Radius.circular(18 * unit),
+    );
     canvas.drawRRect(
       body,
       Paint()
@@ -339,8 +344,8 @@ class _HolographicRobotPainter extends CustomPainter {
       ..strokeWidth = 0.65 * unit;
     final offset = (phase * 10 * unit) % (size.height * 0.75);
     for (var i = 0; i < 7; i++) {
-      final y =
-          size.height * 0.12 + ((i * 18 * unit + offset) % (size.height * .76));
+      final y = size.height * 0.12 +
+          ((i * 18 * unit + offset) % (size.height * .76));
       canvas.drawLine(
         Offset(size.width * .22, y),
         Offset(size.width * .78, y),
