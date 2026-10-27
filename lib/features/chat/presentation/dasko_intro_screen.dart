@@ -62,14 +62,14 @@ class _DaskoIntroScreenState extends State<DaskoIntroScreen>
   void dispose() {
     _entrance.dispose();
     unawaited(_audioPlayer.dispose());
-    unawaited(_tts.stop());
+    unawaited(_tts.stop().then<void>((_) {}));
     super.dispose();
   }
 
   void _startChat() {
     if (_openingChat) return;
     setState(() => _openingChat = true);
-    unawaited(_tts.stop());
+    unawaited(_tts.stop().then<void>((_) {}));
 
     Navigator.of(context).pushReplacement(
       PageRouteBuilder<void>(
