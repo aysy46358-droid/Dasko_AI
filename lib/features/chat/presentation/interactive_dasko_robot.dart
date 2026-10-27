@@ -63,10 +63,7 @@ class _InteractiveDaskoRobotState extends State<InteractiveDaskoRobot>
 }
 
 class _HolographicRobotPainter extends CustomPainter {
-  const _HolographicRobotPainter({
-    required this.phase,
-    required this.state,
-  });
+  const _HolographicRobotPainter({required this.phase, required this.state});
 
   final double phase;
   final DaskoRobotState state;
@@ -126,10 +123,7 @@ class _HolographicRobotPainter extends CustomPainter {
       width: size.width * 0.55,
       height: size.height * 0.43,
     );
-    final head = RRect.fromRectAndRadius(
-      headRect,
-      Radius.circular(25 * unit),
-    );
+    final head = RRect.fromRectAndRadius(headRect, Radius.circular(25 * unit));
 
     final glow = Paint()
       ..color = cyan.withValues(alpha: 0.26 * pulse)
@@ -207,13 +201,12 @@ class _HolographicRobotPainter extends CustomPainter {
         ..color = cyan.withValues(alpha: 0.75),
     );
 
-    final eyeY = visorRect.center.dy -
+    final eyeY =
+        visorRect.center.dy -
         (state == DaskoRobotState.thinking ? 1 : 0) * unit;
     final eyeRadius = (state == DaskoRobotState.thinking ? 2.4 : 3.4) * unit;
     final eyePaint = Paint()
-      ..color = state == DaskoRobotState.happy
-          ? const Color(0xFFB9A2FF)
-          : cyan
+      ..color = state == DaskoRobotState.happy ? const Color(0xFFB9A2FF) : cyan
       ..maskFilter = MaskFilter.blur(BlurStyle.normal, 4 * unit);
     canvas.drawCircle(
       Offset(visorRect.left + visorRect.width * 0.27, eyeY),
@@ -278,10 +271,7 @@ class _HolographicRobotPainter extends CustomPainter {
       width: size.width * 0.43,
       height: size.height * 0.24,
     );
-    final body = RRect.fromRectAndRadius(
-      bodyRect,
-      Radius.circular(18 * unit),
-    );
+    final body = RRect.fromRectAndRadius(bodyRect, Radius.circular(18 * unit));
     canvas.drawRRect(
       body,
       Paint()
@@ -344,8 +334,8 @@ class _HolographicRobotPainter extends CustomPainter {
       ..strokeWidth = 0.65 * unit;
     final offset = (phase * 10 * unit) % (size.height * 0.75);
     for (var i = 0; i < 7; i++) {
-      final y = size.height * 0.12 +
-          ((i * 18 * unit + offset) % (size.height * .76));
+      final y =
+          size.height * 0.12 + ((i * 18 * unit + offset) % (size.height * .76));
       canvas.drawLine(
         Offset(size.width * .22, y),
         Offset(size.width * .78, y),
