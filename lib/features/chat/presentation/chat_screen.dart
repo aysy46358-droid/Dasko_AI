@@ -6,7 +6,7 @@ import '../../../domain/entities/message.dart';
 import '../../../services/ai_engine/mock_ai_engine.dart';
 import 'interactive_dasko_robot.dart';
 
-final _uuid = Uuid();
+const _uuid = Uuid();
 
 class ChatScreen extends ConsumerStatefulWidget {
   const ChatScreen({super.key});
@@ -127,7 +127,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                     (message.isUser
                             ? const Color(0xFF00E5FF)
                             : const Color(0xFF7C4DFF))
-                        .withOpacity(0.12),
+                        .withValues(alpha: 0.12),
                 blurRadius: 14,
               ),
             ],
