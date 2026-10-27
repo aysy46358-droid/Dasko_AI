@@ -72,7 +72,9 @@ class _AnimatedNeonBorderState extends State<AnimatedNeonBorder>
             decoration: BoxDecoration(
               color: widget.backgroundColor,
               borderRadius: BorderRadius.circular(
-                (widget.borderRadius - widget.borderWidth).clamp(0, 100),
+                (widget.borderRadius - widget.borderWidth)
+                    .clamp(0.0, 100.0)
+                    .toDouble(),
               ),
             ),
             child: widget.child,
