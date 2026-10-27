@@ -105,8 +105,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   Widget _buildBubble(Message message, double maxWidth) {
     final isUser = message.isUser;
     return Align(
-      alignment:
-          isUser ? AlignmentDirectional.centerStart : AlignmentDirectional.centerEnd,
+      alignment: isUser
+          ? AlignmentDirectional.centerStart
+          : AlignmentDirectional.centerEnd,
       child: ConstrainedBox(
         constraints: BoxConstraints(maxWidth: maxWidth),
         child: Padding(
@@ -114,8 +115,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           child: AnimatedNeonBorder(
             borderRadius: 18,
             borderWidth: 1.25,
-            backgroundColor:
-                isUser ? const Color(0xFF10263A) : const Color(0xFF171326),
+            backgroundColor: isUser
+                ? const Color(0xFF10263A)
+                : const Color(0xFF171326),
             duration: Duration(milliseconds: isUser ? 4200 : 3300),
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -262,7 +264,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                 borderWidth: 1.15,
                 backgroundColor: const Color(0xD9101829),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
                   child: Row(
                     children: [
                       InteractiveDaskoRobot(state: _robotState, size: 82),
@@ -301,7 +306,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                   ? _buildEmptyState()
                   : ListView.builder(
                       controller: _scroll,
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
                       itemCount: _messages.length,
                       itemBuilder: (context, index) =>
                           _buildBubble(_messages[index], maxWidth),

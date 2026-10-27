@@ -4,10 +4,7 @@ import 'package:flutter/material.dart';
 
 /// Animated starfield, volumetric nebula and perspective grid used behind UI.
 class DigitalSpaceBackground extends StatefulWidget {
-  const DigitalSpaceBackground({
-    super.key,
-    required this.child,
-  });
+  const DigitalSpaceBackground({super.key, required this.child});
 
   final Widget child;
 
@@ -38,20 +35,15 @@ class _DigitalSpaceBackgroundState extends State<DigitalSpaceBackground>
             gradient: RadialGradient(
               center: Alignment(-0.2, -0.5),
               radius: 1.25,
-              colors: [
-                Color(0xFF18223B),
-                Color(0xFF101426),
-                Color(0xFF0B0F19),
-              ],
+              colors: [Color(0xFF18223B), Color(0xFF101426), Color(0xFF0B0F19)],
               stops: [0, 0.48, 1],
             ),
           ),
         ),
         AnimatedBuilder(
           animation: _motion,
-          builder: (context, _) => CustomPaint(
-            painter: _SpacePainter(phase: _motion.value),
-          ),
+          builder: (context, _) =>
+              CustomPaint(painter: _SpacePainter(phase: _motion.value)),
         ),
         widget.child,
       ],
@@ -130,7 +122,9 @@ class _SpacePainter extends CustomPainter {
       final x = (baseX + drift) % size.width;
       final y = baseY;
       final radius = i % 7 == 0 ? 1.55 : (i % 3 == 0 ? 1.0 : .55);
-      final color = i.isEven ? const Color(0xFF8DEFFF) : const Color(0xFFBBA7FF);
+      final color = i.isEven
+          ? const Color(0xFF8DEFFF)
+          : const Color(0xFFBBA7FF);
       starPaint
         ..color = color.withValues(
           alpha: .24 + ((math.sin(phase * math.pi * 2 + i) + 1) * .19),
