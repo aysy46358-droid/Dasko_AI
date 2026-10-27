@@ -4,9 +4,13 @@ import 'package:uuid/uuid.dart';
 
 import '../../../domain/entities/message.dart';
 import '../../../services/ai_engine/mock_ai_engine.dart';
+import 'animated_neon_border.dart';
+import 'digital_space_background.dart';
 import 'interactive_dasko_robot.dart';
 
 const _uuid = Uuid();
+const _cyan = Color(0xFF00E5FF);
+const _violet = Color(0xFF7C4DFF);
 
 class ChatScreen extends ConsumerStatefulWidget {
   const ChatScreen({super.key});
@@ -36,8 +40,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       if (_scroll.hasClients) {
         _scroll.animateTo(
           _scroll.position.maxScrollExtent,
-          duration: const Duration(milliseconds: 250),
-          curve: Curves.easeOut,
+          duration: const Duration(milliseconds: 280),
+          curve: Curves.easeOutCubic,
         );
       }
     });
@@ -47,15 +51,15 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     final text = _controller.text.trim();
     if (text.isEmpty || _isReplying) return;
 
-    final userMessage = Message(
-      id: _uuid.v4(),
-      text: text,
-      isUser: true,
-      createdAt: DateTime.now(),
-    );
-
     setState(() {
-      _messages.add(userMessage);
+      _messages.add(
+        Message(
+          id: _uuid.v4(),
+          text: text,
+          isUser: true,
+          createdAt: DateTime.now(),
+        ),
+      );
       _isReplying = true;
       _robotState = DaskoRobotState.thinking;
     });
@@ -63,7 +67,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     _scrollToEnd();
 
     final result = await _aiEngine.generateResponse(prompt: text);
-
     if (!mounted) return;
 
     result.fold(
@@ -96,48 +99,34 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         });
       },
     );
-
     _scrollToEnd();
   }
 
   Widget _buildBubble(Message message, double maxWidth) {
+    final isUser = message.isUser;
     return Align(
-      alignment: message.isUser
-          ? AlignmentDirectional.centerStart
-          : AlignmentDirectional.centerEnd,
+      alignment:
+          isUser ? AlignmentDirectional.centerStart : AlignmentDirectional.centerEnd,
       child: ConstrainedBox(
         constraints: BoxConstraints(maxWidth: maxWidth),
-        child: Container(
-          margin: const EdgeInsets.symmetric(vertical: 4),
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          decoration: BoxDecoration(
-            color: message.isUser
-                ? const Color(0xFF1F3A5F)
-                : const Color(0xFF1A1A1A),
-            borderRadius: BorderRadius.circular(18),
-            border: Border.all(
-              color: message.isUser
-                  ? const Color(0xAA00E5FF)
-                  : const Color(0xAA7C4DFF),
-              width: 1,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color:
-                    (message.isUser
-                            ? const Color(0xFF00E5FF)
-                            : const Color(0xFF7C4DFF))
-                        .withValues(alpha: 0.12),
-                blurRadius: 14,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 5),
+          child: AnimatedNeonBorder(
+            borderRadius: 18,
+            borderWidth: 1.25,
+            backgroundColor:
+                isUser ? const Color(0xFF10263A) : const Color(0xFF171326),
+            duration: Duration(milliseconds: isUser ? 4200 : 3300),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: Text(
+                message.text,
+                style: const TextStyle(
+                  fontSize: 16,
+                  height: 1.5,
+                  color: Colors.white,
+                ),
               ),
-            ],
-          ),
-          child: Text(
-            message.text,
-            style: const TextStyle(
-              fontSize: 16,
-              height: 1.5,
-              color: Colors.white,
             ),
           ),
         ),
@@ -147,16 +136,30 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
   Widget _buildEmptyState() {
     return const Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.auto_awesome, size: 40, color: Color(0xFF8AB4F8)),
-          SizedBox(height: 16),
-          Text(
-            'كيف أقدر أساعدك اليوم؟',
-            style: TextStyle(fontSize: 18, color: Colors.white70),
-          ),
-        ],
+      child: Padding(
+        padding: EdgeInsets.all(28),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.graphic_eq_rounded,
+              size: 34,
+              color: _cyan,
+              shadows: [Shadow(color: _cyan, blurRadius: 20)],
+            ),
+            SizedBox(height: 16),
+            Text(
+              'أهلاً بك يا داسكو.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 21,
+                fontWeight: FontWeight.w700,
+                color: Colors.white,
+                shadows: [Shadow(color: _violet, blurRadius: 18)],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -164,40 +167,65 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   Widget _buildInputBar() {
     return Container(
       padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
-      color: Colors.black,
+      decoration: const BoxDecoration(
+        color: Color(0xF20B0F19),
+        border: Border(top: BorderSide(color: Color(0x443C5C80))),
+      ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           Expanded(
-            child: TextField(
-              controller: _controller,
-              minLines: 1,
-              maxLines: 5,
-              style: const TextStyle(color: Colors.white, fontSize: 16),
-              decoration: InputDecoration(
-                hintText: 'اكتب رسالتك...',
-                hintStyle: const TextStyle(color: Colors.white38),
-                filled: true,
-                fillColor: const Color(0xFF1A1A1A),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 18,
-                  vertical: 12,
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(24),
-                  borderSide: BorderSide.none,
+            child: AnimatedNeonBorder(
+              borderRadius: 24,
+              borderWidth: 1,
+              backgroundColor: const Color(0xFF111827),
+              child: TextField(
+                controller: _controller,
+                minLines: 1,
+                maxLines: 5,
+                style: const TextStyle(color: Colors.white, fontSize: 16),
+                decoration: InputDecoration(
+                  hintText: 'اكتب رسالتك...',
+                  hintStyle: const TextStyle(color: Colors.white38),
+                  filled: true,
+                  fillColor: Colors.transparent,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 18,
+                    vertical: 12,
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(24),
+                    borderSide: BorderSide.none,
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(24),
+                    borderSide: BorderSide.none,
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(24),
+                    borderSide: BorderSide.none,
+                  ),
                 ),
               ),
             ),
           ),
-          const SizedBox(width: 8),
-          IconButton.filled(
-            onPressed: _isReplying ? null : _send,
-            icon: const Icon(Icons.send),
-            style: IconButton.styleFrom(
-              backgroundColor: const Color(0xFF8AB4F8),
-              foregroundColor: Colors.black,
-              minimumSize: const Size(48, 48),
+          const SizedBox(width: 10),
+          Container(
+            decoration: const BoxDecoration(
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(color: Color(0x6600E5FF), blurRadius: 18),
+                BoxShadow(color: Color(0x447C4DFF), blurRadius: 25),
+              ],
+            ),
+            child: IconButton.filled(
+              onPressed: _isReplying ? null : _send,
+              icon: const Icon(Icons.send_rounded),
+              style: IconButton.styleFrom(
+                backgroundColor: _cyan,
+                foregroundColor: const Color(0xFF061018),
+                minimumSize: const Size(48, 48),
+              ),
             ),
           ),
         ],
@@ -207,65 +235,81 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final maxWidth = MediaQuery.of(context).size.width * 0.78;
+    final maxWidth = MediaQuery.sizeOf(context).width * .79;
 
     return Scaffold(
+      backgroundColor: const Color(0xFF0B0F19),
       appBar: AppBar(
-        title: const Text('DASKO AI'),
+        title: const Text(
+          'DASKO AI',
+          style: TextStyle(
+            fontWeight: FontWeight.w800,
+            letterSpacing: 2,
+            shadows: [Shadow(color: _cyan, blurRadius: 14)],
+          ),
+        ),
         centerTitle: true,
-        backgroundColor: Colors.black,
+        backgroundColor: const Color(0xDD0B0F19),
         surfaceTintColor: Colors.transparent,
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-            child: Row(
-              children: [
-                const SizedBox(width: 4),
-                InteractiveDaskoRobot(state: _robotState, size: 54),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+      body: DigitalSpaceBackground(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+              child: AnimatedNeonBorder(
+                borderRadius: 22,
+                borderWidth: 1.15,
+                backgroundColor: const Color(0xD9101829),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  child: Row(
                     children: [
-                      const Text(
-                        'داسكو',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                      InteractiveDaskoRobot(state: _robotState, size: 82),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'داسكو',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                            const SizedBox(height: 3),
+                            Text(
+                              _isReplying ? 'أفكر بالرد...' : 'جاهز لمساعدتك',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: _isReplying ? _violet : _cyan,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      Text(
-                        _isReplying ? 'أفكر بالرد...' : 'جاهز لمساعدتك',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: _isReplying
-                              ? const Color(0xFF7C4DFF)
-                              : const Color(0xFF00E5FF),
-                        ),
-                      ),
+                      const Icon(Icons.shield_outlined, color: _cyan),
                     ],
                   ),
                 ),
-                const Icon(Icons.shield_outlined, color: Color(0xFF00E5FF)),
-              ],
+              ),
             ),
-          ),
-          Expanded(
-            child: _messages.isEmpty
-                ? _buildEmptyState()
-                : ListView.builder(
-                    controller: _scroll,
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    itemCount: _messages.length,
-                    itemBuilder: (context, index) =>
-                        _buildBubble(_messages[index], maxWidth),
-                  ),
-          ),
-          _buildInputBar(),
-        ],
+            Expanded(
+              child: _messages.isEmpty
+                  ? _buildEmptyState()
+                  : ListView.builder(
+                      controller: _scroll,
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      itemCount: _messages.length,
+                      itemBuilder: (context, index) =>
+                          _buildBubble(_messages[index], maxWidth),
+                    ),
+            ),
+            _buildInputBar(),
+          ],
+        ),
       ),
     );
   }
