@@ -64,7 +64,7 @@ jobs:
           storePassword=$DASKO_ANDROID_KEYSTORE_PASSWORD
           keyPassword=$DASKO_ANDROID_KEY_PASSWORD
           keyAlias=$DASKO_ANDROID_KEY_ALIAS
-          storeFile=app/dasko-upload-keystore.jks
+          storeFile=dasko-upload-keystore.jks
           EOF
 
       - name: Configure Firebase Android and persistent release signing
