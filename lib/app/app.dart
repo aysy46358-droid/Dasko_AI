@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/theme/app_theme.dart';
-import '../features/chat/presentation/chat_screen.dart';
+import '../features/chat/presentation/dasko_intro_screen.dart';
 
 class DaskoApp extends StatelessWidget {
   const DaskoApp({super.key});
@@ -21,7 +21,7 @@ class DaskoApp extends StatelessWidget {
             child: child ?? const SizedBox.shrink(),
           );
         },
-        home: const ChatScreen(),
+        home: const DaskoIntroScreen(),
       ),
     );
   }
