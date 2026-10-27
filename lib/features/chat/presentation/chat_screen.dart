@@ -88,6 +88,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             createdAt: DateTime.now(),
           ));
           _isReplying = false;
+          _robotState = DaskoRobotState.happy;
         });
       },
     );
