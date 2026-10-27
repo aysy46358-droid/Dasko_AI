@@ -12,10 +12,7 @@ class AppTheme {
       useMaterial3: true,
       brightness: Brightness.dark,
       scaffoldBackgroundColor: background,
-      colorScheme: const ColorScheme.dark(
-        primary: primary,
-        surface: surface,
-      ),
+      colorScheme: const ColorScheme.dark(primary: primary, surface: surface),
       appBarTheme: const AppBarTheme(
         backgroundColor: background,
         surfaceTintColor: Colors.transparent,

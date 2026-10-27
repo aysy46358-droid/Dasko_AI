@@ -56,10 +56,8 @@ class _DaskoIntroScreenState extends State<DaskoIntroScreen>
       PageRouteBuilder<void>(
         transitionDuration: const Duration(milliseconds: 500),
         pageBuilder: (_, animation, __) => const ChatScreen(),
-        transitionsBuilder: (_, animation, __, child) => FadeTransition(
-          opacity: animation,
-          child: child,
-        ),
+        transitionsBuilder: (_, animation, __, child) =>
+            FadeTransition(opacity: animation, child: child),
       ),
     );
   }
@@ -98,8 +96,14 @@ class _DaskoIntroScreenState extends State<DaskoIntroScreen>
                                 letterSpacing: 3,
                                 color: Color(0xFF00E5FF),
                                 shadows: [
-                                  Shadow(color: Color(0xFF00E5FF), blurRadius: 22),
-                                  Shadow(color: Color(0xFF7C4DFF), blurRadius: 34),
+                                  Shadow(
+                                    color: Color(0xFF00E5FF),
+                                    blurRadius: 22,
+                                  ),
+                                  Shadow(
+                                    color: Color(0xFF7C4DFF),
+                                    blurRadius: 34,
+                                  ),
                                 ],
                               ),
                             ),
@@ -149,7 +153,9 @@ class _DaskoIntroScreenState extends State<DaskoIntroScreen>
                                 style: FilledButton.styleFrom(
                                   backgroundColor: const Color(0xFF00BFD8),
                                   foregroundColor: const Color(0xFF061018),
-                                  padding: const EdgeInsets.symmetric(vertical: 16),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 16,
+                                  ),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(18),
                                   ),
@@ -185,21 +191,21 @@ class _HologramRing extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => DecoratedBox(
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          border: Border.all(color: const Color(0x6600E5FF), width: 2),
-          boxShadow: const [
-            BoxShadow(color: Color(0x4400E5FF), blurRadius: 28, spreadRadius: 2),
-            BoxShadow(color: Color(0x337C4DFF), blurRadius: 44, spreadRadius: 6),
-          ],
-          gradient: const RadialGradient(
-            colors: [Color(0x223F51B5), Color(0x000B0F19)],
-          ),
-        ),
-        child: const Center(
-          child: Icon(Icons.hub_rounded, size: 100, color: Color(0xFF00E5FF)),
-        ),
-      );
+    decoration: BoxDecoration(
+      shape: BoxShape.circle,
+      border: Border.all(color: const Color(0x6600E5FF), width: 2),
+      boxShadow: const [
+        BoxShadow(color: Color(0x4400E5FF), blurRadius: 28, spreadRadius: 2),
+        BoxShadow(color: Color(0x337C4DFF), blurRadius: 44, spreadRadius: 6),
+      ],
+      gradient: const RadialGradient(
+        colors: [Color(0x223F51B5), Color(0x000B0F19)],
+      ),
+    ),
+    child: const Center(
+      child: Icon(Icons.hub_rounded, size: 100, color: Color(0xFF00E5FF)),
+    ),
+  );
 }
 
 class _DigitalSpacePainter extends CustomPainter {

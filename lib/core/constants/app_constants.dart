@@ -3,7 +3,8 @@ class AppConstants {
   static const String appVersion = '1.0.0';
 
   // Constitution
-  static const String constitutionAssetPath = 'assets/persona/dasko_constitution.yaml';
+  static const String constitutionAssetPath =
+      'assets/persona/dasko_constitution.yaml';
 
   // Storage keys
   static const String keyThemeMode = 'theme_mode';

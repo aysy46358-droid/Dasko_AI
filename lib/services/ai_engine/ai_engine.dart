@@ -1,4 +1,5 @@
 import 'package:dartz/dartz.dart';
+
 import '../../core/errors/failures.dart';
 
 /// Unified interface for any AI provider (Gemini, local models, etc.)

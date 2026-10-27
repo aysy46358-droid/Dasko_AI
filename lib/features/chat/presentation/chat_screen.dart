@@ -69,24 +69,28 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     result.fold(
       (failure) {
         setState(() {
-          _messages.add(Message(
-            id: _uuid.v4(),
-            text: 'حدث خطأ: ${failure.message}',
-            isUser: false,
-            createdAt: DateTime.now(),
-          ));
+          _messages.add(
+            Message(
+              id: _uuid.v4(),
+              text: 'حدث خطأ: ${failure.message}',
+              isUser: false,
+              createdAt: DateTime.now(),
+            ),
+          );
           _isReplying = false;
           _robotState = DaskoRobotState.happy;
         });
       },
       (response) {
         setState(() {
-          _messages.add(Message(
-            id: _uuid.v4(),
-            text: response,
-            isUser: false,
-            createdAt: DateTime.now(),
-          ));
+          _messages.add(
+            Message(
+              id: _uuid.v4(),
+              text: response,
+              isUser: false,
+              createdAt: DateTime.now(),
+            ),
+          );
           _isReplying = false;
           _robotState = DaskoRobotState.happy;
         });
@@ -119,10 +123,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             ),
             boxShadow: [
               BoxShadow(
-                color: (message.isUser
-                        ? const Color(0xFF00E5FF)
-                        : const Color(0xFF7C4DFF))
-                    .withOpacity(0.12),
+                color:
+                    (message.isUser
+                            ? const Color(0xFF00E5FF)
+                            : const Color(0xFF7C4DFF))
+                        .withOpacity(0.12),
                 blurRadius: 14,
               ),
             ],
@@ -224,10 +229,22 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('داسكو', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
+                      const Text(
+                        'داسكو',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
                       Text(
                         _isReplying ? 'أفكر بالرد...' : 'جاهز لمساعدتك',
-                        style: TextStyle(fontSize: 12, color: _isReplying ? const Color(0xFF7C4DFF) : const Color(0xFF00E5FF)),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: _isReplying
+                              ? const Color(0xFF7C4DFF)
+                              : const Color(0xFF00E5FF),
+                        ),
                       ),
                     ],
                   ),

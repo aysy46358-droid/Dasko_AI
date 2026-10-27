@@ -3,11 +3,7 @@ import 'package:flutter/material.dart';
 enum DaskoRobotState { ready, thinking, happy }
 
 class InteractiveDaskoRobot extends StatelessWidget {
-  const InteractiveDaskoRobot({
-    super.key,
-    required this.state,
-    this.size = 84,
-  });
+  const InteractiveDaskoRobot({super.key, required this.state, this.size = 84});
 
   final DaskoRobotState state;
   final double size;
@@ -35,7 +31,11 @@ class InteractiveDaskoRobot extends StatelessWidget {
         ),
         border: Border.all(color: glow, width: 2),
         boxShadow: [
-          BoxShadow(color: glow.withOpacity(0.45), blurRadius: 24, spreadRadius: 2),
+          BoxShadow(
+            color: glow.withOpacity(0.45),
+            blurRadius: 24,
+            spreadRadius: 2,
+          ),
           const BoxShadow(color: Color(0x337C4DFF), blurRadius: 32),
         ],
       ),
