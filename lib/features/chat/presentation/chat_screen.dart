@@ -4,6 +4,7 @@ import 'package:uuid/uuid.dart';
 
 import '../../../domain/entities/message.dart';
 import '../../../services/ai_engine/mock_ai_engine.dart';
+import 'interactive_dasko_robot.dart';
 
 final _uuid = Uuid();
 
@@ -19,6 +20,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   final TextEditingController _controller = TextEditingController();
   final ScrollController _scroll = ScrollController();
   bool _isReplying = false;
+          _robotState = DaskoRobotState.happy;
+  DaskoRobotState _robotState = DaskoRobotState.ready;
 
   final _aiEngine = MockAiEngine();
 
@@ -55,6 +58,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     setState(() {
       _messages.add(userMessage);
       _isReplying = true;
+      _robotState = DaskoRobotState.thinking;
     });
     _controller.clear();
     _scrollToEnd();
@@ -106,6 +110,21 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                 ? const Color(0xFF1F3A5F)
                 : const Color(0xFF1A1A1A),
             borderRadius: BorderRadius.circular(18),
+            border: Border.all(
+              color: message.isUser
+                  ? const Color(0xAA00E5FF)
+                  : const Color(0xAA7C4DFF),
+              width: 1,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: (message.isUser
+                        ? const Color(0xFF00E5FF)
+                        : const Color(0xFF7C4DFF))
+                    .withOpacity(0.12),
+                blurRadius: 14,
+              ),
+            ],
           ),
           child: Text(
             message.text,
@@ -186,13 +205,36 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Dasko AI'),
+        title: const Text('DASKO AI'),
         centerTitle: true,
         backgroundColor: Colors.black,
         surfaceTintColor: Colors.transparent,
       ),
       body: Column(
         children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+            child: Row(
+              children: [
+                const SizedBox(width: 4),
+                InteractiveDaskoRobot(state: _robotState, size: 54),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('داسكو', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
+                      Text(
+                        _isReplying ? 'أفكر بالرد...' : 'جاهز لمساعدتك',
+                        style: TextStyle(fontSize: 12, color: _isReplying ? const Color(0xFF7C4DFF) : const Color(0xFF00E5FF)),
+                      ),
+                    ],
+                  ),
+                ),
+                const Icon(Icons.shield_outlined, color: Color(0xFF00E5FF)),
+              ],
+            ),
+          ),
           Expanded(
             child: _messages.isEmpty
                 ? _buildEmptyState()
