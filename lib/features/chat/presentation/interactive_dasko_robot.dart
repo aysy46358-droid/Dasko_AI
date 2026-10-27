@@ -32,7 +32,7 @@ class InteractiveDaskoRobot extends StatelessWidget {
         border: Border.all(color: glow, width: 2),
         boxShadow: [
           BoxShadow(
-            color: glow.withOpacity(0.45),
+            color: glow.withValues(alpha: 0.45),
             blurRadius: 24,
             spreadRadius: 2,
           ),
