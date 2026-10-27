@@ -20,7 +20,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   final TextEditingController _controller = TextEditingController();
   final ScrollController _scroll = ScrollController();
   bool _isReplying = false;
-          _robotState = DaskoRobotState.happy;
   DaskoRobotState _robotState = DaskoRobotState.ready;
 
   final _aiEngine = MockAiEngine();
@@ -77,6 +76,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             createdAt: DateTime.now(),
           ));
           _isReplying = false;
+          _robotState = DaskoRobotState.happy;
         });
       },
       (response) {
