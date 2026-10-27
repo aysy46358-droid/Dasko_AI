@@ -12,6 +12,7 @@ dependencies:
     sdk: flutter
   cupertino_icons: ^1.0.8
   firebase_core: ^4.2.1
+  audioplayers: ^6.5.0
 
   # State management
   flutter_riverpod: ^2.6.1
@@ -38,9 +39,19 @@ dev_dependencies:
   build_runner: ^2.4.13
   json_serializable: ^6.9.0
   json_annotation: ^4.9.0
+  flutter_launcher_icons: ^0.14.4
 
 flutter:
   uses-material-design: true
 
   assets:
     - assets/persona/
+    - assets/sounds/
+    - assets/icon/
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/icon/dasko_icon.png"
+  min_sdk_android: 21
+  remove_alpha_ios: true
