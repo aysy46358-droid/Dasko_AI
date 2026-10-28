@@ -260,103 +260,219 @@ class _DaskoRobotPainter extends CustomPainter {
   }
 
   void _drawArms(Canvas canvas, double pulse) {
-    final leftArm = Path()
-      ..moveTo(73, 154)
-      ..cubicTo(56, 154, 49, 169, 43, 186)
-      ..lineTo(40, 195);
-    _drawArmPath(
-      canvas,
-      leftArm,
-      const Rect.fromLTRB(36, 150, 78, 201),
-      pulse,
-    );
-    final rightArm = Path()
-      ..moveTo(148, 153)
-      ..cubicTo(166, 151, 177, 137, 185, 119)
-      ..lineTo(192, 108);
-    _drawArmPath(
-      canvas,
-      rightArm,
-      const Rect.fromLTRB(145, 103, 197, 158),
-      pulse,
-    );
+    final leftSway =
+        math.sin(phase + 0.7) * (state == DaskoRobotState.happy ? 0.055 : 0.02);
+    canvas.save();
+    canvas.translate(67, 159);
+    canvas.rotate(leftSway);
+    canvas.translate(-67, -159);
+    _drawDroopingArm(canvas, pulse);
+    canvas.restore();
 
-    _drawHand(canvas, const Offset(40, 196), leftSide: true, pulse: pulse);
-    _drawHand(canvas, const Offset(194, 105), leftSide: false, pulse: pulse);
+    final waveSpeed = state == DaskoRobotState.happy ? 1.8 : 1.0;
+    final waveAmount = switch (state) {
+      DaskoRobotState.ready => 0.025,
+      DaskoRobotState.thinking => 0.015,
+      DaskoRobotState.happy => 0.11,
+    };
+    final wave = math.sin(phase * waveSpeed) * waveAmount;
+    canvas.save();
+    canvas.translate(151, 157);
+    canvas.rotate(wave);
+    canvas.translate(-151, -157);
+    _drawRaisedArm(canvas, pulse);
+    canvas.restore();
   }
 
-  void _drawArmPath(Canvas canvas, Path path, Rect bounds, double pulse) {
+  void _drawDroopingArm(Canvas canvas, double pulse) {
+    final arm = Path()
+      ..moveTo(68, 153)
+      ..cubicTo(57, 152, 50, 160, 46, 170)
+      ..cubicTo(41, 181, 39, 189, 34, 196)
+      ..cubicTo(36, 201, 43, 203, 49, 199)
+      ..cubicTo(54, 190, 57, 181, 65, 175)
+      ..cubicTo(73, 169, 78, 163, 76, 157)
+      ..close();
+    _drawArmShell(
+      canvas,
+      arm,
+      const Rect.fromLTRB(32, 151, 79, 204),
+      pulse,
+      shades: [colors.cyan, colors.shellBlue, colors.violet],
+    );
+
+    final glove = Path()
+      ..moveTo(37, 195)
+      ..cubicTo(32, 192, 26, 195, 25, 200)
+      ..cubicTo(24, 204, 27, 208, 31, 210)
+      ..cubicTo(31, 215, 36, 218, 42, 216)
+      ..cubicTo(48, 214, 52, 209, 50, 204)
+      ..cubicTo(49, 199, 43, 195, 37, 195)
+      ..close();
+    _drawArmShell(
+      canvas,
+      glove,
+      const Rect.fromLTRB(23, 192, 53, 219),
+      pulse,
+      shades: [colors.ice, colors.cyan, colors.shellBlue],
+    );
+
+    final seam = Path()
+      ..moveTo(31, 197)
+      ..quadraticBezierTo(40, 202, 50, 198);
+    _drawArmSeam(canvas, seam, pulse);
+
+    final highlight = Path()
+      ..moveTo(64, 158)
+      ..cubicTo(54, 163, 50, 175, 45, 188);
+    _drawArmHighlight(canvas, highlight, pulse);
+    _drawJoint(canvas, const Offset(45, 181), 6.5, pulse);
+  }
+
+  void _drawRaisedArm(Canvas canvas, double pulse) {
+    final upperArm = Path()
+      ..moveTo(151, 153)
+      ..cubicTo(162, 150, 169, 143, 174, 133)
+      ..cubicTo(178, 127, 184, 129, 188, 134)
+      ..cubicTo(184, 145, 178, 154, 169, 160)
+      ..cubicTo(162, 165, 155, 165, 150, 160)
+      ..close();
+    _drawArmShell(
+      canvas,
+      upperArm,
+      const Rect.fromLTRB(148, 126, 190, 168),
+      pulse,
+      shades: [colors.cyan, colors.shellBlue, colors.violet],
+    );
+
+    final forearm = Path()
+      ..moveTo(176, 138)
+      ..cubicTo(178, 126, 183, 113, 189, 104)
+      ..cubicTo(193, 98, 200, 100, 203, 106)
+      ..cubicTo(201, 118, 197, 131, 192, 143)
+      ..cubicTo(189, 150, 182, 152, 178, 146)
+      ..close();
+    _drawArmShell(
+      canvas,
+      forearm,
+      const Rect.fromLTRB(175, 98, 205, 153),
+      pulse,
+      shades: [colors.ice, colors.cyan, colors.shellBlue],
+    );
+
+    final palm = Path()
+      ..moveTo(190, 118)
+      ..cubicTo(186, 111, 188, 100, 194, 91)
+      ..cubicTo(198, 84, 205, 84, 209, 90)
+      ..cubicTo(213, 97, 210, 108, 206, 117)
+      ..cubicTo(203, 125, 199, 133, 196, 139)
+      ..cubicTo(190, 138, 187, 132, 187, 125)
+      ..close();
+    _drawArmShell(
+      canvas,
+      palm,
+      const Rect.fromLTRB(185, 82, 215, 141),
+      pulse,
+      shades: [colors.ice, colors.shellBlue, colors.violet],
+    );
+
+    final cuff = Path()
+      ..moveTo(178, 136)
+      ..quadraticBezierTo(185, 140, 194, 140);
+    _drawArmSeam(canvas, cuff, pulse);
+
+    final highlight = Path()
+      ..moveTo(154, 156)
+      ..cubicTo(165, 151, 171, 142, 175, 135)
+      ..moveTo(194, 98)
+      ..cubicTo(191, 107, 189, 115, 190, 122);
+    _drawArmHighlight(canvas, highlight, pulse);
+    _drawJoint(canvas, const Offset(176, 143), 7, pulse);
+  }
+
+  void _drawArmShell(
+    Canvas canvas,
+    Path path,
+    Rect bounds,
+    double pulse, {
+    required List<Color> shades,
+  }) {
     canvas.drawPath(
-      path,
+      path.shift(const Offset(0, 3)),
       Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 22
-        ..strokeCap = StrokeCap.round
-        ..strokeJoin = StrokeJoin.round
-        ..color = colors.deepBlue.withValues(alpha: 0.85)
+        ..color = colors.deepBlue.withValues(alpha: 0.72)
         ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 5),
     );
     canvas.drawPath(
       path,
       Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 18
-        ..strokeCap = StrokeCap.round
-        ..strokeJoin = StrokeJoin.round
         ..shader = LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            colors.cyan.withValues(alpha: 0.95),
-            colors.shellBlue,
-            colors.violet.withValues(alpha: 0.94),
-          ],
+          colors: shades,
         ).createShader(bounds),
     );
     canvas.drawPath(
       path,
       Paint()
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 2.2
-        ..strokeCap = StrokeCap.round
-        ..color = colors.ice.withValues(alpha: 0.55 * pulse),
+        ..strokeWidth = 1.6
+        ..color = colors.ice.withValues(alpha: 0.82 * pulse),
     );
   }
 
-  void _drawHand(
-    Canvas canvas,
-    Offset center, {
-    required bool leftSide,
-    required double pulse,
-  }) {
-    final handRect = Rect.fromCenter(
-      center: center,
-      width: 22,
-      height: 18,
-    );
-    final hand = RRect.fromRectAndRadius(handRect, const Radius.circular(8));
-    canvas.drawRRect(
-      hand,
-      Paint()
-        ..shader = LinearGradient(
-          colors: leftSide
-              ? [colors.cyan, colors.shellBlue]
-              : [colors.shellBlue, colors.violet],
-        ).createShader(handRect),
-    );
-    canvas.drawRRect(
-      hand,
+  void _drawArmSeam(Canvas canvas, Path seam, double pulse) {
+    canvas.drawPath(
+      seam,
       Paint()
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 1.3
-        ..color = colors.ice.withValues(alpha: 0.75 * pulse),
+        ..strokeWidth = 2
+        ..strokeCap = StrokeCap.round
+        ..color = colors.deepBlue.withValues(alpha: 0.65),
+    );
+    canvas.drawPath(
+      seam,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1
+        ..strokeCap = StrokeCap.round
+        ..color = colors.ice.withValues(alpha: 0.72 * pulse),
+    );
+  }
+
+  void _drawArmHighlight(Canvas canvas, Path highlight, double pulse) {
+    canvas.drawPath(
+      highlight,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2.4
+        ..strokeCap = StrokeCap.round
+        ..color = Colors.white.withValues(alpha: 0.52 * pulse),
+    );
+  }
+
+  void _drawJoint(Canvas canvas, Offset center, double radius, double pulse) {
+    final rect = Rect.fromCircle(center: center, radius: radius);
+    canvas.drawCircle(
+      center,
+      radius,
+      Paint()
+        ..shader = RadialGradient(
+          colors: [colors.ice, colors.cyan, colors.shellBlue],
+        ).createShader(rect),
     );
     canvas.drawCircle(
       center,
-      3,
+      radius,
       Paint()
-        ..color = colors.ice.withValues(alpha: 0.55)
-        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3),
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.2
+        ..color = Colors.white.withValues(alpha: 0.68 * pulse),
+    );
+    canvas.drawCircle(
+      Offset(center.dx - radius * 0.28, center.dy - radius * 0.3),
+      radius * 0.2,
+      Paint()..color = Colors.white.withValues(alpha: 0.85),
     );
   }
 
@@ -429,25 +545,71 @@ class _DaskoRobotPainter extends CustomPainter {
         ).createShader(const Rect.fromLTRB(77, 159, 143, 197)),
     );
 
+    final iconPulse = state == DaskoRobotState.happy
+        ? 0.78 + (math.sin(phase * 2.4) + 1) * 0.16
+        : pulse;
+    const infinityBounds = Rect.fromLTRB(83, 164, 137, 192);
+    final infinity = _infinityPath(const Offset(110, 178), 25, 11.5);
     final coreGlow = Paint()
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 5
+      ..strokeWidth = 7
       ..strokeCap = StrokeCap.round
-      ..color = colors.cyan.withValues(alpha: 0.47 * pulse)
-      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 5);
-    final infinity = _infinityPath(const Offset(110, 178), 22, 9);
+      ..strokeJoin = StrokeJoin.round
+      ..shader = LinearGradient(
+        colors: [
+          colors.cyan.withValues(alpha: 0.72 * iconPulse),
+          colors.ice.withValues(alpha: 0.64 * iconPulse),
+          colors.violet.withValues(alpha: 0.72 * iconPulse),
+        ],
+      ).createShader(infinityBounds)
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 5.5);
     canvas.drawPath(infinity, coreGlow);
     canvas.drawPath(
       infinity,
       Paint()
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 2.6
+        ..strokeWidth = 3.4
         ..strokeCap = StrokeCap.round
         ..strokeJoin = StrokeJoin.round
-        ..shader = const LinearGradient(
-          colors: [Color(0xFF00F4F1), Color(0xFF67F7FF), Color(0xFFB96DFF)],
-        ).createShader(const Rect.fromLTRB(88, 168, 132, 187)),
+        ..shader = LinearGradient(
+          colors: [
+            const Color(0xFF00F4F1).withValues(alpha: 0.95 * iconPulse),
+            const Color(0xFF67F7FF).withValues(alpha: 0.98 * iconPulse),
+            const Color(0xFFB96DFF).withValues(alpha: 0.95 * iconPulse),
+          ],
+        ).createShader(infinityBounds),
     );
+    canvas.drawPath(
+      infinity,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.05
+        ..strokeCap = StrokeCap.round
+        ..strokeJoin = StrokeJoin.round
+        ..color = Colors.white.withValues(alpha: 0.62 * iconPulse),
+    );
+
+    final metricIterator = infinity.computeMetrics().iterator;
+    if (metricIterator.moveNext()) {
+      final metric = metricIterator.current;
+      final sparkleSpeed = state == DaskoRobotState.happy ? 1.6 : 0.75;
+      final progress = (phase * sparkleSpeed / (math.pi * 2)) % 1;
+      final tangent = metric.getTangentForOffset(metric.length * progress);
+      if (tangent != null) {
+        canvas.drawCircle(
+          tangent.position,
+          2.6,
+          Paint()
+            ..color = colors.cyan.withValues(alpha: 0.72 * iconPulse)
+            ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4),
+        );
+        canvas.drawCircle(
+          tangent.position,
+          1.15,
+          Paint()..color = Colors.white.withValues(alpha: 0.96 * iconPulse),
+        );
+      }
+    }
 
     final bodyGlint = Path()
       ..moveTo(74, 146)
