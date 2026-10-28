@@ -208,10 +208,6 @@ jobs:
             exit 1
           fi
           mapfile -d '' DART_FILES < <(find lib test -type f -name '*.dart' -print0 | sort -z)
-          if [ "${DART_FILES[@]}" = "" ]; then
-            echo "::error::No Dart source files found under lib/ and test/."
-            exit 1
-          fi
           if [ "${#DART_FILES[@]}" -eq 0 ]; then
             echo "::error::No Dart source files found under lib/ and test/."
             exit 1
