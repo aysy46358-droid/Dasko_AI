@@ -201,7 +201,8 @@ class _HolographicRobotPainter extends CustomPainter {
         ..color = cyan.withValues(alpha: 0.75),
     );
 
-    final eyeY = visorRect.center.dy -
+    final eyeY =
+        visorRect.center.dy -
         (state == DaskoRobotState.thinking ? 1 : 0) * unit;
     final eyeRadius = (state == DaskoRobotState.thinking ? 2.4 : 3.4) * unit;
     final eyePaint = Paint()

@@ -122,14 +122,16 @@ class _SpacePainter extends CustomPainter {
       final x = (baseX + drift) % size.width;
       final y = baseY;
       final radius = i % 7 == 0 ? 1.55 : (i % 3 == 0 ? 1.0 : .55);
-      final color =
-          i.isEven ? const Color(0xFF8DEFFF) : const Color(0xFFBBA7FF);
+      final color = i.isEven
+          ? const Color(0xFF8DEFFF)
+          : const Color(0xFFBBA7FF);
       starPaint
         ..color = color.withValues(
           alpha: .24 + ((math.sin(phase * math.pi * 2 + i) + 1) * .19),
         )
-        ..maskFilter =
-            i % 7 == 0 ? const MaskFilter.blur(BlurStyle.normal, 2) : null;
+        ..maskFilter = i % 7 == 0
+            ? const MaskFilter.blur(BlurStyle.normal, 2)
+            : null;
       canvas.drawCircle(Offset(x, y), radius, starPaint);
     }
 

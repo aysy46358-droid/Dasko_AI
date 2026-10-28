@@ -115,8 +115,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           child: AnimatedNeonBorder(
             borderRadius: 18,
             borderWidth: 1.25,
-            backgroundColor:
-                isUser ? const Color(0xFF10263A) : const Color(0xFF171326),
+            backgroundColor: isUser
+                ? const Color(0xFF10263A)
+                : const Color(0xFF171326),
             duration: Duration(milliseconds: isUser ? 4200 : 3300),
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),

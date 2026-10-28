@@ -33,7 +33,9 @@ class CinematicScreen extends StatelessWidget {
                         height: 38,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          border: Border.all(color: _cyan.withValues(alpha: 0.7)),
+                          border: Border.all(
+                            color: _cyan.withValues(alpha: 0.7),
+                          ),
                           boxShadow: [
                             BoxShadow(
                               color: _cyan.withValues(alpha: 0.18),
@@ -41,8 +43,11 @@ class CinematicScreen extends StatelessWidget {
                             ),
                           ],
                         ),
-                        child: const Icon(Icons.all_inclusive_rounded,
-                            color: _cyan, size: 23),
+                        child: const Icon(
+                          Icons.all_inclusive_rounded,
+                          color: _cyan,
+                          size: 23,
+                        ),
                       ),
                       const SizedBox(width: 10),
                       const Text(
@@ -57,12 +62,15 @@ class CinematicScreen extends StatelessWidget {
                       const Spacer(),
                       Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 11, vertical: 7),
+                          horizontal: 11,
+                          vertical: 7,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.white.withValues(alpha: 0.035),
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(
-                              color: Colors.white.withValues(alpha: 0.12)),
+                            color: Colors.white.withValues(alpha: 0.12),
+                          ),
                         ),
                         child: const Row(
                           children: [
@@ -85,8 +93,9 @@ class CinematicScreen extends StatelessWidget {
                   Expanded(
                     child: LayoutBuilder(
                       builder: (context, constraints) {
-                        final robotHeight =
-                            (constraints.maxHeight * 0.76).clamp(300.0, 570.0).toDouble();
+                        final robotHeight = (constraints.maxHeight * 0.76)
+                            .clamp(300.0, 570.0)
+                            .toDouble();
                         return Center(
                           child: SizedBox(
                             height: robotHeight,
@@ -318,11 +327,7 @@ class _CompanionIllustration extends StatelessWidget {
                   ),
                   child: const Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      _HappyEye(),
-                      SizedBox(width: 42),
-                      _HappyEye(),
-                    ],
+                    children: [_HappyEye(), SizedBox(width: 42), _HappyEye()],
                   ),
                 ),
               ),
@@ -475,9 +480,7 @@ class _HappyEye extends StatelessWidget {
           right: BorderSide(color: Color(0xFF35F4F4), width: 7),
         ),
         borderRadius: BorderRadius.vertical(top: Radius.circular(35)),
-        boxShadow: [
-          BoxShadow(color: Color(0xFF35F4F4), blurRadius: 16),
-        ],
+        boxShadow: [BoxShadow(color: Color(0xFF35F4F4), blurRadius: 16)],
       ),
     );
   }
