@@ -373,7 +373,7 @@ class _DaskoRobotPainter extends CustomPainter {
         ).createShader(const Rect.fromLTRB(91, 125, 129, 151)),
     );
 
-    final bodyRect = Rect.fromLTRB(57, 137, 163, 211);
+    const bodyRect = Rect.fromLTRB(57, 137, 163, 211);
     final body = RRect.fromRectAndRadius(bodyRect, const Radius.circular(31));
     canvas.drawRRect(
       body.shift(const Offset(0, 4)),
@@ -478,7 +478,7 @@ class _DaskoRobotPainter extends CustomPainter {
   }
 
   void _drawHelmet(Canvas canvas, double pulse) {
-    final shellRect = const Rect.fromLTRB(32, 28, 188, 143);
+    const shellRect = Rect.fromLTRB(32, 28, 188, 143);
     final shell = RRect.fromRectAndRadius(shellRect, const Radius.circular(47));
     canvas.drawRRect(
       shell.shift(const Offset(0, 5)),
@@ -510,7 +510,7 @@ class _DaskoRobotPainter extends CustomPainter {
         ..color = colors.ice.withValues(alpha: 0.91),
     );
 
-    final innerShellRect = const Rect.fromLTRB(39, 35, 181, 136);
+    const innerShellRect = Rect.fromLTRB(39, 35, 181, 136);
     final innerShell = RRect.fromRectAndRadius(
       innerShellRect,
       const Radius.circular(40),
@@ -525,7 +525,7 @@ class _DaskoRobotPainter extends CustomPainter {
         ).createShader(innerShellRect),
     );
 
-    final visorRect = const Rect.fromLTRB(47, 50, 173, 126);
+    const visorRect = Rect.fromLTRB(47, 50, 173, 126);
     final visor = RRect.fromRectAndRadius(visorRect, const Radius.circular(29));
     canvas.drawRRect(
       visor,
