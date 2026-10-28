@@ -199,7 +199,7 @@ jobs:
       - name: Get Flutter dependencies
         run: flutter pub get
 
-      - name: Apply Dart formatting to identify repository fixes
+      - name: Verify Dart formatting without modifying files
         shell: bash
         run: |
           set -euo pipefail
@@ -208,39 +208,15 @@ jobs:
             exit 1
           fi
           mapfile -d '' DART_FILES < <(find lib test -type f -name '*.dart' -print0 | sort -z)
+          if [ "${DART_FILES[@]}" = "" ]; then
+            echo "::error::No Dart source files found under lib/ and test/."
+            exit 1
+          fi
           if [ "${#DART_FILES[@]}" -eq 0 ]; then
             echo "::error::No Dart source files found under lib/ and test/."
             exit 1
           fi
-          dart format "${DART_FILES[@]}"
-          mkdir -p build/dart-format-review
-          for file in "${DART_FILES[@]}"; do
-            mkdir -p "build/dart-format-review/$(dirname "$file")"
-            cp "$file" "build/dart-format-review/$file"
-          done
-
-      - name: Export formatted Dart sources for repository correction
-        if: always()
-        uses: actions/upload-artifact@v6
-        with:
-          name: dart-formatted-sources
-          path: build/dart-format-review/
-          if-no-files-found: error
-
-      - name: Commit one-time Dart formatting correction
-        if: github.event.head_commit.message == 'One-time Dart formatting correction'
-        shell: bash
-        run: |
-          set -euo pipefail
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add lib test
-          if git diff --cached --quiet; then
-            echo "No Dart formatting changes to commit."
-          else
-            git commit -m "Apply Dart formatting to tracked sources"
-            git push origin HEAD:experimental-work
-          fi
+          dart format --output=none --set-exit-if-changed "${DART_FILES[@]}"
 
       - name: Analyze project
         run: flutter analyze
