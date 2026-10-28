@@ -21,11 +21,15 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
           fetch-tags: true
           persist-credentials: true
+
+      - name: Test Android certificate digest verifier
+        shell: bash
+        run: bash tooling/test_android_certificate_verifier.sh
 
       - name: Reserve a unique Android version code
         shell: bash
@@ -44,13 +48,26 @@ jobs:
           cache: true
 
       - name: Generate Android project (if missing)
+        shell: bash
         run: |
+          set -euo pipefail
           if [ ! -d "android" ]; then
             echo "Android folder not found. Generating..."
             flutter create --platforms=android --org com.dasko --project-name dasko_ai .
           else
             echo "Android folder already exists. Skipping generate."
           fi
+
+      - name: Record Flutter and generated Android toolchain versions
+        shell: bash
+        run: |
+          set -euo pipefail
+          flutter --version
+          dart --version
+          echo "::group::Generated Android Gradle settings"
+          if [ -f android/settings.gradle.kts ]; then sed -n '1,120p' android/settings.gradle.kts; fi
+          if [ -f android/gradle/wrapper/gradle-wrapper.properties ]; then cat android/gradle/wrapper/gradle-wrapper.properties; fi
+          echo "::endgroup::"
 
       - name: Require persistent Android signing secrets
         shell: bash
@@ -182,21 +199,40 @@ jobs:
       - name: Get Flutter dependencies
         run: flutter pub get
 
-      - name: Apply Dart formatting before analysis
-        run: dart format .
+      - name: Verify Dart formatting without modifying files
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ ! -d lib ] || [ ! -d test ]; then
+            echo "::error::Required lib/ or test/ directory is missing."
+            exit 1
+          fi
+          mapfile -d '' DART_FILES < <(find lib test -type f -name '*.dart' -print0 | sort -z)
+          if [ "${#DART_FILES[@]}" -eq 0 ]; then
+            echo "::error::No Dart source files found under lib/ and test/."
+            exit 1
+          fi
+          dart format --output=none --set-exit-if-changed "${DART_FILES[@]}"
 
       - name: Analyze project
         run: flutter analyze
 
-      - name: Run automated tests
+      - name: Run automated tests (required)
         shell: bash
         run: |
           set -euo pipefail
-          if [ -d "test" ] && find test -type f -name '*_test.dart' -print -quit | grep -q .; then
-            flutter test --reporter expanded
-          else
-            echo "::warning::No *_test.dart files found under test/. Automated tests were not executed."
+          if [ ! -d test ]; then
+            echo "::error::Required test/ directory is missing."
+            exit 1
           fi
+          mapfile -d '' TEST_FILES < <(find test -type f -name '*_test.dart' -print0 | sort -z)
+          if [ "${#TEST_FILES[@]}" -eq 0 ]; then
+            echo "::error::No *_test.dart files found under test/. Refusing to build without tests."
+            exit 1
+          fi
+          printf 'Found %d Dart test file(s):\n' "${#TEST_FILES[@]}"
+          printf '  %s\n' "${TEST_FILES[@]}"
+          flutter test --reporter expanded
 
       - name: Build release APK
         run: flutter build apk --release
@@ -232,8 +268,7 @@ jobs:
           SIGNATURE_OUTPUT="$("$APKSIGNER" verify --verbose --print-certs "$APK" 2>&1)"
           echo "$SIGNATURE_OUTPUT"
           EXPECTED_CERT="f873f18b4f7103fcb4c875030fd3bd9582074af779395a3935c7bd94b71c398c"
-          ACTUAL_CERT="$(sed -nE 's/.*certificate SHA-256 digest: ([[:xdigit:]]+).*/\1/p' <<< "$SIGNATURE_OUTPUT" | head -n 1 | tr '[:upper:]' '[:lower:]')"
-          if [ -z "$ACTUAL_CERT" ] || [ "$ACTUAL_CERT" != "$EXPECTED_CERT" ]; then
+          if ! bash -c 'source tooling/android_certificate_verifier.sh; verify_certificate_sha256 "$1" "$2"' _ "$SIGNATURE_OUTPUT" "$EXPECTED_CERT"; then
             echo "::error::Signing certificate fingerprint mismatch or unavailable."
             exit 1
           fi
@@ -241,7 +276,7 @@ jobs:
 
       - name: Upload APK
         if: success()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: dasko-apk
           path: build/app/outputs/flutter-apk/app-release.apk
