@@ -53,7 +53,8 @@ class _WaveformPainter extends CustomPainter {
 
     final gap = size.width / (barCount * 1.8);
     final barWidth = math.max(1.2, gap * 0.58).toDouble();
-    final usableGap = (size.width - barWidth * barCount) / (barCount - 1).clamp(1, barCount);
+    final usableGap =
+        (size.width - barWidth * barCount) / (barCount - 1).clamp(1, barCount);
     final centerY = size.height / 2;
     final paint = Paint()
       ..strokeCap = StrokeCap.round
