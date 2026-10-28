@@ -227,6 +227,21 @@ jobs:
           path: build/dart-format-review/
           if-no-files-found: error
 
+      - name: Commit one-time Dart formatting correction
+        if: github.event.head_commit.message == 'One-time Dart formatting correction'
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add lib test
+          if git diff --cached --quiet; then
+            echo "No Dart formatting changes to commit."
+          else
+            git commit -m "Apply Dart formatting to tracked sources"
+            git push origin HEAD:experimental-work
+          fi
+
       - name: Analyze project
         run: flutter analyze
 
