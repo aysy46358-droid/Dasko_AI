@@ -288,77 +288,62 @@ class _DaskoRobotPainter extends CustomPainter {
     final upperArm = Path()
       ..moveTo(68, 153)
       ..cubicTo(57, 151, 49, 159, 45, 170)
-      ..cubicTo(41, 179, 39, 187, 38, 193)
-      ..cubicTo(42, 198, 50, 198, 54, 192)
-      ..cubicTo(58, 182, 62, 174, 70, 169)
+      ..cubicTo(41, 179, 40, 185, 39, 191)
+      ..cubicTo(43, 195, 50, 195, 54, 189)
+      ..cubicTo(57, 180, 62, 173, 70, 169)
       ..cubicTo(76, 166, 78, 160, 75, 156)
       ..close();
     _drawArmShell(
       canvas,
       upperArm,
-      const Rect.fromLTRB(36, 150, 79, 200),
+      const Rect.fromLTRB(36, 150, 79, 197),
       pulse,
       shades: [colors.cyan, colors.shellBlue, colors.violet],
     );
 
     final forearm = Path()
-      ..moveTo(41, 184)
-      ..cubicTo(35, 188, 32, 196, 29, 202)
-      ..cubicTo(30, 208, 37, 211, 43, 206)
-      ..cubicTo(48, 202, 51, 195, 54, 190)
-      ..cubicTo(52, 185, 47, 182, 41, 184)
+      ..moveTo(42, 182)
+      ..cubicTo(37, 187, 34, 194, 31, 201)
+      ..cubicTo(30, 206, 36, 209, 41, 206)
+      ..cubicTo(46, 203, 50, 195, 53, 189)
+      ..cubicTo(52, 184, 47, 181, 42, 182)
       ..close();
     _drawArmShell(
       canvas,
       forearm,
-      const Rect.fromLTRB(27, 181, 56, 213),
+      const Rect.fromLTRB(29, 179, 55, 211),
       pulse,
       shades: [colors.ice, colors.cyan, colors.shellBlue],
     );
 
-    final glove = Path()
-      ..moveTo(36, 200)
-      ..cubicTo(30, 198, 26, 202, 27, 207)
-      ..lineTo(29, 214)
-      ..cubicTo(30, 218, 35, 219, 38, 215)
-      ..cubicTo(41, 219, 47, 216, 47, 211)
-      ..cubicTo(48, 206, 44, 202, 40, 200)
-      ..cubicTo(38, 199, 37, 199, 36, 200)
+    final palm = Path()
+      ..moveTo(37, 199)
+      ..cubicTo(31, 196, 27, 199, 27, 204)
+      ..cubicTo(26, 210, 29, 216, 34, 217)
+      ..cubicTo(38, 219, 44, 216, 46, 211)
+      ..cubicTo(49, 206, 46, 201, 42, 199)
+      ..cubicTo(40, 198, 38, 198, 37, 199)
       ..close();
     _drawArmShell(
       canvas,
-      glove,
-      const Rect.fromLTRB(25, 197, 49, 220),
+      palm,
+      const Rect.fromLTRB(25, 195, 50, 219),
       pulse,
-      shades: [colors.ice, colors.cyan, colors.shellBlue],
+      shades: [colors.ice, colors.shellBlue, colors.violet],
     );
 
-    final wristCuff = Path()
-      ..moveTo(29, 201)
-      ..quadraticBezierTo(39, 205, 49, 201);
-    _drawArmSeam(canvas, wristCuff, pulse);
-
-    final fingerCreases = Path()
-      ..moveTo(30, 209)
-      ..quadraticBezierTo(34, 211, 38, 209)
-      ..moveTo(38, 211)
-      ..quadraticBezierTo(42, 213, 46, 210);
-    canvas.drawPath(
-      fingerCreases,
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 1.1
-        ..strokeCap = StrokeCap.round
-        ..color = colors.deepBlue.withValues(alpha: 0.62),
-    );
+    final cuff = Path()
+      ..moveTo(30, 200)
+      ..quadraticBezierTo(39, 204, 48, 200);
+    _drawArmSeam(canvas, cuff, pulse);
 
     final highlight = Path()
       ..moveTo(64, 158)
       ..cubicTo(54, 163, 50, 174, 45, 182)
-      ..moveTo(36, 188)
-      ..quadraticBezierTo(33, 195, 32, 198);
+      ..moveTo(36, 190)
+      ..quadraticBezierTo(34, 195, 32, 199);
     _drawArmHighlight(canvas, highlight, pulse);
-    _drawJoint(canvas, const Offset(44, 187), 7, pulse);
+    _drawJoint(canvas, const Offset(44, 186), 5.8, pulse);
   }
 
   void _drawRaisedArm(Canvas canvas, double pulse) {
