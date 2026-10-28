@@ -52,7 +52,7 @@ class _WaveformPainter extends CustomPainter {
     if (size.isEmpty) return;
 
     final gap = size.width / (barCount * 1.8);
-    final barWidth = math.max(1.2, gap * 0.58);
+    final barWidth = math.max(1.2, gap * 0.58).toDouble();
     final usableGap = (size.width - barWidth * barCount) / (barCount - 1).clamp(1, barCount);
     final centerY = size.height / 2;
     final paint = Paint()
@@ -63,7 +63,7 @@ class _WaveformPainter extends CustomPainter {
       final normalized = (i / (barCount - 1).clamp(1, barCount)) * 2 - 1;
       final envelope = 0.25 + 0.75 * (1 - normalized.abs());
       final rhythm = (math.sin(i * 1.37) + math.cos(i * 0.63)).abs() / 2;
-      final barHeight = math.max(3.0, size.height * envelope * (0.22 + rhythm * 0.65));
+      final barHeight = math.max(3.0, size.height * envelope * (0.22 + rhythm * 0.65)).toDouble();
       final x = barWidth / 2 + i * (barWidth + usableGap);
       final blend = i / (barCount - 1).clamp(1, barCount);
       paint.color = Color.lerp(primaryColor, secondaryColor, blend)!;
