@@ -8,7 +8,11 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
+
+concurrency:
+  group: dasko-android-version-allocation
+  cancel-in-progress: false
 
 jobs:
   build:
@@ -18,6 +22,14 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+          persist-credentials: true
+
+      - name: Reserve a unique Android version code
+        shell: bash
+        run: bash tooling/allocate_android_version.sh
 
       - name: Setup Java
         uses: actions/setup-java@v5
@@ -189,29 +201,43 @@ jobs:
       - name: Build release APK
         run: flutter build apk --release
 
-      - name: Verify APK signature
+      - name: Verify APK metadata and signature
         shell: bash
         run: |
           set -euo pipefail
           APK="build/app/outputs/flutter-apk/app-release.apk"
           test -s "$APK"
-
-          # Android SDK build-tools installs apksigner under ANDROID_HOME/build-tools/<version>.
           SDK_ROOT="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-}}"
           if [ -z "$SDK_ROOT" ] || [ ! -d "$SDK_ROOT/build-tools" ]; then
-            echo "::error::Android SDK build-tools directory not found; cannot verify APK signature."
+            echo "::error::Android SDK build-tools directory not found."
             exit 1
           fi
-
+          AAPT="$(find "$SDK_ROOT/build-tools" -type f -name aapt -perm -u+x 2>/dev/null | sort -V | tail -n 1)"
           APKSIGNER="$(find "$SDK_ROOT/build-tools" -type f -name apksigner -perm -u+x 2>/dev/null | sort -V | tail -n 1)"
-          if [ -z "$APKSIGNER" ]; then
-            echo "::error::apksigner not found in Android SDK build-tools; refusing to publish an unverified APK."
+          if [ -z "$AAPT" ] || [ -z "$APKSIGNER" ]; then
+            echo "::error::aapt or apksigner missing; refusing to publish."
             exit 1
           fi
-
-          echo "Using apksigner: $APKSIGNER"
-          "$APKSIGNER" verify --verbose --print-certs "$APK"
-          echo "APK signature verification passed."
+          BADGING="$("$AAPT" dump badging "$APK")"
+          echo "$BADGING" | grep -F "package: name='com.dasko.dasko_ai'" >/dev/null || {
+            echo "::error::Unexpected application ID; refusing to publish."
+            exit 1
+          }
+          APK_CODE="$(sed -n "s/^package:.* versionCode='\([0-9][0-9]*\)'.*/\1/p" <<< "$BADGING" | head -n 1)"
+          EXPECTED_CODE="$(sed -nE 's/^version:[[:space:]]*[0-9]+\.[0-9]+\.[0-9]+\+([0-9]+)[[:space:]]*$/\1/p' pubspec.yaml)"
+          if [ -z "$APK_CODE" ] || [ "$APK_CODE" != "$EXPECTED_CODE" ] || [ "$APK_CODE" != "$DASKO_VERSION_CODE" ]; then
+            echo "::error::APK versionCode ($APK_CODE) differs from pubspec ($EXPECTED_CODE) or reservation ($DASKO_VERSION_CODE)."
+            exit 1
+          fi
+          SIGNATURE_OUTPUT="$("$APKSIGNER" verify --verbose --print-certs "$APK" 2>&1)"
+          echo "$SIGNATURE_OUTPUT"
+          EXPECTED_CERT="f873f18b4f7103fcb4c875030fd3bd9582074af779395a3935c7bd94b71c398c"
+          ACTUAL_CERT="$(sed -nE 's/.*Signer #1 certificate SHA-256 digest: ([[:xdigit:]]+).*/\1/p' <<< "$SIGNATURE_OUTPUT" | head -n 1 | tr '[:upper:]' '[:lower:]')"
+          if [ -z "$ACTUAL_CERT" ] || [ "$ACTUAL_CERT" != "$EXPECTED_CERT" ]; then
+            echo "::error::Signing certificate fingerprint mismatch or unavailable."
+            exit 1
+          fi
+          echo "APK application ID, versionCode, and signing certificate verified."
 
       - name: Upload APK
         if: success()
