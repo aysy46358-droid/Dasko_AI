@@ -45,28 +45,71 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: stable
+          flutter-version: '3.47.8'
           cache: true
 
-      - name: Generate Android project (if missing)
+      - name: Require tracked Android project
         shell: bash
         run: |
           set -euo pipefail
-          if [ ! -d "android" ]; then
-            echo "Android folder not found. Generating..."
-            flutter create --platforms=android --org com.dasko --project-name dasko_ai .
-          else
-            echo "Android folder already exists. Skipping generate."
-          fi
+          required_files=(
+            android/settings.gradle.kts
+            android/build.gradle.kts
+            android/app/build.gradle.kts
+            android/app/src/main/AndroidManifest.xml
+            android/gradle/wrapper/gradle-wrapper.properties
+            android/gradle/wrapper/gradle-wrapper.jar
+            android/gradlew
+            android/gradlew.bat
+          )
+          for file in "${required_files[@]}"; do
+            if [ ! -s "$file" ]; then
+              echo "::error::Required tracked Android project file is missing: $file"
+              exit 1
+            fi
+          done
+          git ls-files --error-unmatch "${required_files[@]}" >/dev/null
+          for private_file in \
+            android/local.properties \
+            android/key.properties \
+            android/app/dasko-upload-keystore.jks \
+            android/app/google-services.json; do
+            if git ls-files --error-unmatch "$private_file" >/dev/null 2>&1; then
+              echo "::error::Local or generated Android file must not be tracked: $private_file"
+              exit 1
+            fi
+            if ! git check-ignore -q "$private_file"; then
+              echo "::error::Sensitive or generated Android file is not protected by .gitignore: $private_file"
+              exit 1
+            fi
+          done
+          echo "Android project files are present and tracked."
 
-      - name: Record Flutter and generated Android toolchain versions
+      - name: Configure local Android and Flutter SDK paths
+        shell: bash
+        run: |
+          set -euo pipefail
+          SDK_ROOT="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-}}"
+          if [ -z "$SDK_ROOT" ] || [ ! -d "$SDK_ROOT" ]; then
+            echo "::error::Android SDK was not found on the runner."
+            exit 1
+          fi
+          FLUTTER_BIN="$(command -v flutter)"
+          FLUTTER_SDK="$(cd "$(dirname "$FLUTTER_BIN")/.." && pwd)"
+          {
+            printf 'flutter.sdk=%s\n' "$FLUTTER_SDK"
+            printf 'sdk.dir=%s\n' "$SDK_ROOT"
+          } > android/local.properties
+
+      - name: Record Flutter and Android toolchain versions
         shell: bash
         run: |
           set -euo pipefail
           flutter --version
           dart --version
-          echo "::group::Generated Android Gradle settings"
-          if [ -f android/settings.gradle.kts ]; then sed -n '1,120p' android/settings.gradle.kts; fi
-          if [ -f android/gradle/wrapper/gradle-wrapper.properties ]; then cat android/gradle/wrapper/gradle-wrapper.properties; fi
+          echo "::group::Android Gradle settings"
+          sed -n '1,120p' android/settings.gradle.kts
+          cat android/gradle/wrapper/gradle-wrapper.properties
           echo "::endgroup::"
 
       - name: Require persistent Android signing secrets
@@ -96,108 +139,30 @@ jobs:
           storeFile=dasko-upload-keystore.jks
           EOF
 
-      - name: Configure Firebase Android and persistent release signing
+      - name: Configure Firebase Android
         shell: bash
         run: |
           set -euo pipefail
-
           SOURCE="google-services.json"
           if [ ! -f "$SOURCE" ]; then
             echo "::error::Firebase configuration file not found: $SOURCE"
             exit 1
           fi
           cp "$SOURCE" android/app/google-services.json
-
-          python3 - <<'PY'
-          from pathlib import Path
-
-          settings = Path("android/settings.gradle.kts")
-          app_gradle = Path("android/app/build.gradle.kts")
-
-          def add_plugin(path, plugin_line):
-              if not path.exists():
-                  raise SystemExit(f"ERROR: Expected Gradle file missing: {path}")
-              text = path.read_text()
-              start = text.find("plugins {")
-              if start < 0:
-                  raise SystemExit(f"ERROR: plugins block not found in {path}")
-              depth = 0
-              end = -1
-              for i in range(start + len("plugins"), len(text)):
-                  if text[i] == "{":
-                      depth += 1
-                  elif text[i] == "}":
-                      depth -= 1
-                      if depth == 0:
-                          end = i
-                          break
-              if end < 0:
-                  raise SystemExit(f"ERROR: Invalid plugins block in {path}")
-              if "com.google.gms.google-services" not in text[start:end]:
-                  text = text[:end] + "    " + plugin_line + "\n" + text[end:]
-                  path.write_text(text)
-
-          add_plugin(settings, 'id("com.google.gms.google-services") version "4.5.0" apply false')
-          add_plugin(app_gradle, 'id("com.google.gms.google-services")')
-
-          text = app_gradle.read_text()
-          if 'import java.util.Properties' not in text:
-              text = 'import java.util.Properties\nimport java.io.FileInputStream\n\n' + text
-
-          if 'val signingProperties = Properties()' not in text:
-              marker = 'plugins {'
-              start = text.find(marker)
-              depth = 0
-              end = -1
-              for i in range(start + len(marker) - 1, len(text)):
-                  if text[i] == "{":
-                      depth += 1
-                  elif text[i] == "}":
-                      depth -= 1
-                      if depth == 0:
-                          end = i + 1
-                          break
-              if end < 0:
-                  raise SystemExit("ERROR: Cannot locate app Gradle plugins block end.")
-              signing = '''
-          
-          val signingProperties = Properties()
-          val signingPropertiesFile = rootProject.file("key.properties")
-          if (!signingPropertiesFile.exists()) {
-              throw GradleException("Missing android/key.properties; configure Android signing secrets.")
-          }
-          signingProperties.load(FileInputStream(signingPropertiesFile))
-          '''
-              text = text[:end] + signing + text[end:]
-
-          if 'create("release")' not in text and 'create("daskoRelease")' not in text:
-              android_marker = 'android {'
-              android_start = text.find(android_marker)
-              if android_start < 0:
-                  raise SystemExit("ERROR: android block not found in app Gradle file.")
-              signing_config = '''
-              signingConfigs {
-                  create("release") {
-                      keyAlias = signingProperties["keyAlias"] as String
-                      keyPassword = signingProperties["keyPassword"] as String
-                      storeFile = file(signingProperties["storeFile"] as String)
-                      storePassword = signingProperties["storePassword"] as String
-                  }
-              }
-
-          '''
-              text = text[:android_start + len(android_marker)] + "\n" + signing_config + text[android_start + len(android_marker):]
-
-          text = text.replace('signingConfig = signingConfigs.getByName("debug")',
-                              'signingConfig = signingConfigs.getByName("release")')
-          if 'signingConfig = signingConfigs.getByName("release")' not in text:
-              raise SystemExit("ERROR: Could not set release build to the persistent signing config.")
-          app_gradle.write_text(text)
-          print("Firebase plugin and persistent release signing configured.")
-          PY
+          grep -Fq 'id("com.google.gms.google-services") version "4.5.0" apply false' android/settings.gradle.kts
+          grep -Fq 'id("com.google.gms.google-services")' android/app/build.gradle.kts
+          grep -Fq 'rootProject.file("key.properties")' android/app/build.gradle.kts
+          echo "Firebase plugin is declared in tracked Gradle configuration."
 
       - name: Get Flutter dependencies
-        run: flutter pub get
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ ! -s pubspec.lock ]; then
+            echo "::error::pubspec.lock is required for reproducible application builds."
+            exit 1
+          fi
+          flutter pub get --enforce-lockfile
 
       - name: Verify Dart formatting without modifying files
         shell: bash
