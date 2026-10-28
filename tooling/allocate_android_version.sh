@@ -17,6 +17,7 @@ for attempt in $(seq 1 10); do
   (( BASE_CODE > MAX )) && MAX=$BASE_CODE
   NEXT=$((MAX+1))
   TAG="$PREFIX$NEXT"
+  git tag -d "$TAG" >/dev/null 2>&1 || true
   git tag "$TAG" "$GITHUB_SHA"
   if git push origin "refs/tags/$TAG"; then
     CODE=$NEXT
