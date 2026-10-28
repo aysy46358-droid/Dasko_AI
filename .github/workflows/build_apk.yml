@@ -232,7 +232,7 @@ jobs:
           SIGNATURE_OUTPUT="$("$APKSIGNER" verify --verbose --print-certs "$APK" 2>&1)"
           echo "$SIGNATURE_OUTPUT"
           EXPECTED_CERT="f873f18b4f7103fcb4c875030fd3bd9582074af779395a3935c7bd94b71c398c"
-          ACTUAL_CERT="$(sed -nE 's/.*Signer #1 certificate SHA-256 digest: ([[:xdigit:]]+).*/\1/p' <<< "$SIGNATURE_OUTPUT" | head -n 1 | tr '[:upper:]' '[:lower:]')"
+          ACTUAL_CERT="$(sed -nE 's/.*certificate SHA-256 digest: ([[:xdigit:]]+).*/\1/p' <<< "$SIGNATURE_OUTPUT" | head -n 1 | tr '[:upper:]' '[:lower:]')"
           if [ -z "$ACTUAL_CERT" ] || [ "$ACTUAL_CERT" != "$EXPECTED_CERT" ]; then
             echo "::error::Signing certificate fingerprint mismatch or unavailable."
             exit 1
