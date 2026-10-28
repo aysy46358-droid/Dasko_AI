@@ -194,11 +194,24 @@ jobs:
         run: |
           set -euo pipefail
           APK="build/app/outputs/flutter-apk/app-release.apk"
-          if command -v apksigner >/dev/null 2>&1; then
-            apksigner verify --print-certs "$APK"
-          else
-            echo "::warning::apksigner unavailable on PATH; release signing was configured through Gradle."
+          test -s "$APK"
+
+          # Android SDK build-tools installs apksigner under ANDROID_HOME/build-tools/<version>.
+          SDK_ROOT="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-}}"
+          if [ -z "$SDK_ROOT" ] || [ ! -d "$SDK_ROOT/build-tools" ]; then
+            echo "::error::Android SDK build-tools directory not found; cannot verify APK signature."
+            exit 1
           fi
+
+          APKSIGNER="$(find "$SDK_ROOT/build-tools" -type f -name apksigner -perm -u+x 2>/dev/null | sort -V | tail -n 1)"
+          if [ -z "$APKSIGNER" ]; then
+            echo "::error::apksigner not found in Android SDK build-tools; refusing to publish an unverified APK."
+            exit 1
+          fi
+
+          echo "Using apksigner: $APKSIGNER"
+          "$APKSIGNER" verify --verbose --print-certs "$APK"
+          echo "APK signature verification passed."
 
       - name: Upload APK
         if: success()
