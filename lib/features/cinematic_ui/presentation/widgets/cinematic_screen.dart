@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'audio_waveform_widget.dart';
 
-/// Cinematic landing surface for the Dasko AI companion.
+/// Cinematic landing surface for the Dasko AI companion. 
 ///
 /// This widget is presentation-only: all visuals are composed from Flutter
 /// primitives and it owns no application or audio business logic.
