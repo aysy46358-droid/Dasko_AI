@@ -4,13 +4,13 @@ import 'package:flutter/material.dart';
 
 enum DaskoRobotState { ready, thinking, happy }
 
-/// Procedurally drawn holographic robot; no emoji/icon glyph is used as its face.
+/// Layered 2.5D Dasko mascot. The public API stays stable for existing screens.
 class InteractiveDaskoRobot extends StatefulWidget {
   const InteractiveDaskoRobot({
     super.key,
     required this.state,
     this.size = 112,
-  });
+  }) : assert(size > 0);
 
   final DaskoRobotState state;
   final double size;
@@ -47,14 +47,16 @@ class _InteractiveDaskoRobotState extends State<InteractiveDaskoRobot>
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox.square(
-      dimension: widget.size,
-      child: AnimatedBuilder(
-        animation: _motion,
-        builder: (context, _) => CustomPaint(
-          painter: _HolographicRobotPainter(
-            phase: _motion.value * math.pi * 2,
-            state: widget.state,
+    return RepaintBoundary(
+      child: SizedBox.square(
+        dimension: widget.size,
+        child: AnimatedBuilder(
+          animation: _motion,
+          builder: (context, _) => CustomPaint(
+            painter: _DaskoRobotPainter(
+              phase: _motion.value * math.pi * 2,
+              state: widget.state,
+            ),
           ),
         ),
       ),
@@ -62,288 +64,647 @@ class _InteractiveDaskoRobotState extends State<InteractiveDaskoRobot>
   }
 }
 
-class _HolographicRobotPainter extends CustomPainter {
-  const _HolographicRobotPainter({required this.phase, required this.state});
+/// Paints the mascot in explicit back-to-front layers so each part can evolve
+/// independently without changing the screens that host [InteractiveDaskoRobot].
+class _DaskoRobotPainter extends CustomPainter {
+  const _DaskoRobotPainter({required this.phase, required this.state});
 
   final double phase;
   final DaskoRobotState state;
 
-  static const Color cyan = Color(0xFF00E5FF);
-  static const Color violet = Color(0xFF7C4DFF);
+  static const _RobotColors colors = _RobotColors();
 
   @override
   void paint(Canvas canvas, Size size) {
-    final center = Offset(size.width / 2, size.height / 2);
-    final unit = size.width / 220;
-    final bob = math.sin(phase) * 3.5 * unit;
-    final pulse = 0.65 + ((math.sin(phase * 2) + 1) * 0.175);
+    if (size.isEmpty) return;
+
+    const designSize = 220.0;
+    final scale = math.min(size.width, size.height) / (designSize + 12);
+    final offsetX = (size.width - designSize * scale) / 2;
+    final offsetY = (size.height - designSize * scale) / 2;
+    final pulse = 0.78 + (math.sin(phase * 2) + 1) * 0.11;
+    final bob = math.sin(phase) * 2.2;
+
+    canvas.save();
+    canvas.translate(offsetX, offsetY);
+    canvas.scale(scale);
+
+    _drawGroundGlow(canvas, pulse);
     canvas.save();
     canvas.translate(0, bob);
-
-    final glowPaint = Paint()
-      ..shader = RadialGradient(
-        colors: [
-          cyan.withValues(alpha: 0.22 * pulse),
-          violet.withValues(alpha: 0.12 * pulse),
-          Colors.transparent,
-        ],
-      ).createShader(Rect.fromCircle(center: center, radius: size.width * .49));
-    canvas.drawCircle(center, size.width * .49, glowPaint);
-
-    for (var i = 0; i < 3; i++) {
-      canvas.save();
-      canvas.translate(center.dx, center.dy + 7 * unit);
-      canvas.rotate(phase * (i.isEven ? 0.35 : -0.27) + i * 0.9);
-      final ringPaint = Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = (i == 1 ? 1.7 : 1.0) * unit
-        ..color = (i.isEven ? cyan : violet).withValues(alpha: 0.48 * pulse)
-        ..maskFilter = MaskFilter.blur(BlurStyle.normal, 2.4 * unit);
-      canvas.drawOval(
-        Rect.fromCenter(
-          center: Offset.zero,
-          width: size.width * (0.90 - i * 0.08),
-          height: size.height * (0.25 + i * 0.025),
-        ),
-        ringPaint,
-      );
-      canvas.restore();
-    }
-
-    _drawBody(canvas, size, unit, pulse);
-    _drawHead(canvas, size, unit, pulse);
-    _drawScanLines(canvas, size, unit, pulse);
+    _drawAmbientAura(canvas, pulse);
+    _drawAntennae(canvas, pulse);
+    _drawEarPods(canvas, pulse);
+    _drawArms(canvas, pulse);
+    _drawTorso(canvas, pulse);
+    _drawHelmet(canvas, pulse);
+    _drawFace(canvas, pulse);
+    _drawHighlights(canvas, pulse);
+    canvas.restore();
     canvas.restore();
   }
 
-  void _drawHead(Canvas canvas, Size size, double unit, double pulse) {
-    final c = Offset(size.width / 2, size.height * 0.36);
-    final headRect = Rect.fromCenter(
-      center: c,
-      width: size.width * 0.55,
-      height: size.height * 0.43,
+  void _drawGroundGlow(Canvas canvas, double pulse) {
+    final shadow = Paint()
+      ..color = colors.deepBlue.withValues(alpha: 0.38)
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 7);
+    canvas.drawOval(
+      Rect.fromCenter(center: const Offset(110, 210), width: 104, height: 13),
+      shadow,
     );
-    final head = RRect.fromRectAndRadius(headRect, Radius.circular(25 * unit));
-
     final glow = Paint()
-      ..color = cyan.withValues(alpha: 0.26 * pulse)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 8 * unit
-      ..maskFilter = MaskFilter.blur(BlurStyle.normal, 12 * unit);
-    canvas.drawRRect(head, glow);
-
-    final shell = Paint()
-      ..shader = const LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: [Color(0xFF294A68), Color(0xFF101A2A), Color(0xFF17112D)],
-      ).createShader(headRect);
-    canvas.drawRRect(head, shell);
-    canvas.drawRRect(
-      head,
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 1.8 * unit
-        ..shader = SweepGradient(
-          transform: GradientRotation(phase),
-          colors: const [cyan, violet, Color(0xFFB8F7FF), cyan],
-        ).createShader(headRect),
-    );
-
-    final sidePaint = Paint()..color = const Color(0xFF1C3653);
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(
-        Rect.fromLTWH(
-          headRect.left - 7 * unit,
-          c.dy - 11 * unit,
-          12 * unit,
-          24 * unit,
-        ),
-        Radius.circular(5 * unit),
-      ),
-      sidePaint,
-    );
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(
-        Rect.fromLTWH(
-          headRect.right - 5 * unit,
-          c.dy - 11 * unit,
-          12 * unit,
-          24 * unit,
-        ),
-        Radius.circular(5 * unit),
-      ),
-      sidePaint,
-    );
-    final led = Paint()
-      ..color = cyan
-      ..maskFilter = MaskFilter.blur(BlurStyle.normal, 3 * unit);
-    canvas.drawCircle(Offset(headRect.left - 1 * unit, c.dy), 2.5 * unit, led);
-    canvas.drawCircle(Offset(headRect.right + 1 * unit, c.dy), 2.5 * unit, led);
-
-    final visorRect = Rect.fromCenter(
-      center: Offset(c.dx, c.dy + 1 * unit),
-      width: headRect.width * 0.77,
-      height: headRect.height * 0.48,
-    );
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(visorRect, Radius.circular(13 * unit)),
-      Paint()
-        ..shader = const LinearGradient(
-          colors: [Color(0xFF071522), Color(0xFF101B32)],
-        ).createShader(visorRect),
-    );
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(visorRect, Radius.circular(13 * unit)),
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 0.9 * unit
-        ..color = cyan.withValues(alpha: 0.75),
-    );
-
-    final eyeY = visorRect.center.dy -
-        (state == DaskoRobotState.thinking ? 1 : 0) * unit;
-    final eyeRadius = (state == DaskoRobotState.thinking ? 2.4 : 3.4) * unit;
-    final eyePaint = Paint()
-      ..color = state == DaskoRobotState.happy ? const Color(0xFFB9A2FF) : cyan
-      ..maskFilter = MaskFilter.blur(BlurStyle.normal, 4 * unit);
-    canvas.drawCircle(
-      Offset(visorRect.left + visorRect.width * 0.27, eyeY),
-      eyeRadius * pulse,
-      eyePaint,
-    );
-    canvas.drawCircle(
-      Offset(visorRect.right - visorRect.width * 0.27, eyeY),
-      eyeRadius * pulse,
-      eyePaint,
-    );
-
-    final mouth = Path();
-    final mouthCenter = Offset(c.dx, visorRect.bottom - 7 * unit);
-    if (state == DaskoRobotState.happy) {
-      mouth.moveTo(mouthCenter.dx - 7 * unit, mouthCenter.dy - 1 * unit);
-      mouth.quadraticBezierTo(
-        mouthCenter.dx,
-        mouthCenter.dy + 5 * unit,
-        mouthCenter.dx + 7 * unit,
-        mouthCenter.dy - 1 * unit,
+      ..shader = RadialGradient(
+        colors: [
+          colors.cyan.withValues(alpha: 0.18 * pulse),
+          colors.violet.withValues(alpha: 0.09 * pulse),
+          Colors.transparent,
+        ],
+      ).createShader(
+        Rect.fromCenter(center: const Offset(110, 202), width: 136, height: 28),
       );
-    } else if (state == DaskoRobotState.thinking) {
-      mouth.moveTo(mouthCenter.dx - 6 * unit, mouthCenter.dy);
-      mouth.lineTo(mouthCenter.dx + 6 * unit, mouthCenter.dy);
-      mouth.moveTo(mouthCenter.dx, mouthCenter.dy - 3 * unit);
-      mouth.lineTo(mouthCenter.dx, mouthCenter.dy + 3 * unit);
-    } else {
-      mouth.moveTo(mouthCenter.dx - 5 * unit, mouthCenter.dy);
-      mouth.lineTo(mouthCenter.dx + 5 * unit, mouthCenter.dy);
-    }
-    canvas.drawPath(
-      mouth,
-      Paint()
-        ..color = violet
-        ..style = PaintingStyle.stroke
-        ..strokeCap = StrokeCap.round
-        ..strokeWidth = 1.8 * unit,
-    );
-
-    final antenna = Paint()
-      ..color = cyan.withValues(alpha: 0.8)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.7 * unit;
-    canvas.drawLine(
-      Offset(c.dx, headRect.top),
-      Offset(c.dx, headRect.top - 13 * unit),
-      antenna,
-    );
-    canvas.drawCircle(
-      Offset(c.dx, headRect.top - 16 * unit),
-      (2.5 + math.sin(phase * 2) * 0.7) * unit,
-      Paint()
-        ..color = cyan
-        ..maskFilter = MaskFilter.blur(BlurStyle.normal, 4 * unit),
+    canvas.drawOval(
+      Rect.fromCenter(center: const Offset(110, 202), width: 136, height: 28),
+      glow,
     );
   }
 
-  void _drawBody(Canvas canvas, Size size, double unit, double pulse) {
-    final bodyRect = Rect.fromCenter(
-      center: Offset(size.width / 2, size.height * 0.70),
-      width: size.width * 0.43,
-      height: size.height * 0.24,
+  void _drawAmbientAura(Canvas canvas, double pulse) {
+    final aura = Paint()
+      ..shader = RadialGradient(
+        colors: [
+          colors.cyan.withValues(alpha: 0.12 * pulse),
+          colors.violet.withValues(alpha: 0.09 * pulse),
+          Colors.transparent,
+        ],
+        stops: const [0, 0.58, 1],
+      ).createShader(
+        Rect.fromCircle(center: const Offset(110, 111), radius: 101),
+      );
+    canvas.drawCircle(const Offset(110, 111), 101, aura);
+
+    final orbitalGlow = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.2
+      ..color = colors.cyan.withValues(alpha: 0.20 * pulse)
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3);
+    canvas.drawOval(
+      Rect.fromCenter(
+        center: const Offset(110, 111),
+        width: 196,
+        height: 67,
+      ),
+      orbitalGlow,
     );
-    final body = RRect.fromRectAndRadius(bodyRect, Radius.circular(18 * unit));
+  }
+
+  void _drawAntennae(Canvas canvas, double pulse) {
+    for (final x in [53.0, 167.0]) {
+      final stem = Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 3.2
+        ..strokeCap = StrokeCap.round
+        ..shader = LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [colors.cyan, colors.violet.withValues(alpha: 0.82)],
+        ).createShader(Rect.fromLTRB(x - 2, 8, x + 2, 39));
+      canvas.drawLine(Offset(x, 13), Offset(x, 36), stem);
+
+      final bulbGlow = Paint()
+        ..color = colors.cyan.withValues(alpha: 0.48 * pulse)
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 7);
+      canvas.drawCircle(Offset(x, 13), 8, bulbGlow);
+      final bulb = Paint()
+        ..shader = const RadialGradient(
+          center: Alignment(-0.35, -0.45),
+          colors: [Color(0xFFFFFFFF), Color(0xFF75F8FF), Color(0xFF078CBF)],
+        ).createShader(Rect.fromCircle(center: Offset(x, 13), radius: 7));
+      canvas.drawCircle(Offset(x, 13), 6.5, bulb);
+      canvas.drawCircle(
+        Offset(x - 2, 10.5),
+        1.5,
+        Paint()..color = Colors.white.withValues(alpha: 0.92),
+      );
+    }
+  }
+
+  void _drawEarPods(Canvas canvas, double pulse) {
+    _drawEarPod(
+      canvas,
+      const Rect.fromLTRB(24, 65, 51, 111),
+      rightSide: false,
+      pulse: pulse,
+    );
+    _drawEarPod(
+      canvas,
+      const Rect.fromLTRB(169, 65, 196, 111),
+      rightSide: true,
+      pulse: pulse,
+    );
+  }
+
+  void _drawEarPod(
+    Canvas canvas,
+    Rect rect, {
+    required bool rightSide,
+    required double pulse,
+  }) {
+    final pod = RRect.fromRectAndRadius(rect, const Radius.circular(13));
     canvas.drawRRect(
-      body,
+      pod.shift(const Offset(0, 3)),
       Paint()
-        ..color = cyan.withValues(alpha: 0.16 * pulse)
-        ..maskFilter = MaskFilter.blur(BlurStyle.normal, 12 * unit),
+        ..color = colors.deepBlue.withValues(alpha: 0.65)
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 5),
+    );
+    canvas.drawRRect(
+      pod,
+      Paint()
+        ..shader = LinearGradient(
+          begin: rightSide ? Alignment.centerRight : Alignment.centerLeft,
+          end: rightSide ? Alignment.centerLeft : Alignment.centerRight,
+          colors: [colors.cyan, colors.shellBlue, colors.violet],
+        ).createShader(rect),
+    );
+    canvas.drawRRect(
+      pod,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.5
+        ..color = colors.ice.withValues(alpha: 0.78),
+    );
+
+    final innerRect = rightSide
+        ? Rect.fromLTRB(
+            rect.left + 6, rect.top + 7, rect.right - 4, rect.bottom - 7)
+        : Rect.fromLTRB(
+            rect.left + 4, rect.top + 7, rect.right - 6, rect.bottom - 7);
+    final innerPod = RRect.fromRectAndRadius(
+      innerRect,
+      const Radius.circular(9),
+    );
+    canvas.drawRRect(
+      innerPod,
+      Paint()
+        ..color = colors.deepBlue.withValues(alpha: 0.70)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2,
+    );
+    final lightX = rightSide ? rect.right - 4 : rect.left + 4;
+    canvas.drawLine(
+      Offset(lightX, rect.top + 12),
+      Offset(lightX, rect.bottom - 12),
+      Paint()
+        ..color = colors.cyan.withValues(alpha: 0.7 * pulse)
+        ..strokeWidth = 1.3,
+    );
+  }
+
+  void _drawArms(Canvas canvas, double pulse) {
+    final leftArm = Path()
+      ..moveTo(73, 154)
+      ..cubicTo(56, 154, 49, 169, 43, 186)
+      ..lineTo(40, 195);
+    _drawArmPath(
+      canvas,
+      leftArm,
+      const Rect.fromLTRB(36, 150, 78, 201),
+      pulse,
+    );
+    final rightArm = Path()
+      ..moveTo(148, 153)
+      ..cubicTo(166, 151, 177, 137, 185, 119)
+      ..lineTo(192, 108);
+    _drawArmPath(
+      canvas,
+      rightArm,
+      const Rect.fromLTRB(145, 103, 197, 158),
+      pulse,
+    );
+
+    _drawHand(canvas, const Offset(40, 196), leftSide: true, pulse: pulse);
+    _drawHand(canvas, const Offset(194, 105), leftSide: false, pulse: pulse);
+  }
+
+  void _drawArmPath(Canvas canvas, Path path, Rect bounds, double pulse) {
+    canvas.drawPath(
+      path,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 22
+        ..strokeCap = StrokeCap.round
+        ..strokeJoin = StrokeJoin.round
+        ..color = colors.deepBlue.withValues(alpha: 0.85)
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 5),
+    );
+    canvas.drawPath(
+      path,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 18
+        ..strokeCap = StrokeCap.round
+        ..strokeJoin = StrokeJoin.round
+        ..shader = LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            colors.cyan.withValues(alpha: 0.95),
+            colors.shellBlue,
+            colors.violet.withValues(alpha: 0.94),
+          ],
+        ).createShader(bounds),
+    );
+    canvas.drawPath(
+      path,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2.2
+        ..strokeCap = StrokeCap.round
+        ..color = colors.ice.withValues(alpha: 0.55 * pulse),
+    );
+  }
+
+  void _drawHand(
+    Canvas canvas,
+    Offset center, {
+    required bool leftSide,
+    required double pulse,
+  }) {
+    final handRect = Rect.fromCenter(
+      center: center,
+      width: 22,
+      height: 18,
+    );
+    final hand = RRect.fromRectAndRadius(handRect, const Radius.circular(8));
+    canvas.drawRRect(
+      hand,
+      Paint()
+        ..shader = LinearGradient(
+          colors: leftSide
+              ? [colors.cyan, colors.shellBlue]
+              : [colors.shellBlue, colors.violet],
+        ).createShader(handRect),
+    );
+    canvas.drawRRect(
+      hand,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.3
+        ..color = colors.ice.withValues(alpha: 0.75 * pulse),
+    );
+    canvas.drawCircle(
+      center,
+      3,
+      Paint()
+        ..color = colors.ice.withValues(alpha: 0.55)
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3),
+    );
+  }
+
+  void _drawTorso(Canvas canvas, double pulse) {
+    final neck = RRect.fromRectAndRadius(
+      const Rect.fromLTRB(91, 125, 129, 151),
+      const Radius.circular(11),
+    );
+    canvas.drawRRect(
+      neck,
+      Paint()
+        ..shader = const LinearGradient(
+          colors: [Color(0xFF1C93B7), Color(0xFF504E9D), Color(0xFF302653)],
+        ).createShader(const Rect.fromLTRB(91, 125, 129, 151)),
+    );
+
+    final bodyRect = Rect.fromLTRB(57, 137, 163, 211);
+    final body = RRect.fromRectAndRadius(bodyRect, const Radius.circular(31));
+    canvas.drawRRect(
+      body.shift(const Offset(0, 4)),
+      Paint()
+        ..color = colors.deepBlue.withValues(alpha: 0.75)
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8),
     );
     canvas.drawRRect(
       body,
       Paint()
         ..shader = const LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [Color(0xFF203B5B), Color(0xFF0C1423)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color(0xFF6AF4F7),
+            Color(0xFF33CFE1),
+            Color(0xFF778BE6),
+            Color(0xFFB56BFF),
+          ],
+          stops: [0, 0.34, 0.70, 1],
         ).createShader(bodyRect),
     );
     canvas.drawRRect(
       body,
       Paint()
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 1.3 * unit
-        ..color = violet.withValues(alpha: 0.9),
+        ..strokeWidth = 2
+        ..color = colors.ice.withValues(alpha: 0.84),
     );
 
-    final coreRect = Rect.fromCenter(
-      center: Offset(bodyRect.center.dx, bodyRect.center.dy - 1 * unit),
-      width: bodyRect.width * 0.26,
-      height: bodyRect.height * 0.36,
+    final frontPanel = RRect.fromRectAndRadius(
+      const Rect.fromLTRB(77, 159, 143, 197),
+      const Radius.circular(12),
     );
     canvas.drawRRect(
-      RRect.fromRectAndRadius(coreRect, Radius.circular(5 * unit)),
+      frontPanel.shift(const Offset(0, 2)),
+      Paint()..color = colors.deepBlue.withValues(alpha: 0.42),
+    );
+    canvas.drawRRect(
+      frontPanel,
       Paint()
-        ..color = cyan.withValues(alpha: 0.65)
-        ..maskFilter = MaskFilter.blur(BlurStyle.normal, 4 * unit),
+        ..shader = const LinearGradient(
+          colors: [Color(0xFF07192D), Color(0xFF0B1732)],
+        ).createShader(const Rect.fromLTRB(77, 159, 143, 197)),
     );
     canvas.drawRRect(
-      RRect.fromRectAndRadius(coreRect, Radius.circular(5 * unit)),
-      Paint()..color = const Color(0xFFB5FBFF),
+      frontPanel,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.8
+        ..shader = const LinearGradient(
+          colors: [Color(0xFFB5FFFF), Color(0xFF00E5FF), Color(0xFFC28BFF)],
+        ).createShader(const Rect.fromLTRB(77, 159, 143, 197)),
     );
 
-    final armPaint = Paint()
-      ..color = cyan.withValues(alpha: 0.72)
+    final coreGlow = Paint()
       ..style = PaintingStyle.stroke
+      ..strokeWidth = 5
       ..strokeCap = StrokeCap.round
-      ..strokeWidth = 5 * unit;
-    canvas.drawLine(
-      Offset(bodyRect.left + 2 * unit, bodyRect.top + 7 * unit),
-      Offset(bodyRect.left - 8 * unit, bodyRect.bottom - 2 * unit),
-      armPaint,
+      ..color = colors.cyan.withValues(alpha: 0.47 * pulse)
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 5);
+    final infinity = _infinityPath(const Offset(110, 178), 22, 9);
+    canvas.drawPath(infinity, coreGlow);
+    canvas.drawPath(
+      infinity,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2.6
+        ..strokeCap = StrokeCap.round
+        ..strokeJoin = StrokeJoin.round
+        ..shader = const LinearGradient(
+          colors: [Color(0xFF00F4F1), Color(0xFF67F7FF), Color(0xFFB96DFF)],
+        ).createShader(const Rect.fromLTRB(88, 168, 132, 187)),
     );
-    canvas.drawLine(
-      Offset(bodyRect.right - 2 * unit, bodyRect.top + 7 * unit),
-      Offset(bodyRect.right + 8 * unit, bodyRect.bottom - 2 * unit),
-      armPaint,
+
+    final bodyGlint = Path()
+      ..moveTo(74, 146)
+      ..quadraticBezierTo(87, 141, 100, 146);
+    canvas.drawPath(
+      bodyGlint,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 3
+        ..strokeCap = StrokeCap.round
+        ..color = Colors.white.withValues(alpha: 0.42 * pulse),
     );
   }
 
-  void _drawScanLines(Canvas canvas, Size size, double unit, double pulse) {
-    final linePaint = Paint()
-      ..color = cyan.withValues(alpha: 0.13 * pulse)
-      ..strokeWidth = 0.65 * unit;
-    final offset = (phase * 10 * unit) % (size.height * 0.75);
-    for (var i = 0; i < 7; i++) {
-      final y =
-          size.height * 0.12 + ((i * 18 * unit + offset) % (size.height * .76));
+  Path _infinityPath(Offset center, double width, double height) {
+    final left = center.dx - width;
+    final right = center.dx + width;
+    final top = center.dy - height;
+    final bottom = center.dy + height;
+    return Path()
+      ..moveTo(center.dx, center.dy)
+      ..cubicTo(left + 2, top - 2, left - 1, top + 1, left, center.dy)
+      ..cubicTo(
+          left + 1, bottom - 1, left + 8, bottom + 1, center.dx, center.dy)
+      ..cubicTo(right - 8, top - 1, right - 1, top + 1, right, center.dy)
+      ..cubicTo(
+          right + 1, bottom - 1, right - 8, bottom + 1, center.dx, center.dy);
+  }
+
+  void _drawHelmet(Canvas canvas, double pulse) {
+    final shellRect = const Rect.fromLTRB(32, 28, 188, 143);
+    final shell = RRect.fromRectAndRadius(shellRect, const Radius.circular(47));
+    canvas.drawRRect(
+      shell.shift(const Offset(0, 5)),
+      Paint()
+        ..color = colors.deepBlue.withValues(alpha: 0.75)
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 10),
+    );
+    canvas.drawRRect(
+      shell,
+      Paint()
+        ..shader = const LinearGradient(
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+          colors: [
+            Color(0xFF03D7E4),
+            Color(0xFF73EAF0),
+            Color(0xFFC1CFFF),
+            Color(0xFFB876F3),
+            Color(0xFF5AADEB),
+          ],
+          stops: [0, 0.26, 0.52, 0.78, 1],
+        ).createShader(shellRect),
+    );
+    canvas.drawRRect(
+      shell,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2.2
+        ..color = colors.ice.withValues(alpha: 0.91),
+    );
+
+    final innerShellRect = const Rect.fromLTRB(39, 35, 181, 136);
+    final innerShell = RRect.fromRectAndRadius(
+      innerShellRect,
+      const Radius.circular(40),
+    );
+    canvas.drawRRect(
+      innerShell,
+      Paint()
+        ..shader = const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF70E7EC), Color(0xFF56CBE0), Color(0xFF9377E2)],
+        ).createShader(innerShellRect),
+    );
+
+    final visorRect = const Rect.fromLTRB(47, 50, 173, 126);
+    final visor = RRect.fromRectAndRadius(visorRect, const Radius.circular(29));
+    canvas.drawRRect(
+      visor,
+      Paint()
+        ..shader = const LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [Color(0xFF020A1B), Color(0xFF07152B), Color(0xFF020817)],
+        ).createShader(visorRect),
+    );
+    canvas.drawRRect(
+      visor,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2.4
+        ..color = colors.deepBlue.withValues(alpha: 0.88),
+    );
+    canvas.drawRRect(
+      visor,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 0.9
+        ..color = colors.cyan.withValues(alpha: 0.57 * pulse),
+    );
+  }
+
+  void _drawFace(Canvas canvas, double pulse) {
+    const visorRect = Rect.fromLTRB(47, 50, 173, 126);
+    final visor = RRect.fromRectAndRadius(visorRect, const Radius.circular(29));
+    canvas.save();
+    canvas.clipRRect(visor);
+
+    final topReflection = Paint()
+      ..shader = LinearGradient(
+        colors: [
+          colors.cyan.withValues(alpha: 0.08 * pulse),
+          Colors.transparent,
+        ],
+      ).createShader(const Rect.fromLTRB(57, 53, 163, 75));
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(
+        const Rect.fromLTRB(54, 51, 166, 76),
+        const Radius.circular(25),
+      ),
+      topReflection,
+    );
+
+    final scanline = Paint()
+      ..color = colors.cyan.withValues(alpha: 0.09 * pulse)
+      ..strokeWidth = 0.7;
+    for (var i = 0; i < 5; i++) {
+      final y = 54 + ((phase * 3.2 + i * 16) % 70);
       canvas.drawLine(
-        Offset(size.width * .22, y),
-        Offset(size.width * .78, y),
-        linePaint,
-      );
+          const Offset(52, 0).translate(0, y), Offset(168, y), scanline);
     }
+
+    final eyeY = 82.0 + (state == DaskoRobotState.thinking ? 2 : 0);
+    if (state == DaskoRobotState.thinking) {
+      for (final x in [88.0, 110.0, 132.0]) {
+        canvas.drawCircle(
+          Offset(x, eyeY),
+          3.1 + math.sin(phase * 2 + x) * 0.5,
+          Paint()
+            ..color = colors.cyan
+            ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4),
+        );
+      }
+    } else {
+      _drawEye(canvas, const Offset(81, 82), pulse);
+      _drawEye(canvas, const Offset(139, 82), pulse);
+    }
+
+    final mouth = Path();
+    final mouthY = state == DaskoRobotState.happy ? 102.0 : 103.0;
+    if (state == DaskoRobotState.happy) {
+      mouth
+        ..moveTo(101, mouthY - 1)
+        ..quadraticBezierTo(110, mouthY + 7, 119, mouthY - 1);
+    } else {
+      mouth
+        ..moveTo(105, mouthY)
+        ..lineTo(115, mouthY);
+    }
+    canvas.drawPath(
+      mouth,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2.2
+        ..strokeCap = StrokeCap.round
+        ..color = colors.ice.withValues(alpha: 0.93),
+    );
+
+    final glintX = 51 + ((phase * 10) % 118);
+    final glint = Paint()
+      ..shader = LinearGradient(
+        colors: [
+          Colors.transparent,
+          colors.cyan.withValues(alpha: 0.20 * pulse),
+          Colors.transparent,
+        ],
+      ).createShader(Rect.fromLTRB(glintX - 9, 50, glintX + 9, 126));
+    canvas.drawRect(Rect.fromLTRB(glintX - 9, 50, glintX + 9, 126), glint);
+    canvas.restore();
+  }
+
+  void _drawEye(Canvas canvas, Offset center, double pulse) {
+    final glow = Path()
+      ..moveTo(center.dx - 11, center.dy + 4)
+      ..quadraticBezierTo(
+          center.dx, center.dy - 11, center.dx + 11, center.dy + 4);
+    canvas.drawPath(
+      glow,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 7
+        ..strokeCap = StrokeCap.round
+        ..color = colors.cyan.withValues(alpha: 0.56 * pulse)
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6),
+    );
+    canvas.drawPath(
+      glow,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 4.6
+        ..strokeCap = StrokeCap.round
+        ..color = colors.cyan,
+    );
+    canvas.drawCircle(
+      Offset(center.dx, center.dy - 1),
+      1.6,
+      Paint()..color = Colors.white.withValues(alpha: 0.9),
+    );
+  }
+
+  void _drawHighlights(Canvas canvas, double pulse) {
+    final topGlint = Path()
+      ..moveTo(62, 39)
+      ..cubicTo(78, 31, 121, 31, 143, 38);
+    canvas.drawPath(
+      topGlint,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 4.2
+        ..strokeCap = StrokeCap.round
+        ..color = Colors.white.withValues(alpha: 0.46 * pulse),
+    );
+
+    final leftGlint = Path()
+      ..moveTo(43, 74)
+      ..cubicTo(40, 89, 42, 112, 51, 124);
+    canvas.drawPath(
+      leftGlint,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2.1
+        ..strokeCap = StrokeCap.round
+        ..color = colors.ice.withValues(alpha: 0.54 * pulse),
+    );
+
+    final rightGlint = Paint()
+      ..color = colors.violet.withValues(alpha: 0.25 * pulse)
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 7);
+    canvas.drawOval(
+      Rect.fromCenter(center: const Offset(176, 86), width: 5, height: 36),
+      rightGlint,
+    );
   }
 
   @override
-  bool shouldRepaint(covariant _HolographicRobotPainter oldDelegate) =>
+  bool shouldRepaint(covariant _DaskoRobotPainter oldDelegate) =>
       oldDelegate.phase != phase || oldDelegate.state != state;
+}
+
+class _RobotColors {
+  const _RobotColors();
+
+  final Color cyan = const Color(0xFF00E5FF);
+  final Color violet = const Color(0xFF9B72F2);
+  final Color shellBlue = const Color(0xFF42BFE0);
+  final Color ice = const Color(0xFFE0FBFC);
+  final Color deepBlue = const Color(0xFF061226);
 }
