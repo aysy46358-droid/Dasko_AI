@@ -73,6 +73,7 @@ class _DaskoRobotPainter extends CustomPainter {
   final DaskoRobotState state;
 
   static const _RobotColors colors = _RobotColors();
+  static const _torsoBounds = Rect.fromLTRB(53, 137, 167, 213);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -493,6 +494,69 @@ class _DaskoRobotPainter extends CustomPainter {
     );
   }
 
+  Path _torsoPath(Rect bounds) {
+    final centerX = bounds.center.dx;
+    final top = bounds.top;
+    final bottom = bounds.bottom;
+    final height = bounds.height;
+    final halfWidth = bounds.width / 2;
+    final topSeatHalfWidth = halfWidth * 0.42;
+    final baseHalfWidth = halfWidth * 0.78;
+
+    return Path()
+      ..moveTo(centerX - topSeatHalfWidth, top)
+      ..lineTo(centerX + topSeatHalfWidth, top)
+      ..cubicTo(
+        centerX + halfWidth * 0.78,
+        top,
+        centerX + halfWidth,
+        top + height * 0.12,
+        centerX + halfWidth,
+        top + height * 0.31,
+      )
+      ..cubicTo(
+        centerX + halfWidth,
+        top + height * 0.57,
+        centerX + halfWidth * 0.88,
+        bottom - height * 0.30,
+        centerX + baseHalfWidth * 0.90,
+        bottom - height * 0.18,
+      )
+      ..cubicTo(
+        centerX + baseHalfWidth * 0.67,
+        bottom - height * 0.05,
+        centerX + baseHalfWidth * 0.28,
+        bottom,
+        centerX,
+        bottom,
+      )
+      ..cubicTo(
+        centerX - baseHalfWidth * 0.28,
+        bottom,
+        centerX - baseHalfWidth * 0.67,
+        bottom - height * 0.05,
+        centerX - baseHalfWidth * 0.90,
+        bottom - height * 0.18,
+      )
+      ..cubicTo(
+        centerX - halfWidth * 0.88,
+        bottom - height * 0.30,
+        centerX - halfWidth,
+        top + height * 0.57,
+        centerX - halfWidth,
+        top + height * 0.31,
+      )
+      ..cubicTo(
+        centerX - halfWidth,
+        top + height * 0.12,
+        centerX - halfWidth * 0.78,
+        top,
+        centerX - topSeatHalfWidth,
+        top,
+      )
+      ..close();
+  }
+
   void _drawTorso(Canvas canvas, double pulse) {
     final neck = RRect.fromRectAndRadius(
       const Rect.fromLTRB(91, 125, 129, 151),
@@ -506,15 +570,14 @@ class _DaskoRobotPainter extends CustomPainter {
         ).createShader(const Rect.fromLTRB(91, 125, 129, 151)),
     );
 
-    const bodyRect = Rect.fromLTRB(57, 137, 163, 211);
-    final body = RRect.fromRectAndRadius(bodyRect, const Radius.circular(31));
-    canvas.drawRRect(
+    final body = _torsoPath(_torsoBounds);
+    canvas.drawPath(
       body.shift(const Offset(0, 4)),
       Paint()
         ..color = colors.deepBlue.withValues(alpha: 0.75)
         ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8),
     );
-    canvas.drawRRect(
+    canvas.drawPath(
       body,
       Paint()
         ..shader = const LinearGradient(
@@ -527,9 +590,9 @@ class _DaskoRobotPainter extends CustomPainter {
             Color(0xFFB56BFF),
           ],
           stops: [0, 0.34, 0.70, 1],
-        ).createShader(bodyRect),
+        ).createShader(_torsoBounds),
     );
-    canvas.drawRRect(
+    canvas.drawPath(
       body,
       Paint()
         ..style = PaintingStyle.stroke
