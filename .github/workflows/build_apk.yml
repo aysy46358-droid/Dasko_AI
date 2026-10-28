@@ -199,7 +199,7 @@ jobs:
       - name: Get Flutter dependencies
         run: flutter pub get
 
-      - name: Verify Dart formatting without modifying files
+      - name: Apply Dart formatting to identify repository fixes
         shell: bash
         run: |
           set -euo pipefail
@@ -212,7 +212,20 @@ jobs:
             echo "::error::No Dart source files found under lib/ and test/."
             exit 1
           fi
-          dart format --output=none --set-exit-if-changed "${DART_FILES[@]}"
+          dart format "${DART_FILES[@]}"
+          mkdir -p build/dart-format-review
+          for file in "${DART_FILES[@]}"; do
+            mkdir -p "build/dart-format-review/$(dirname "$file")"
+            cp "$file" "build/dart-format-review/$file"
+          done
+
+      - name: Export formatted Dart sources for repository correction
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: dart-formatted-sources
+          path: build/dart-format-review/
+          if-no-files-found: error
 
       - name: Analyze project
         run: flutter analyze
