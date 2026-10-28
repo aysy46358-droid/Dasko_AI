@@ -86,7 +86,7 @@ class CinematicScreen extends StatelessWidget {
                     child: LayoutBuilder(
                       builder: (context, constraints) {
                         final robotHeight =
-                            (constraints.maxHeight * 0.76).clamp(300.0, 570.0);
+                            (constraints.maxHeight * 0.76).clamp(300.0, 570.0).toDouble();
                         return Center(
                           child: SizedBox(
                             height: robotHeight,
