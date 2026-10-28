@@ -266,7 +266,7 @@ class _DaskoRobotPainter extends CustomPainter {
     canvas.translate(67, 159);
     canvas.rotate(leftSway);
     canvas.translate(-67, -159);
-    _drawDroopingArm(canvas, pulse);
+    _drawRestingArm(canvas, pulse);
     canvas.restore();
 
     final waveSpeed = state == DaskoRobotState.happy ? 1.8 : 1.0;
@@ -284,49 +284,81 @@ class _DaskoRobotPainter extends CustomPainter {
     canvas.restore();
   }
 
-  void _drawDroopingArm(Canvas canvas, double pulse) {
-    final arm = Path()
+  void _drawRestingArm(Canvas canvas, double pulse) {
+    final upperArm = Path()
       ..moveTo(68, 153)
-      ..cubicTo(57, 152, 50, 160, 46, 170)
-      ..cubicTo(41, 181, 39, 189, 34, 196)
-      ..cubicTo(36, 201, 43, 203, 49, 199)
-      ..cubicTo(54, 190, 57, 181, 65, 175)
-      ..cubicTo(73, 169, 78, 163, 76, 157)
+      ..cubicTo(57, 151, 49, 159, 45, 170)
+      ..cubicTo(41, 179, 39, 187, 38, 193)
+      ..cubicTo(42, 198, 50, 198, 54, 192)
+      ..cubicTo(58, 182, 62, 174, 70, 169)
+      ..cubicTo(76, 166, 78, 160, 75, 156)
       ..close();
     _drawArmShell(
       canvas,
-      arm,
-      const Rect.fromLTRB(32, 151, 79, 204),
+      upperArm,
+      const Rect.fromLTRB(36, 150, 79, 200),
       pulse,
       shades: [colors.cyan, colors.shellBlue, colors.violet],
     );
 
-    final glove = Path()
-      ..moveTo(37, 195)
-      ..cubicTo(32, 192, 26, 195, 25, 200)
-      ..cubicTo(24, 204, 27, 208, 31, 210)
-      ..cubicTo(31, 215, 36, 218, 42, 216)
-      ..cubicTo(48, 214, 52, 209, 50, 204)
-      ..cubicTo(49, 199, 43, 195, 37, 195)
+    final forearm = Path()
+      ..moveTo(41, 184)
+      ..cubicTo(35, 188, 32, 196, 29, 202)
+      ..cubicTo(30, 208, 37, 211, 43, 206)
+      ..cubicTo(48, 202, 51, 195, 54, 190)
+      ..cubicTo(52, 185, 47, 182, 41, 184)
       ..close();
     _drawArmShell(
       canvas,
-      glove,
-      const Rect.fromLTRB(23, 192, 53, 219),
+      forearm,
+      const Rect.fromLTRB(27, 181, 56, 213),
       pulse,
       shades: [colors.ice, colors.cyan, colors.shellBlue],
     );
 
-    final seam = Path()
-      ..moveTo(31, 197)
-      ..quadraticBezierTo(40, 202, 50, 198);
-    _drawArmSeam(canvas, seam, pulse);
+    final glove = Path()
+      ..moveTo(36, 200)
+      ..cubicTo(30, 198, 26, 202, 27, 207)
+      ..lineTo(29, 214)
+      ..cubicTo(30, 218, 35, 219, 38, 215)
+      ..cubicTo(41, 219, 47, 216, 47, 211)
+      ..cubicTo(48, 206, 44, 202, 40, 200)
+      ..cubicTo(38, 199, 37, 199, 36, 200)
+      ..close();
+    _drawArmShell(
+      canvas,
+      glove,
+      const Rect.fromLTRB(25, 197, 49, 220),
+      pulse,
+      shades: [colors.ice, colors.cyan, colors.shellBlue],
+    );
+
+    final wristCuff = Path()
+      ..moveTo(29, 201)
+      ..quadraticBezierTo(39, 205, 49, 201);
+    _drawArmSeam(canvas, wristCuff, pulse);
+
+    final fingerCreases = Path()
+      ..moveTo(30, 209)
+      ..quadraticBezierTo(34, 211, 38, 209)
+      ..moveTo(38, 211)
+      ..quadraticBezierTo(42, 213, 46, 210);
+    canvas.drawPath(
+      fingerCreases,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.1
+        ..strokeCap = StrokeCap.round
+        ..color = colors.deepBlue.withValues(alpha: 0.62),
+    );
 
     final highlight = Path()
       ..moveTo(64, 158)
-      ..cubicTo(54, 163, 50, 175, 45, 188);
+      ..cubicTo(54, 163, 50, 174, 45, 182)
+      ..moveTo(36, 188)
+      ..quadraticBezierTo(33, 195, 32, 198);
     _drawArmHighlight(canvas, highlight, pulse);
-    _drawJoint(canvas, const Offset(45, 181), 6.5, pulse);
+    _drawJoint(canvas, const Offset(44, 187), 7, pulse);
   }
 
   void _drawRaisedArm(Canvas canvas, double pulse) {
