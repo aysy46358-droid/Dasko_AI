@@ -97,9 +97,8 @@ class _DaskoIntroScreenState extends State<DaskoIntroScreen>
                   offset: Offset(0, 20 * (1 - entrance)),
                   child: LayoutBuilder(
                     builder: (context, constraints) {
-                      final robotSize = constraints.maxHeight < 650
-                          ? 205.0
-                          : 245.0;
+                      final robotSize =
+                          constraints.maxHeight < 650 ? 205.0 : 245.0;
                       return SingleChildScrollView(
                         padding: const EdgeInsets.fromLTRB(24, 18, 24, 24),
                         child: ConstrainedBox(

@@ -28,6 +28,9 @@ jobs:
           channel: stable
           cache: true
 
+      - name: Resolve Dart package language version
+        run: flutter pub get
+
       - name: Apply official Dart formatting
         run: dart format .
 

@@ -81,7 +81,8 @@ class _WaveformPainter extends CustomPainter {
         primaryColor,
         secondaryColor,
         blend,
-      )!.withValues(alpha: 0.8);
+      )!
+          .withValues(alpha: 0.8);
       canvas.drawLine(
         Offset(x, centerY - barHeight / 2),
         Offset(x, centerY + barHeight / 2),
