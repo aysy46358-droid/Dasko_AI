@@ -82,8 +82,8 @@ class _DaskoRobotPainter extends CustomPainter {
     final bob = math.sin(phase) * 2.2;
 
     final bodyPaint = Paint()
-      ..shader = RadialGradient(
-        colors: const [
+      ..shader = const RadialGradient(
+        colors: [
           Color(0xFF6AF4F7),
           Color(0xFF00E5FF),
           Color(0xFF7C4DFF),
