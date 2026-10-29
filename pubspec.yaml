@@ -51,9 +51,11 @@ flutter:
     - assets/images/
     - assets/icon/
 
-flutter_launcher_icons:
-  android: true
-  ios: true
-  image_path: "assets/icon/dasko_icon.png"
-  min_sdk_android: 21
-  remove_alpha_ios: true
+# flutter_launcher_icons is kept as a dev dependency only.
+# Enable the block below after adding assets/icon/dasko_icon.png (512x512).
+# flutter_launcher_icons:
+#   android: true
+#   ios: true
+#   image_path: "assets/icon/dasko_icon.png"
+#   min_sdk_android: 21
+#   remove_alpha_ios: true
