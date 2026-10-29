@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:uuid/uuid.dart';
 
 import '../../../domain/entities/message.dart';
-import '../../../services/ai_engine/mock_ai_engine.dart';
+import '../application/chat_notifier.dart';
 import 'animated_neon_border.dart';
 import 'digital_space_background.dart';
 import 'interactive_dasko_robot.dart';
 
-const _uuid = Uuid();
 const _cyan = Color(0xFF00E5FF);
 const _violet = Color(0xFF7C4DFF);
 
@@ -20,13 +18,8 @@ class ChatScreen extends ConsumerStatefulWidget {
 }
 
 class _ChatScreenState extends ConsumerState<ChatScreen> {
-  final List<Message> _messages = [];
   final TextEditingController _controller = TextEditingController();
   final ScrollController _scroll = ScrollController();
-  bool _isReplying = false;
-  DaskoRobotState _robotState = DaskoRobotState.ready;
-
-  final _aiEngine = MockAiEngine();
 
   @override
   void dispose() {
@@ -49,56 +42,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
   Future<void> _send() async {
     final text = _controller.text.trim();
-    if (text.isEmpty || _isReplying) return;
+    if (text.isEmpty) return;
 
-    setState(() {
-      _messages.add(
-        Message(
-          id: _uuid.v4(),
-          text: text,
-          isUser: true,
-          createdAt: DateTime.now(),
-        ),
-      );
-      _isReplying = true;
-      _robotState = DaskoRobotState.thinking;
-    });
     _controller.clear();
-    _scrollToEnd();
-
-    final result = await _aiEngine.generateResponse(prompt: text);
+    await ref.read(chatNotifierProvider.notifier).send(text);
     if (!mounted) return;
-
-    result.fold(
-      (failure) {
-        setState(() {
-          _messages.add(
-            Message(
-              id: _uuid.v4(),
-              text: 'حدث خطأ: ${failure.message}',
-              isUser: false,
-              createdAt: DateTime.now(),
-            ),
-          );
-          _isReplying = false;
-          _robotState = DaskoRobotState.happy;
-        });
-      },
-      (response) {
-        setState(() {
-          _messages.add(
-            Message(
-              id: _uuid.v4(),
-              text: response,
-              isUser: false,
-              createdAt: DateTime.now(),
-            ),
-          );
-          _isReplying = false;
-          _robotState = DaskoRobotState.happy;
-        });
-      },
-    );
     _scrollToEnd();
   }
 
@@ -165,7 +113,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     );
   }
 
-  Widget _buildInputBar() {
+  Widget _buildInputBar({required bool isReplying}) {
     return Container(
       padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
       decoration: const BoxDecoration(
@@ -220,7 +168,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               ],
             ),
             child: IconButton.filled(
-              onPressed: _isReplying ? null : _send,
+              onPressed: isReplying ? null : _send,
               icon: const Icon(Icons.send_rounded),
               style: IconButton.styleFrom(
                 backgroundColor: _cyan,
@@ -237,6 +185,14 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     final maxWidth = MediaQuery.sizeOf(context).width * .79;
+    final chat = ref.watch(chatNotifierProvider);
+
+    ref.listen<ChatState>(chatNotifierProvider, (previous, next) {
+      if (previous != null &&
+          next.messages.length > previous.messages.length) {
+        _scrollToEnd();
+      }
+    });
 
     return Scaffold(
       backgroundColor: const Color(0xFF0B0F19),
@@ -269,7 +225,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                   ),
                   child: Row(
                     children: [
-                      InteractiveDaskoRobot(state: _robotState, size: 82),
+                      InteractiveDaskoRobot(
+                        state: chat.robotState,
+                        size: 82,
+                      ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Column(
@@ -285,10 +244,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                             ),
                             const SizedBox(height: 3),
                             Text(
-                              _isReplying ? 'أفكر بالرد...' : 'جاهز لمساعدتك',
+                              chat.isReplying
+                                  ? 'أفكر بالرد...'
+                                  : 'جاهز لمساعدتك',
                               style: TextStyle(
                                 fontSize: 12,
-                                color: _isReplying ? _violet : _cyan,
+                                color: chat.isReplying ? _violet : _cyan,
                               ),
                             ),
                           ],
@@ -301,7 +262,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               ),
             ),
             Expanded(
-              child: _messages.isEmpty
+              child: chat.messages.isEmpty
                   ? _buildEmptyState()
                   : ListView.builder(
                       controller: _scroll,
@@ -309,12 +270,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                         horizontal: 12,
                         vertical: 8,
                       ),
-                      itemCount: _messages.length,
+                      itemCount: chat.messages.length,
                       itemBuilder: (context, index) =>
-                          _buildBubble(_messages[index], maxWidth),
+                          _buildBubble(chat.messages[index], maxWidth),
                     ),
             ),
-            _buildInputBar(),
+            _buildInputBar(isReplying: chat.isReplying),
           ],
         ),
       ),
