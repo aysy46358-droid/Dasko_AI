@@ -4,7 +4,7 @@ import 'package:uuid/uuid.dart';
 import '../../../domain/entities/message.dart';
 import '../../../domain/usecases/send_message.dart';
 import '../../../services/ai_engine/ai_providers.dart';
-import '../presentation/interactive_dasko_robot.dart';
+import 'dasko_robot_state.dart';
 
 class ChatState {
   const ChatState({
