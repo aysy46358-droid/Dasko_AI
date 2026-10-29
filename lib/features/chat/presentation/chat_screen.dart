@@ -188,8 +188,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     final chat = ref.watch(chatNotifierProvider);
 
     ref.listen<ChatState>(chatNotifierProvider, (previous, next) {
-      if (previous != null &&
-          next.messages.length > previous.messages.length) {
+      if (previous != null && next.messages.length > previous.messages.length) {
         _scrollToEnd();
       }
     });

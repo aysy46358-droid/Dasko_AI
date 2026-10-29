@@ -40,8 +40,7 @@ void main() {
   });
 
   test('SendMessage maps engine failure', () async {
-    final useCase =
-        SendMessage(_FakeEngine(const Left(ServerFailure('down'))));
+    final useCase = SendMessage(_FakeEngine(const Left(ServerFailure('down'))));
     final result = await useCase(prompt: 'hi');
     expect(result.isLeft(), isTrue);
   });
