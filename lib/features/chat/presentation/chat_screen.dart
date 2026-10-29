@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../domain/entities/message.dart';
 import '../application/chat_notifier.dart';
 import 'animated_neon_border.dart';
+import 'chat_robot_state_mapper.dart';
 import 'digital_space_background.dart';
 import 'interactive_dasko_robot.dart';
 
@@ -225,7 +226,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                   child: Row(
                     children: [
                       InteractiveDaskoRobot(
-                        state: chat.robotState,
+                        state: mapChatRequestStatusToRobotState(
+                          chat.requestStatus,
+                        ),
                         size: 82,
                       ),
                       const SizedBox(width: 12),

@@ -13,7 +13,7 @@ This branch is the active experimental line. It extends the Phase 0 foundation w
 - `AiEngine` interface with `MockAiEngine` implementation
 - `aiEngineProvider` (UI does not construct the engine)
 - `SendMessage` use case
-- `ChatNotifier` owns chat state (messages, loading, robot state)
+- `ChatNotifier` owns functional chat state; presentation maps request status to the robot expression
 - Intro screen with optional welcome audio + TTS (failures are non-fatal)
 - Chat UI with neon/cinematic presentation
 - Firebase init is optional at runtime (app still launches if init fails)

@@ -2,9 +2,9 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
-import '../application/dasko_robot_state.dart';
+import 'dasko_robot_state.dart';
 
-export '../application/dasko_robot_state.dart';
+export 'dasko_robot_state.dart';
 
 /// Layered 2.5D Dasko mascot. Public API unchanged for screens and tests.
 class InteractiveDaskoRobot extends StatefulWidget {

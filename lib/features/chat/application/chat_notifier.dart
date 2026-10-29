@@ -4,32 +4,30 @@ import 'package:uuid/uuid.dart';
 import '../../../domain/entities/message.dart';
 import '../../../domain/usecases/send_message.dart';
 import '../../../services/ai_engine/ai_providers.dart';
-import 'dasko_robot_state.dart';
+import 'chat_request_status.dart';
 
 class ChatState {
   const ChatState({
     this.messages = const [],
-    this.isReplying = false,
-    this.robotState = DaskoRobotState.ready,
+    this.requestStatus = ChatRequestStatus.idle,
     this.errorMessage,
   });
 
   final List<Message> messages;
-  final bool isReplying;
-  final DaskoRobotState robotState;
+  final ChatRequestStatus requestStatus;
   final String? errorMessage;
+
+  bool get isReplying => requestStatus == ChatRequestStatus.sending;
 
   ChatState copyWith({
     List<Message>? messages,
-    bool? isReplying,
-    DaskoRobotState? robotState,
+    ChatRequestStatus? requestStatus,
     String? errorMessage,
     bool clearError = false,
   }) {
     return ChatState(
       messages: messages ?? this.messages,
-      isReplying: isReplying ?? this.isReplying,
-      robotState: robotState ?? this.robotState,
+      requestStatus: requestStatus ?? this.requestStatus,
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
     );
   }
@@ -56,8 +54,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
 
     state = state.copyWith(
       messages: [...state.messages, userMessage],
-      isReplying: true,
-      robotState: DaskoRobotState.thinking,
+      requestStatus: ChatRequestStatus.sending,
       clearError: true,
     );
 
@@ -75,16 +72,14 @@ class ChatNotifier extends StateNotifier<ChatState> {
               createdAt: DateTime.now(),
             ),
           ],
-          isReplying: false,
-          robotState: DaskoRobotState.happy,
+          requestStatus: ChatRequestStatus.failed,
           errorMessage: failure.message,
         );
       },
       (assistantMessage) {
         state = state.copyWith(
           messages: [...state.messages, assistantMessage],
-          isReplying: false,
-          robotState: DaskoRobotState.happy,
+          requestStatus: ChatRequestStatus.succeeded,
           clearError: true,
         );
       },
