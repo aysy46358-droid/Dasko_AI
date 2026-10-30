@@ -5,6 +5,7 @@ import 'package:model_viewer_plus/model_viewer_plus.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 import 'dasko_robot_state.dart';
+import 'model_viewer_bridge_event.dart';
 
 export 'dasko_robot_state.dart';
 
@@ -86,13 +87,15 @@ class _InteractiveDaskoRobotState extends State<InteractiveDaskoRobot> {
     }
   }
 
-  void _onBridgeMessage(dynamic message) {
-    final event = message.toString();
-    if (event == 'loaded') {
-      _bridgeReportedLoaded = true;
-      _markModelLoaded();
-    } else if (event == 'error' && mounted) {
-      setState(() => _modelFailed = true);
+  void _onBridgeMessage(JavaScriptMessage message) {
+    switch (parseModelViewerBridgeEvent(message)) {
+      case ModelViewerBridgeEvent.loaded:
+        _bridgeReportedLoaded = true;
+        _markModelLoaded();
+      case ModelViewerBridgeEvent.error:
+        if (mounted) setState(() => _modelFailed = true);
+      case ModelViewerBridgeEvent.unknown:
+        break;
     }
   }
 
