@@ -5,7 +5,9 @@ import '../core/theme/app_theme.dart';
 import '../features/chat/presentation/dasko_intro_screen.dart';
 
 class DaskoApp extends StatelessWidget {
-  const DaskoApp({super.key});
+  const DaskoApp({super.key, this.robotViewerOverride});
+
+  final Widget? robotViewerOverride;
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +23,7 @@ class DaskoApp extends StatelessWidget {
             child: child ?? const SizedBox.shrink(),
           );
         },
-        home: const DaskoIntroScreen(),
+        home: DaskoIntroScreen(robotViewerOverride: robotViewerOverride),
       ),
     );
   }

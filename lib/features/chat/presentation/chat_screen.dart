@@ -12,7 +12,9 @@ const _cyan = Color(0xFF00E5FF);
 const _violet = Color(0xFF7C4DFF);
 
 class ChatScreen extends ConsumerStatefulWidget {
-  const ChatScreen({super.key});
+  const ChatScreen({super.key, this.robotViewerOverride});
+
+  final Widget? robotViewerOverride;
 
   @override
   ConsumerState<ChatScreen> createState() => _ChatScreenState();
@@ -230,6 +232,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                           chat.requestStatus,
                         ),
                         size: 82,
+                        modelViewerOverride: widget.robotViewerOverride,
                       ),
                       const SizedBox(width: 12),
                       Expanded(

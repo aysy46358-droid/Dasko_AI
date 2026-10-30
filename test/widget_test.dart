@@ -5,12 +5,15 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   testWidgets('DaskoApp builds the application shell', (tester) async {
-    await tester.pumpWidget(const DaskoApp());
+    await tester.pumpWidget(
+      const DaskoApp(robotViewerOverride: SizedBox.expand()),
+    );
 
     expect(find.byType(DaskoApp), findsOneWidget);
+    expect(tester.takeException(), isNull);
   });
 
-  testWidgets('robot renders every state at intro and chat sizes', (
+  testWidgets('robot keeps the requested size for each visual state', (
     tester,
   ) async {
     const sizes = [82.0, 112.0, 205.0, 245.0];
@@ -21,7 +24,11 @@ void main() {
           MaterialApp(
             home: Scaffold(
               body: Center(
-                child: InteractiveDaskoRobot(state: state, size: size),
+                child: InteractiveDaskoRobot(
+                  state: state,
+                  size: size,
+                  modelViewerOverride: const SizedBox.expand(),
+                ),
               ),
             ),
           ),

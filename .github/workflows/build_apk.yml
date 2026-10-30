@@ -27,6 +27,9 @@ jobs:
           fetch-tags: true
           persist-credentials: true
 
+      - name: Validate local 3D model and Android network policy
+        run: python3 tooling/validate_dasko_robot_assets.py
+
       - name: Test Android certificate digest verifier
         shell: bash
         run: bash tooling/test_android_certificate_verifier.sh
@@ -57,10 +60,14 @@ jobs:
             android/build.gradle.kts
             android/app/build.gradle.kts
             android/app/src/main/AndroidManifest.xml
+            android/app/src/main/res/xml/network_security_config.xml
             android/gradle/wrapper/gradle-wrapper.properties
             android/gradle/wrapper/gradle-wrapper.jar
             android/gradlew
             android/gradlew.bat
+            assets/models/dasko_robot.glb
+            assets/images/dasko_robot_poster.png
+            tooling/validate_dasko_robot_assets.py
           )
           for file in "${required_files[@]}"; do
             if [ ! -s "$file" ]; then

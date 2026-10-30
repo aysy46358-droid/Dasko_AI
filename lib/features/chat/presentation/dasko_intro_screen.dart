@@ -9,7 +9,9 @@ import 'digital_space_background.dart';
 import 'interactive_dasko_robot.dart';
 
 class DaskoIntroScreen extends StatefulWidget {
-  const DaskoIntroScreen({super.key});
+  const DaskoIntroScreen({super.key, this.robotViewerOverride});
+
+  final Widget? robotViewerOverride;
 
   @override
   State<DaskoIntroScreen> createState() => _DaskoIntroScreenState();
@@ -74,7 +76,8 @@ class _DaskoIntroScreenState extends State<DaskoIntroScreen>
     Navigator.of(context).pushReplacement(
       PageRouteBuilder<void>(
         transitionDuration: const Duration(milliseconds: 420),
-        pageBuilder: (_, animation, __) => const ChatScreen(),
+        pageBuilder: (_, animation, __) =>
+            ChatScreen(robotViewerOverride: widget.robotViewerOverride),
         transitionsBuilder: (_, animation, __, child) =>
             FadeTransition(opacity: animation, child: child),
       ),
@@ -132,6 +135,8 @@ class _DaskoIntroScreenState extends State<DaskoIntroScreen>
                               InteractiveDaskoRobot(
                                 state: DaskoRobotState.ready,
                                 size: robotSize,
+                                playGreetingOnStart: true,
+                                modelViewerOverride: widget.robotViewerOverride,
                               ),
                               const SizedBox(height: 24),
                               const Text(
