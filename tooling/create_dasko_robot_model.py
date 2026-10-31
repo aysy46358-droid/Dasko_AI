@@ -474,10 +474,14 @@ add_action_strip(root, "idle_float", [
     (108, (0.0, -0.004, 0.0), (0.0, 0.0, 0.0)),
     (144, (0.0, 0.0, 0.0), (0.0, 0.0, 0.0)),
 ])
+# Keep the thinking pose legible in the 82 px chat avatar while preserving the
+# floating-head clearance: a restrained 6-degree tilt and 8 mm lift.
 add_action_strip(head, "thinking_loop", [
-    (0, (0.0, 0.665, 0.0), (0.0, 0.0, -math.radians(1.6))),
-    (24, (0.0, 0.667, 0.0), (0.0, 0.0, math.radians(1.6))),
-    (48, (0.0, 0.665, 0.0), (0.0, 0.0, -math.radians(1.6))),
+    (0, (0.0, 0.665, 0.0), (0.0, 0.0, 0.0)),
+    (12, (0.0, 0.673, 0.0), (0.0, 0.0, math.radians(6.0))),
+    (24, (0.0, 0.665, 0.0), (0.0, 0.0, 0.0)),
+    (36, (0.0, 0.673, 0.0), (0.0, 0.0, -math.radians(6.0))),
+    (48, (0.0, 0.665, 0.0), (0.0, 0.0, 0.0)),
 ])
 add_action_strip(right_arm, "wave_hand", [
     (0, (0.29, 0.392, 0.0), (0.0, 0.0, math.radians(8.0))),

@@ -33,6 +33,11 @@ ANIMATION_TARGETS = {
     "idle_float": "Dasko_RootMotion",
     "thinking_loop": "Head_TiltPivot",
 }
+ANIMATION_REQUIRED_PATHS = {
+    "wave_hand": {"rotation"},
+    "idle_float": {"translation"},
+    "thinking_loop": {"rotation"},
+}
 
 
 def fail(message: str) -> None:
@@ -88,6 +93,18 @@ def validate_model() -> None:
         fail(f"Missing required model nodes: {sorted(missing_nodes)}")
 
     node_indices = {node.get("name", ""): index for index, node in enumerate(nodes)}
+    root_scale = nodes[node_indices["Dasko_RootMotion"]].get(
+        "scale", [1.0, 1.0, 1.0]
+    )
+    if (
+        not isinstance(root_scale, list)
+        or len(root_scale) != 3
+        or any(
+            not isinstance(value, (int, float)) or abs(value - 1.0) > 1e-6
+            for value in root_scale
+        )
+    ):
+        fail("Dasko_RootMotion scale must remain fixed at 1 1 1")
 
     def require_child(parent_name: str, child_name: str) -> None:
         parent_index = node_indices[parent_name]
@@ -121,15 +138,25 @@ def validate_model() -> None:
         name = animation.get("name")
         if not animation.get("channels") or not animation.get("samplers"):
             fail(f"Animation has no playable channels: {name}")
-        targets: set[str] = set()
+        target_paths: dict[str, set[str]] = {}
         for channel in animation["channels"]:
-            target = channel.get("target", {}).get("node")
+            target_info = channel.get("target", {})
+            target = target_info.get("node")
             if not isinstance(target, int) or target < 0 or target >= len(nodes):
                 fail(f"Animation targets an invalid node: {name}")
-            targets.add(nodes[target].get("name", ""))
+            if target_info.get("path") == "scale":
+                fail(f"Animation must not change model scale: {name}")
+            target_name = nodes[target].get("name", "")
+            target_paths.setdefault(target_name, set()).add(target_info.get("path", ""))
         expected_target = ANIMATION_TARGETS[name]
-        if expected_target not in targets:
+        if expected_target not in target_paths:
             fail(f"Animation {name} does not animate {expected_target}")
+        required_paths = ANIMATION_REQUIRED_PATHS[name]
+        if not required_paths.issubset(target_paths[expected_target]):
+            fail(
+                f"Animation {name} is missing required paths on "
+                f"{expected_target}: {sorted(required_paths)}"
+            )
 
     external_uris = [
         item.get("uri")

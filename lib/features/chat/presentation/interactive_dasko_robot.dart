@@ -6,28 +6,52 @@ import 'package:webview_flutter/webview_flutter.dart';
 
 import 'dasko_robot_state.dart';
 import 'model_viewer_bridge_event.dart';
+import 'robot_animation_name.dart';
 
 export 'dasko_robot_state.dart';
 
 const _modelSource = 'assets/models/dasko_robot.glb';
+const _modelScale = '1 1 1';
+// Locking min/max prevents model-viewer's default auto radius from overriding it.
+const _cameraOrbit = '0deg 90deg 2m';
+const _cameraOrbitLimit = 'auto auto 2m';
+const _cameraTarget = '0m 0.52m 0m';
+const _fieldOfView = '35deg';
 const _modelViewerId = 'dasko_robot_model';
 const _bridgeName = 'DaskoModelBridge';
 const _waveHandDuration = Duration(milliseconds: 2167);
 
-const _modelBridgeScript = r'''
+const _modelBridgeScript = '''
 (() => {
   const report = (value) => {
     try { DaskoModelBridge.postMessage(value); } catch (_) {}
   };
   const attach = () => {
-    const viewer = document.getElementById("dasko_robot_model");
+    const viewer = document.getElementById("$_modelViewerId");
     if (!viewer) {
       window.setTimeout(attach, 30);
       return;
     }
-    viewer.addEventListener("load", () => report("loaded"), { once: true });
+    const prepareAndReveal = () => {
+      if (!viewer.loaded || viewer.dataset.daskoPrepared === "true") return;
+      viewer.dataset.daskoPrepared = "true";
+      viewer.scale = "$_modelScale";
+      viewer.minCameraOrbit = "$_cameraOrbitLimit";
+      viewer.maxCameraOrbit = "$_cameraOrbitLimit";
+      viewer.cameraTarget = "$_cameraTarget";
+      viewer.cameraOrbit = "$_cameraOrbit";
+      viewer.minFieldOfView = "$_fieldOfView";
+      viewer.maxFieldOfView = "$_fieldOfView";
+      viewer.fieldOfView = "$_fieldOfView";
+      viewer.updateComplete.then(() => {
+        viewer.jumpCameraToGoal();
+        viewer.dismissPoster();
+        report("loaded");
+      }).catch(() => report("error"));
+    };
+    viewer.addEventListener("load", prepareAndReveal, { once: true });
     viewer.addEventListener("error", () => report("error"), { once: true });
-    if (viewer.loaded) report("loaded");
+    if (viewer.loaded) prepareAndReveal();
   };
   customElements.whenDefined("model-viewer").then(attach).catch(() => report("error"));
 })();
@@ -114,9 +138,7 @@ class _InteractiveDaskoRobotState extends State<InteractiveDaskoRobot> {
   }
 
   Future<void> _playCurrentState() {
-    final animation = widget.state == DaskoRobotState.thinking
-        ? 'thinking_loop'
-        : 'idle_float';
+    final animation = animationNameForRobotState(widget.state);
     return _playAnimation(animation, repetitions: null);
   }
 
@@ -159,7 +181,7 @@ class _InteractiveDaskoRobotState extends State<InteractiveDaskoRobot> {
       alt: 'روبوت داسكو ثلاثي الأبعاد',
       backgroundColor: Colors.transparent,
       loading: Loading.eager,
-      reveal: Reveal.auto,
+      reveal: Reveal.manual,
       ar: false,
       cameraControls: false,
       autoPlay: false,
@@ -167,9 +189,14 @@ class _InteractiveDaskoRobotState extends State<InteractiveDaskoRobot> {
       disableTap: true,
       interactionPrompt: InteractionPrompt.none,
       animationCrossfadeDuration: 320,
-      cameraOrbit: '0deg 90deg auto',
-      cameraTarget: '0m 0.52m 0m',
-      fieldOfView: '35deg',
+      cameraOrbit: _cameraOrbit,
+      minCameraOrbit: _cameraOrbitLimit,
+      maxCameraOrbit: _cameraOrbitLimit,
+      cameraTarget: _cameraTarget,
+      fieldOfView: _fieldOfView,
+      minFieldOfView: _fieldOfView,
+      maxFieldOfView: _fieldOfView,
+      scale: _modelScale,
       exposure: 1.0,
       shadowIntensity: 0.35,
       debugLogging: false,
