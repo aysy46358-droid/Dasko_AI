@@ -7,10 +7,11 @@ import 'package:webview_flutter/webview_flutter.dart';
 import 'dasko_robot_state.dart';
 import 'model_viewer_bridge_event.dart';
 import 'robot_animation_name.dart';
+import '../../../core/constants/app_assets.dart';
+import '../../../core/constants/app_strings.dart';
 
 export 'dasko_robot_state.dart';
 
-const _modelSource = 'assets/models/dasko_robot.glb';
 const _modelScale = '1 1 1';
 // Locking min/max prevents model-viewer's default auto radius from overriding it.
 const _cameraOrbit = '0deg 90deg 2m';
@@ -176,9 +177,9 @@ class _InteractiveDaskoRobotState extends State<InteractiveDaskoRobot> {
     }
 
     return ModelViewer(
-      src: _modelSource,
+      src: AppAssets.robotModel,
       id: _modelViewerId,
-      alt: 'روبوت داسكو ثلاثي الأبعاد',
+      alt: AppStrings.robotAlt,
       backgroundColor: Colors.transparent,
       loading: Loading.eager,
       reveal: Reveal.manual,
@@ -224,9 +225,9 @@ class _InteractiveDaskoRobotState extends State<InteractiveDaskoRobot> {
               if (!_modelLoaded || _modelFailed)
                 IgnorePointer(
                   child: Image.asset(
-                    'assets/images/dasko_robot_poster.png',
+                    AppAssets.robotPoster,
                     fit: BoxFit.contain,
-                    semanticLabel: 'معاينة روبوت داسكو ثلاثي الأبعاد',
+                    semanticLabel: AppStrings.robotAlt,
                   ),
                 ),
             ],

@@ -1,7 +1,8 @@
 import 'package:dartz/dartz.dart';
+import 'package:dasko_ai/core/errors/app_exception.dart';
 import 'package:dasko_ai/core/errors/failures.dart';
+import 'package:dasko_ai/domain/repositories/ai_engine.dart';
 import 'package:dasko_ai/domain/usecases/send_message.dart';
-import 'package:dasko_ai/services/ai_engine/ai_engine.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 class _FakeEngine implements AiEngine {
@@ -16,6 +17,21 @@ class _FakeEngine implements AiEngine {
     List<Map<String, String>>? history,
   }) async {
     return response;
+  }
+}
+
+class _ThrowingEngine implements AiEngine {
+  _ThrowingEngine(this.error);
+
+  final Object error;
+
+  @override
+  Future<Either<Failure, String>> generateResponse({
+    required String prompt,
+    String? systemInstruction,
+    List<Map<String, String>>? history,
+  }) async {
+    throw error;
   }
 }
 
@@ -43,5 +59,28 @@ void main() {
     final useCase = SendMessage(_FakeEngine(const Left(ServerFailure('down'))));
     final result = await useCase(prompt: 'hi');
     expect(result.isLeft(), isTrue);
+  });
+
+  test('SendMessage maps typed network exceptions to a safe failure', () async {
+    final useCase = SendMessage(_ThrowingEngine(const NetworkException()));
+    final result = await useCase(prompt: 'hi');
+
+    result.fold(
+      (failure) => expect(failure, isA<NetworkFailure>()),
+      (_) => fail('expected a network failure'),
+    );
+  });
+
+  test('SendMessage hides unexpected exception details', () async {
+    final useCase = SendMessage(_ThrowingEngine(Exception('private detail')));
+    final result = await useCase(prompt: 'hi');
+
+    result.fold(
+      (failure) {
+        expect(failure, isA<UnexpectedFailure>());
+        expect(failure.message, isNot(contains('private detail')));
+      },
+      (_) => fail('expected an unexpected failure'),
+    );
   });
 }

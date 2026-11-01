@@ -1,11 +1,12 @@
 import 'dart:async';
 
 import 'package:dartz/dartz.dart';
+import 'package:dasko_ai/core/constants/app_strings.dart';
 import 'package:dasko_ai/core/errors/failures.dart';
+import 'package:dasko_ai/domain/repositories/ai_engine.dart';
 import 'package:dasko_ai/domain/usecases/send_message.dart';
 import 'package:dasko_ai/features/chat/application/chat_notifier.dart';
 import 'package:dasko_ai/features/chat/application/chat_request_status.dart';
-import 'package:dasko_ai/services/ai_engine/ai_engine.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 class _CompleterEngine implements AiEngine {
@@ -60,8 +61,10 @@ void main() {
 
       expect(notifier.state.requestStatus, ChatRequestStatus.failed);
       expect(notifier.state.isReplying, isFalse);
-      expect(notifier.state.errorMessage, 'unavailable');
+      expect(notifier.state.errorMessage, AppStrings.unknownError);
       expect(notifier.state.messages, hasLength(2));
+      expect(notifier.state.messages.last.text, AppStrings.unknownError);
+      expect(notifier.state.messages.last.text, isNot(contains('unavailable')));
 
       notifier.dispose();
     });

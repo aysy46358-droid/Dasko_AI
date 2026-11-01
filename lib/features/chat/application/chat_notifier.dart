@@ -2,8 +2,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../domain/entities/message.dart';
+import '../../../core/constants/app_strings.dart';
 import '../../../domain/usecases/send_message.dart';
-import '../../../services/ai_engine/ai_providers.dart';
 import 'chat_request_status.dart';
 
 class ChatState {
@@ -61,19 +61,19 @@ class ChatNotifier extends StateNotifier<ChatState> {
     final result = await _sendMessage(prompt: text);
 
     result.fold(
-      (failure) {
+      (_) {
         state = state.copyWith(
           messages: [
             ...state.messages,
             Message(
               id: _uuid.v4(),
-              text: 'حدث خطأ: ${failure.message}',
+              text: AppStrings.unknownError,
               isUser: false,
               createdAt: DateTime.now(),
             ),
           ],
           requestStatus: ChatRequestStatus.failed,
-          errorMessage: failure.message,
+          errorMessage: AppStrings.unknownError,
         );
       },
       (assistantMessage) {
@@ -86,12 +86,3 @@ class ChatNotifier extends StateNotifier<ChatState> {
     );
   }
 }
-
-final sendMessageProvider = Provider<SendMessage>((ref) {
-  return SendMessage(ref.watch(aiEngineProvider));
-});
-
-final chatNotifierProvider =
-    StateNotifierProvider<ChatNotifier, ChatState>((ref) {
-  return ChatNotifier(ref.watch(sendMessageProvider));
-});

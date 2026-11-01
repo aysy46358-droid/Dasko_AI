@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../app/providers.dart';
+import '../../../core/constants/app_strings.dart';
 import '../../../domain/entities/message.dart';
 import '../application/chat_notifier.dart';
 import 'animated_neon_border.dart';
@@ -101,7 +103,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             ),
             SizedBox(height: 16),
             Text(
-              'أهلاً بك يا داسكو.',
+              AppStrings.introGreeting,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 21,
@@ -250,8 +252,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                             const SizedBox(height: 3),
                             Text(
                               chat.isReplying
-                                  ? 'أفكر بالرد...'
-                                  : 'جاهز لمساعدتك',
+                                  ? AppStrings.thinkingRobot
+                                  : AppStrings.readyRobot,
                               style: TextStyle(
                                 fontSize: 12,
                                 color: chat.isReplying ? _violet : _cyan,

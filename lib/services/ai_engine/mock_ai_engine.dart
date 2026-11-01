@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
 
 import '../../core/errors/failures.dart';
-import 'ai_engine.dart';
+import '../../domain/repositories/ai_engine.dart';
 
 /// Temporary mock implementation.
 /// Will be replaced by real Gemini (or other) provider in Phase 1.
