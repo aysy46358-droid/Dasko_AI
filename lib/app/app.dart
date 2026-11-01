@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../core/constants/app_constants.dart';
 import '../core/theme/app_theme.dart';
 import '../features/chat/presentation/dasko_intro_screen.dart';
 
@@ -13,10 +14,10 @@ class DaskoApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return ProviderScope(
       child: MaterialApp(
-        title: 'Dasko AI',
+        title: AppConstants.appName,
         debugShowCheckedModeBanner: false,
         theme: AppTheme.dark,
-        locale: const Locale('ar'),
+        locale: const Locale(AppConstants.defaultLocale),
         builder: (context, child) {
           return Directionality(
             textDirection: TextDirection.rtl,

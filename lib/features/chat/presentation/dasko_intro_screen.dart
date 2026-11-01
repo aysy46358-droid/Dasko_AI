@@ -4,10 +4,11 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 
+import '../../../core/constants/app_constants.dart';
+import '../../../core/constants/app_strings.dart';
 import 'chat_screen.dart';
 import 'digital_space_background.dart';
 import 'interactive_dasko_robot.dart';
-import '../../../core/constants/app_strings.dart';
 
 class DaskoIntroScreen extends StatefulWidget {
   const DaskoIntroScreen({super.key, this.robotViewerOverride});
@@ -114,7 +115,7 @@ class _DaskoIntroScreenState extends State<DaskoIntroScreen>
                             children: [
                               const SizedBox(height: 8),
                               const Text(
-                                'DASKO AI',
+                                AppConstants.appWordmark,
                                 style: TextStyle(
                                   fontSize: 30,
                                   fontWeight: FontWeight.w800,

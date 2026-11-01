@@ -8,24 +8,84 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: dasko-android-version-allocation
   cancel-in-progress: false
 
 jobs:
-  build:
+  reserve_version:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      version_name: ${{ steps.allocate.outputs.version_name }}
+      version_code: ${{ steps.allocate.outputs.version_code }}
+    steps:
+      - name: Checkout repository for version allocation
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+          persist-credentials: false
+
+      - name: Reserve a unique Android version code
+        id: allocate
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          export GIT_CONFIG_COUNT=1
+          export GIT_CONFIG_KEY_0='http.https://github.com/.extraheader'
+          export GIT_CONFIG_VALUE_0="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)"
+          bash tooling/allocate_android_version.sh
+
+  build:
+    needs: reserve_version
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
     timeout-minutes: 30
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
         with:
-          fetch-depth: 0
-          fetch-tags: true
-          persist-credentials: true
+          persist-credentials: false
+
+      - name: Apply reserved Android version
+        shell: bash
+        env:
+          DASKO_VERSION_NAME: ${{ needs.reserve_version.outputs.version_name }}
+          DASKO_VERSION_CODE: ${{ needs.reserve_version.outputs.version_code }}
+        run: |
+          set -euo pipefail
+          python3 - "$DASKO_VERSION_NAME" <<'PY'
+          from pathlib import Path
+          import re
+          import sys
+
+          version = sys.argv[1]
+          if not re.fullmatch(r"\d+\.\d+\.\d+\+\d+", version):
+              raise SystemExit("::error::Reserved Flutter version has invalid format")
+          path = Path("pubspec.yaml")
+          content, count = re.subn(
+              r"(?m)^version:\s*\d+\.\d+\.\d+\+\d+\s*$",
+              f"version: {version}",
+              path.read_text(),
+              count=1,
+          )
+          if count != 1:
+              raise SystemExit("::error::Expected one pubspec version field")
+          path.write_text(content)
+          PY
+          if [[ ! "$DASKO_VERSION_CODE" =~ ^[0-9]+$ ]]; then
+            echo "::error::Reserved Android versionCode is invalid."
+            exit 1
+          fi
+          echo "DASKO_VERSION_CODE=$DASKO_VERSION_CODE" >> "$GITHUB_ENV"
 
       - name: Validate local 3D model and Android network policy
         run: python3 tooling/validate_dasko_robot_assets.py
@@ -33,10 +93,6 @@ jobs:
       - name: Test Android certificate digest verifier
         shell: bash
         run: bash tooling/test_android_certificate_verifier.sh
-
-      - name: Reserve a unique Android version code
-        shell: bash
-        run: bash tooling/allocate_android_version.sh
 
       - name: Setup Java
         uses: actions/setup-java@v5
@@ -119,33 +175,6 @@ jobs:
           cat android/gradle/wrapper/gradle-wrapper.properties
           echo "::endgroup::"
 
-      - name: Require persistent Android signing secrets
-        shell: bash
-        env:
-          DASKO_ANDROID_KEYSTORE_BASE64: ${{ secrets.DASKO_ANDROID_KEYSTORE_BASE64 }}
-          DASKO_ANDROID_KEYSTORE_PASSWORD: ${{ secrets.DASKO_ANDROID_KEYSTORE_PASSWORD }}
-          DASKO_ANDROID_KEY_ALIAS: ${{ secrets.DASKO_ANDROID_KEY_ALIAS }}
-          DASKO_ANDROID_KEY_PASSWORD: ${{ secrets.DASKO_ANDROID_KEY_PASSWORD }}
-        run: |
-          set -euo pipefail
-          for name in DASKO_ANDROID_KEYSTORE_BASE64 DASKO_ANDROID_KEYSTORE_PASSWORD DASKO_ANDROID_KEY_ALIAS DASKO_ANDROID_KEY_PASSWORD; do
-            if [ -z "${!name:-}" ]; then
-              echo "::error::Missing GitHub Actions secret: $name"
-              echo "::error::Add all DASKO Android signing secrets using docs/ANDROID_SIGNING.md before building an installable APK."
-              exit 1
-            fi
-          done
-
-          printf '%s' "$DASKO_ANDROID_KEYSTORE_BASE64" | base64 --decode > android/app/dasko-upload-keystore.jks
-          test -s android/app/dasko-upload-keystore.jks
-
-          cat > android/key.properties <<EOF
-          storePassword=$DASKO_ANDROID_KEYSTORE_PASSWORD
-          keyPassword=$DASKO_ANDROID_KEY_PASSWORD
-          keyAlias=$DASKO_ANDROID_KEY_ALIAS
-          storeFile=dasko-upload-keystore.jks
-          EOF
-
       - name: Configure Firebase Android
         shell: bash
         run: |
@@ -155,6 +184,29 @@ jobs:
             echo "::error::Firebase configuration file not found: $SOURCE"
             exit 1
           fi
+          python3 - "$SOURCE" android/app/build.gradle.kts <<'PY'
+          import json
+          import re
+          import sys
+          from pathlib import Path
+
+          config_path, gradle_path = map(Path, sys.argv[1:])
+          gradle = gradle_path.read_text()
+          match = re.search(r'applicationId\s*=\s*"([^"]+)"', gradle)
+          if not match:
+              raise SystemExit("::error::Unable to read Android applicationId")
+          application_id = match.group(1)
+          config = json.loads(config_path.read_text())
+          clients = config.get("client", [])
+          matches = [
+              client for client in clients
+              if client.get("client_info", {}).get("android_client_info", {}).get("package_name") == application_id
+          ]
+          if len(matches) != 1:
+              raise SystemExit(
+                  f"::error::Expected one Firebase client for {application_id}; found {len(matches)}"
+              )
+          PY
           cp "$SOURCE" android/app/google-services.json
           grep -Fq 'id("com.google.gms.google-services") version "4.5.0" apply false' android/settings.gradle.kts
           grep -Fq 'id("com.google.gms.google-services")' android/app/build.gradle.kts
@@ -206,8 +258,40 @@ jobs:
           printf '  %s\n' "${TEST_FILES[@]}"
           flutter test --reporter expanded
 
+      - name: Require persistent Android signing secrets
+        shell: bash
+        env:
+          DASKO_ANDROID_KEYSTORE_BASE64: ${{ secrets.DASKO_ANDROID_KEYSTORE_BASE64 }}
+          DASKO_ANDROID_KEYSTORE_PASSWORD: ${{ secrets.DASKO_ANDROID_KEYSTORE_PASSWORD }}
+          DASKO_ANDROID_KEY_ALIAS: ${{ secrets.DASKO_ANDROID_KEY_ALIAS }}
+          DASKO_ANDROID_KEY_PASSWORD: ${{ secrets.DASKO_ANDROID_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          for name in DASKO_ANDROID_KEYSTORE_BASE64 DASKO_ANDROID_KEYSTORE_PASSWORD DASKO_ANDROID_KEY_ALIAS DASKO_ANDROID_KEY_PASSWORD; do
+            if [ -z "${!name:-}" ]; then
+              echo "::error::Missing GitHub Actions secret: $name"
+              echo "::error::Add all DASKO Android signing secrets using docs/ANDROID_SIGNING.md before building an installable APK."
+              exit 1
+            fi
+          done
+
+          printf '%s' "$DASKO_ANDROID_KEYSTORE_BASE64" | base64 --decode > android/app/dasko-upload-keystore.jks
+          test -s android/app/dasko-upload-keystore.jks
+
+          cat > android/key.properties <<EOF
+          storePassword=$DASKO_ANDROID_KEYSTORE_PASSWORD
+          keyPassword=$DASKO_ANDROID_KEY_PASSWORD
+          keyAlias=$DASKO_ANDROID_KEY_ALIAS
+          storeFile=dasko-upload-keystore.jks
+          EOF
+
       - name: Build release APK
         run: flutter build apk --release
+
+      - name: Remove release signing material
+        if: always()
+        shell: bash
+        run: rm -f android/key.properties android/app/dasko-upload-keystore.jks
 
       - name: Verify APK metadata and signature
         shell: bash

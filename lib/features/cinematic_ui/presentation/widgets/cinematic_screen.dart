@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/constants/app_constants.dart';
+import '../../../../core/constants/app_strings.dart';
 import 'audio_waveform_widget.dart';
 
 /// Cinematic landing surface for the Dasko AI companion.
@@ -51,7 +53,7 @@ class CinematicScreen extends StatelessWidget {
                       ),
                       const SizedBox(width: 10),
                       const Text(
-                        'DASKO AI',
+                        AppConstants.appWordmark,
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 13,
@@ -77,7 +79,7 @@ class CinematicScreen extends StatelessWidget {
                             Icon(Icons.circle, color: _cyan, size: 6),
                             SizedBox(width: 7),
                             Text(
-                              'LOCAL CORE',
+                              AppStrings.cinematicLocalCore,
                               style: TextStyle(
                                 color: Color(0xFFB7C9E8),
                                 fontSize: 9,
@@ -108,7 +110,7 @@ class CinematicScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   const Text(
-                    'YOUR INTELLIGENCE. YOUR SPACE.',
+                    AppStrings.cinematicTagline,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: Color(0xFFB7C8E9),
@@ -119,7 +121,7 @@ class CinematicScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
                   const Text(
-                    'Always here. Always yours.',
+                    AppStrings.cinematicWelcome,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: Colors.white,
@@ -130,7 +132,7 @@ class CinematicScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    'A private companion, powered by you.',
+                    AppStrings.cinematicDescription,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: const Color(0xFFB9C5E0).withValues(alpha: 0.78),
@@ -163,7 +165,7 @@ class CinematicScreen extends StatelessWidget {
                     ),
                     child: const Center(
                       child: Text(
-                        'ENTER YOUR SPACE',
+                        AppStrings.cinematicEnter,
                         style: TextStyle(
                           color: Color(0xFF061026),
                           fontWeight: FontWeight.w800,
@@ -175,7 +177,7 @@ class CinematicScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    'PRIVATE BY DESIGN  •  READY WHEN YOU ARE',
+                    AppStrings.cinematicPrivacy,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: Colors.white.withValues(alpha: 0.38),

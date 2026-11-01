@@ -59,7 +59,7 @@ android {
 
     buildTypes {
         release {
-            // Local development can build without release secrets; CI injects them.
+            // Release tasks fail closed above unless the persistent signing key is available.
             signingConfig = if (hasReleaseSigning) {
                 signingConfigs.getByName("release")
             } else {

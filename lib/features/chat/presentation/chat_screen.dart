@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/providers.dart';
+import '../../../core/constants/app_constants.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../../domain/entities/message.dart';
 import '../application/chat_notifier.dart';
@@ -139,7 +140,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                 maxLines: 5,
                 style: const TextStyle(color: Colors.white, fontSize: 16),
                 decoration: InputDecoration(
-                  hintText: 'اكتب رسالتك...',
+                  hintText: AppStrings.chatInputHint,
                   hintStyle: const TextStyle(color: Colors.white38),
                   filled: true,
                   fillColor: Colors.transparent,
@@ -202,7 +203,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       backgroundColor: const Color(0xFF0B0F19),
       appBar: AppBar(
         title: const Text(
-          'DASKO AI',
+          AppConstants.appWordmark,
           style: TextStyle(
             fontWeight: FontWeight.w800,
             letterSpacing: 2,
@@ -242,7 +243,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const Text(
-                              'داسكو',
+                              AppStrings.robotName,
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,

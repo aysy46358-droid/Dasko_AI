@@ -44,3 +44,7 @@ p.write_text(s)
 print(f"Allocated Flutter version {sys.argv[2]}")
 PY
 echo "DASKO_VERSION_CODE=$CODE" >> "$GITHUB_ENV"
+if [[ -n "${GITHUB_OUTPUT:-}" ]]; then
+  printf 'version_name=%s\n' "$NEW_VERSION" >> "$GITHUB_OUTPUT"
+  printf 'version_code=%s\n' "$CODE" >> "$GITHUB_OUTPUT"
+fi

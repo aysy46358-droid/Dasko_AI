@@ -1,6 +1,6 @@
 class AppConstants {
   static const String appName = 'Dasko AI';
-  static const String appVersion = '1.0.0';
+  static const String appWordmark = 'DASKO AI';
 
   // Constitution
   static const String constitutionAssetPath =
