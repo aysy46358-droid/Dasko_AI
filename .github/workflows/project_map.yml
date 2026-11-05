@@ -1,0 +1,32 @@
+name: Project map consistency (experimental)
+
+on:
+  push:
+    branches:
+      - experimental-work
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-project-map:
+    name: Verify generated project inventory
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - name: Test project-map generator
+        run: python3 -m unittest tooling.test_project_map
+
+      - name: Check generated inventory without modifying files
+        run: python3 tooling/project_map.py --check

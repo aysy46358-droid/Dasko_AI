@@ -54,3 +54,8 @@ The current prototype initializes Firebase Core on a best-effort basis but does 
 ### Next hard step
 
 Replace `MockAiEngine` behind `aiEngineProvider` with a real provider implementation without changing chat UI code. Never package a Gemini Developer API key in the APK; select a server-side credential boundary and verify the provider's current free quotas and privacy requirements before enabling it.
+
+## Project navigation
+
+- [Project map](docs/PROJECT_MAP.md): verified architecture overview and generated inventory of Git-tracked files.
+- [Project control register](docs/PROJECT_CONTROL.md): evidence-based status, open risks, and prioritized next steps.
