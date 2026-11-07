@@ -129,8 +129,10 @@
 - `tooling/create_dasko_robot_model.py`
 - `tooling/project_map.py`
 - `tooling/setup_environment.sh`
+- `tooling/test_allocate_android_version.sh`
 - `tooling/test_android_certificate_verifier.sh`
 - `tooling/test_project_map.py`
+- `tooling/test_setup_environment.sh`
 - `tooling/validate_dasko_robot_assets.py`
 <!-- END AUTO-GENERATED FILE INVENTORY -->
 

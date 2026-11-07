@@ -25,8 +25,17 @@ ANDROID_SDK="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-}}"
 
 [ -n "$ANDROID_SDK" ] || fail 'Set ANDROID_HOME or ANDROID_SDK_ROOT to the installed Android SDK directory.'
 [ -d "$ANDROID_SDK" ] || fail "Android SDK directory does not exist: $ANDROID_SDK"
-[ -d "$ANDROID_SDK/platforms" ] || fail "Android SDK platforms directory is missing: $ANDROID_SDK/platforms"
+[ -d "$ANDROID_SDK/platforms/android-36" ] || fail "Android SDK platform android-36 is required by the pinned Flutter 3.47.8 toolchain: $ANDROID_SDK/platforms/android-36"
 [ -d "$ANDROID_SDK/build-tools" ] || fail "Android SDK build-tools directory is missing: $ANDROID_SDK/build-tools"
+HAS_REQUIRED_BUILD_TOOLS=false
+for AAPT in "$ANDROID_SDK"/build-tools/*/aapt; do
+  [ -x "$AAPT" ] || continue
+  if [ -x "${AAPT%/aapt}/apksigner" ]; then
+    HAS_REQUIRED_BUILD_TOOLS=true
+    break
+  fi
+done
+[ "$HAS_REQUIRED_BUILD_TOOLS" = true ] || fail 'Android SDK build-tools must include executable aapt and apksigner tools.'
 [ -s pubspec.lock ] || fail 'pubspec.lock is missing; restore the tracked lockfile before setup.'
 
 python3 - "$ROOT_DIR/android/local.properties" "$FLUTTER_SDK" "$ANDROID_SDK" <<'PY'

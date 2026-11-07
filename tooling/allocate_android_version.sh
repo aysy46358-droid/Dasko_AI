@@ -19,10 +19,15 @@ for attempt in $(seq 1 10); do
   TAG="$PREFIX$NEXT"
   git tag -d "$TAG" >/dev/null 2>&1 || true
   git tag "$TAG" "$GITHUB_SHA"
-  if git push origin "refs/tags/$TAG"; then
-    CODE=$NEXT
-    echo "Reserved versionCode=$CODE via $TAG"
-    break
+  if PUSH_OUTPUT="$(git push --porcelain origin "refs/tags/$TAG" 2>&1)"; then
+    if awk -F '\t' -v ref="refs/tags/$TAG" '$1 == "*" && $2 == ref ":" ref && $3 == "[new tag]" { created=1 } END { exit !created }' <<< "$PUSH_OUTPUT"; then
+      CODE=$NEXT
+      echo "Reserved versionCode=$CODE via $TAG"
+      break
+    fi
+    printf 'Reservation tag %s was already created by another run; retrying.\n' "$TAG" >&2
+  else
+    printf '%s\n' "$PUSH_OUTPUT" >&2
   fi
   git tag -d "$TAG" >/dev/null 2>&1 || true
   git fetch --force origin "+refs/tags/$PREFIX*:refs/tags/$PREFIX*" >/dev/null 2>&1 || true
