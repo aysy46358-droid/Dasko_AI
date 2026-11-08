@@ -1,4 +1,3 @@
-import 'package:dasko_ai/app/app.dart';
 import 'package:dasko_ai/core/theme/app_theme.dart';
 import 'package:dasko_ai/features/chat/presentation/chat_screen.dart';
 import 'package:dasko_ai/features/settings/application/theme_provider.dart';
@@ -15,7 +14,7 @@ class _ThemedChatApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return MaterialApp(
-      theme: themeDataFor(ref.watch(themeProvider)),
+      theme: AppTheme.themeDataFor(ref.watch(themeProvider)),
       home: const ChatScreen(robotViewerOverride: SizedBox.shrink()),
     );
   }

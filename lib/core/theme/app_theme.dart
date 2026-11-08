@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../features/settings/application/theme_provider.dart';
+
 class AppTheme {
   static const Color primary = Color(0xFF00E5FF);
   static const Color secondary = Color(0xFF7C4DFF);
@@ -145,6 +147,18 @@ class AppTheme {
         NeonGlow(borderGlow: neonBorderGlow),
       ],
     );
+  }
+
+  /// Maps a palette selection to the [ThemeData] consumed by `MaterialApp`.
+  ///
+  /// The switch is exhaustive over [AppThemeMode], so adding a palette becomes
+  /// a compile error here rather than a silent fallback.
+  static ThemeData themeDataFor(AppThemeMode mode) {
+    return switch (mode) {
+      AppThemeMode.light => light,
+      AppThemeMode.dark => dark,
+      AppThemeMode.neon => neon,
+    };
   }
 }
 
