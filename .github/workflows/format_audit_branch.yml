@@ -1,6 +1,9 @@
 name: Format audit branch
 
 on:
+  push:
+    branches:
+      - cursor/audit-fixes
   workflow_dispatch:
 
 permissions:
