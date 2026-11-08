@@ -126,6 +126,7 @@
 - `test/chat_screen_robot_state_test.dart`
 - `test/model_viewer_bridge_event_test.dart`
 - `test/send_message_test.dart`
+- `test/theme_mode_test.dart`
 - `test/widget_test.dart`
 - `tooling/allocate_android_version.sh`
 - `tooling/android_certificate_verifier.sh`

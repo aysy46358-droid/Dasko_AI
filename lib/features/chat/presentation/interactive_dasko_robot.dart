@@ -21,9 +21,17 @@ const _fieldOfView = '35deg';
 const _modelViewerId = 'dasko_robot_model';
 const _bridgeName = 'DaskoModelBridge';
 const _waveHandDuration = Duration(milliseconds: 2167);
+// Poster -> WebView cross-fade; matches model-viewer's own reveal smoothness.
+const _revealDuration = Duration(milliseconds: 320);
 
 const _modelBridgeScript = '''
 (() => {
+  // Guarantee the hosting WebView page has no opaque backdrop of its own, so
+  // the transparent model-viewer composites over the app's own background.
+  try {
+    document.documentElement.style.backgroundColor = "transparent";
+    if (document.body) document.body.style.backgroundColor = "transparent";
+  } catch (_) {}
   const report = (value) => {
     try { DaskoModelBridge.postMessage(value); } catch (_) {}
   };
@@ -90,13 +98,20 @@ class InteractiveDaskoRobot extends StatefulWidget {
   State<InteractiveDaskoRobot> createState() => _InteractiveDaskoRobotState();
 }
 
-class _InteractiveDaskoRobotState extends State<InteractiveDaskoRobot> {
+class _InteractiveDaskoRobotState extends State<InteractiveDaskoRobot>
+    with AutomaticKeepAliveClientMixin<InteractiveDaskoRobot> {
   WebViewController? _webViewController;
   Timer? _greetingTimer;
   bool _bridgeReportedLoaded = false;
   bool _modelLoaded = false;
   bool _modelFailed = false;
   bool _greetingStarted = false;
+
+  /// Keeps the platform WebView (and its loaded GLB) attached while the widget
+  /// scrolls out of view or the parent rebuilds, instead of paying for a
+  /// teardown/recreate cycle that makes the robot visibly shake.
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void didUpdateWidget(covariant InteractiveDaskoRobot oldWidget) {
@@ -225,6 +240,15 @@ class _InteractiveDaskoRobotState extends State<InteractiveDaskoRobot> {
 
   @override
   Widget build(BuildContext context) {
+    // Required by AutomaticKeepAliveClientMixin; its return value is a
+    // placeholder and must be ignored.
+    super.build(context);
+
+    // The WebView is only revealed once the GLB has loaded and the camera has
+    // been jumped to its final pose, so the default model-viewer scale/pose is
+    // never visible and the robot no longer "snaps" into shape.
+    final modelVisible = _modelLoaded && !_modelFailed;
+
     return RepaintBoundary(
       child: SizedBox.square(
         dimension: widget.size,
@@ -232,15 +256,24 @@ class _InteractiveDaskoRobotState extends State<InteractiveDaskoRobot> {
           child: Stack(
             fit: StackFit.expand,
             children: [
-              _buildModelViewer(),
-              if (!_modelLoaded || _modelFailed)
-                IgnorePointer(
+              AnimatedOpacity(
+                opacity: modelVisible ? 1 : 0,
+                duration: _revealDuration,
+                curve: Curves.easeOut,
+                child: _buildModelViewer(),
+              ),
+              IgnorePointer(
+                child: AnimatedOpacity(
+                  opacity: modelVisible ? 0 : 1,
+                  duration: _revealDuration,
+                  curve: Curves.easeIn,
                   child: Image.asset(
                     AppAssets.robotPoster,
                     fit: BoxFit.contain,
                     semanticLabel: AppStrings.robotAlt,
                   ),
                 ),
+              ),
             ],
           ),
         ),
