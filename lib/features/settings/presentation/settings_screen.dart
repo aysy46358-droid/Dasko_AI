@@ -79,11 +79,7 @@ class SettingsScreen extends ConsumerWidget {
 }
 
 class _ThemeOptionTile extends ConsumerWidget {
-  const _ThemeOptionTile({
-    super.key,
-    required this.option,
-    required this.selectedMode,
-  });
+  const _ThemeOptionTile({required this.option, required this.selectedMode});
 
   final _ThemeOption option;
   final ThemeMode selectedMode;

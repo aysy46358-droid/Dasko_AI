@@ -267,7 +267,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 /// Narrow status header: it selects only [ChatState.requestStatus], so the 3D
 /// robot subtree rebuilds on status transitions instead of every chat update.
 class _RobotStatusHeader extends ConsumerWidget {
-  const _RobotStatusHeader({super.key, this.robotViewerOverride});
+  const _RobotStatusHeader({this.robotViewerOverride});
 
   final Widget? robotViewerOverride;
 
