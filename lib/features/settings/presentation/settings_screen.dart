@@ -6,22 +6,22 @@ import '../../../core/constants/app_strings.dart';
 
 const _cyan = Color(0xFF00E5FF);
 
-/// Available theme choices, each mapping to a [ThemeMode].
+/// Available theme choices, each mapping to an [AppThemeMode].
 enum _ThemeOption {
   dark(
-    mode: ThemeMode.dark,
+    mode: AppThemeMode.dark,
     label: AppStrings.themeDark,
     icon: Icons.dark_mode_outlined,
   ),
   light(
-    mode: ThemeMode.light,
+    mode: AppThemeMode.light,
     label: AppStrings.themeLight,
     icon: Icons.light_mode_outlined,
   ),
-  system(
-    mode: ThemeMode.system,
-    label: AppStrings.themeSystem,
-    icon: Icons.brightness_auto_outlined,
+  neon(
+    mode: AppThemeMode.neon,
+    label: AppStrings.themeNeon,
+    icon: Icons.auto_awesome_outlined,
   );
 
   const _ThemeOption({
@@ -30,7 +30,7 @@ enum _ThemeOption {
     required this.icon,
   });
 
-  final ThemeMode mode;
+  final AppThemeMode mode;
   final String label;
   final IconData icon;
 }
@@ -41,7 +41,7 @@ class SettingsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final themeMode = ref.watch(themeProvider);
+    final appThemeMode = ref.watch(themeProvider);
 
     return Scaffold(
       backgroundColor: const Color(0xFF0B0F19),
@@ -71,7 +71,7 @@ class SettingsScreen extends ConsumerWidget {
             ),
           ),
           for (final option in _ThemeOption.values)
-            _ThemeOptionTile(option: option, selectedMode: themeMode),
+            _ThemeOptionTile(option: option, selectedMode: appThemeMode),
         ],
       ),
     );
@@ -82,7 +82,7 @@ class _ThemeOptionTile extends ConsumerWidget {
   const _ThemeOptionTile({required this.option, required this.selectedMode});
 
   final _ThemeOption option;
-  final ThemeMode selectedMode;
+  final AppThemeMode selectedMode;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

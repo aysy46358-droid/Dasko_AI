@@ -21,5 +21,5 @@ class AppStrings {
   static const String themeSectionTitle = 'المظهر';
   static const String themeDark = 'داكن';
   static const String themeLight = 'فاتح';
-  static const String themeSystem = 'حسب النظام';
+  static const String themeNeon = 'نيون';
 }

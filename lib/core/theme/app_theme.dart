@@ -35,9 +35,7 @@ class AppTheme {
     );
   }
 
-  /// Light counterpart of [dark]. Required for `ThemeMode.light` and
-  /// `ThemeMode.system` to change anything: Flutter falls back to `theme`
-  /// when no `darkTheme`/light variant is supplied.
+  /// Light counterpart of [dark].
   static ThemeData get light {
     return ThemeData(
       useMaterial3: true,
@@ -57,6 +55,77 @@ class AppTheme {
         cursorColor: primaryDark,
         selectionColor: Color(0x3300B8CC),
         selectionHandleColor: primaryDark,
+      ),
+    );
+  }
+
+  /// Cyan→violet glow applied to neon text styles.
+  static const List<Shadow> neonTextGlow = <Shadow>[
+    Shadow(color: Color(0xAA00E5FF), blurRadius: 14),
+    Shadow(color: Color(0x887C4DFF), blurRadius: 26),
+  ];
+
+  /// Cyan→violet glow applied behind neon borders and floating surfaces.
+  static const List<BoxShadow> neonBorderGlow = <BoxShadow>[
+    BoxShadow(color: Color(0x6600E5FF), blurRadius: 18),
+    BoxShadow(color: Color(0x447C4DFF), blurRadius: 28),
+  ];
+
+  /// Glowing text style; defaults reproduce the app wordmark treatment.
+  static TextStyle neonText({
+    double fontSize = 14,
+    FontWeight fontWeight = FontWeight.w700,
+    Color color = primary,
+    double? letterSpacing,
+  }) {
+    return TextStyle(
+      fontSize: fontSize,
+      fontWeight: fontWeight,
+      color: color,
+      letterSpacing: letterSpacing,
+      shadows: neonTextGlow,
+    );
+  }
+
+  /// Signature palette: the dark canvas lit by cyan and violet neon.
+  static ThemeData get neon {
+    return ThemeData(
+      useMaterial3: true,
+      brightness: Brightness.dark,
+      scaffoldBackgroundColor: background,
+      colorScheme: const ColorScheme.dark(
+        primary: primary,
+        secondary: secondary,
+        surface: surface,
+      ),
+      appBarTheme: AppBarTheme(
+        backgroundColor: background,
+        surfaceTintColor: Colors.transparent,
+        centerTitle: true,
+        titleTextStyle: neonText(
+          fontSize: 22,
+          fontWeight: FontWeight.w800,
+          letterSpacing: 2,
+        ),
+        iconTheme: const IconThemeData(color: primary),
+        actionsIconTheme: const IconThemeData(color: primary),
+      ),
+      filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(
+          backgroundColor: primary,
+          foregroundColor: const Color(0xFF061018),
+          shadowColor: primary,
+          elevation: 12,
+        ),
+      ),
+      iconButtonTheme: IconButtonThemeData(
+        style: IconButton.styleFrom(foregroundColor: primary),
+      ),
+      dividerTheme: const DividerThemeData(color: Color(0x447C4DFF)),
+      textSelectionTheme: const TextSelectionThemeData(
+        cursorColor: primary,
+        selectionColor: Color(0x5500E5FF),
+        selectionHandleColor: primary,
       ),
     );
   }
