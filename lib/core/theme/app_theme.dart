@@ -168,8 +168,8 @@ class NeonGlow extends ThemeExtension<NeonGlow> {
   NeonGlow lerp(ThemeExtension<NeonGlow>? other, double t) {
     if (other is! NeonGlow) return this;
     return NeonGlow(
-      borderGlow: BoxShadow.lerpList(borderGlow, other.borderGlow, t) ??
-          borderGlow,
+      borderGlow:
+          BoxShadow.lerpList(borderGlow, other.borderGlow, t) ?? borderGlow,
     );
   }
 }

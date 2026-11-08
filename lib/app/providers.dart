@@ -17,4 +17,3 @@ final chatNotifierProvider =
     StateNotifierProvider<ChatNotifier, ChatState>((ref) {
   return ChatNotifier(ref.watch(sendMessageProvider));
 });
-
