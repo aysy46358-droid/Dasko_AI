@@ -26,5 +26,4 @@ enum AppThemeMode { light, dark, neon }
 
 /// App-wide theme selection consumed by `MaterialApp.theme`.
 /// Defaults to [AppThemeMode.neon] because that is the shipped aesthetic.
-final themeProvider =
-    StateProvider<AppThemeMode>((ref) => AppThemeMode.neon);
+final themeProvider = StateProvider<AppThemeMode>((ref) => AppThemeMode.neon);
