@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart' show ThemeMode;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../domain/repositories/ai_engine.dart';
@@ -19,6 +18,13 @@ final chatNotifierProvider =
   return ChatNotifier(ref.watch(sendMessageProvider));
 });
 
-/// App-wide theme selection consumed by `MaterialApp.themeMode`.
-/// Defaults to the dark neon palette the product ships with.
-final themeProvider = StateProvider<ThemeMode>((ref) => ThemeMode.dark);
+/// Selectable app palettes.
+///
+/// `neon` is the product's signature look: the dark canvas plus cyan/violet
+/// glow accents. `light` and `dark` are the plain Material variants.
+enum AppThemeMode { light, dark, neon }
+
+/// App-wide theme selection consumed by `MaterialApp.theme`.
+/// Defaults to [AppThemeMode.neon] because that is the shipped aesthetic.
+final themeProvider =
+    StateProvider<AppThemeMode>((ref) => AppThemeMode.neon);

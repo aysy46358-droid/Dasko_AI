@@ -19,7 +19,16 @@ class DaskoApp extends StatelessWidget {
   }
 }
 
-/// Consumes [themeProvider] so `MaterialApp.themeMode` follows the settings.
+/// Maps the selected [AppThemeMode] to the palette used by `MaterialApp`.
+ThemeData _themeDataFor(AppThemeMode mode) {
+  return switch (mode) {
+    AppThemeMode.light => AppTheme.light,
+    AppThemeMode.dark => AppTheme.dark,
+    AppThemeMode.neon => AppTheme.neon,
+  };
+}
+
+/// Consumes [themeProvider] so `MaterialApp.theme` follows the settings.
 class _DaskoAppShell extends ConsumerWidget {
   const _DaskoAppShell({this.robotViewerOverride});
 
@@ -27,14 +36,12 @@ class _DaskoAppShell extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final themeMode = ref.watch(themeProvider);
+    final appThemeMode = ref.watch(themeProvider);
 
     return MaterialApp(
       title: AppConstants.appName,
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.light,
-      darkTheme: AppTheme.dark,
-      themeMode: themeMode,
+      theme: _themeDataFor(appThemeMode),
       locale: const Locale(AppConstants.defaultLocale),
       builder: (context, child) {
         return Directionality(
