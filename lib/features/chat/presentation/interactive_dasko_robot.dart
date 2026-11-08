@@ -177,6 +177,9 @@ class _InteractiveDaskoRobotState extends State<InteractiveDaskoRobot> {
     }
 
     return ModelViewer(
+      // Stable identity keeps the platform WebView attached to this subtree:
+      // without it, rebuilds can spawn a second WebView behind the first.
+      key: const ValueKey('dasko_3d_webview'),
       src: AppAssets.robotModel,
       id: _modelViewerId,
       alt: AppStrings.robotAlt,

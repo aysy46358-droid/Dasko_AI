@@ -5,7 +5,9 @@ import '../../../app/providers.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../../domain/entities/message.dart';
+import '../../settings/presentation/settings_screen.dart';
 import '../application/chat_notifier.dart';
+import '../application/chat_request_status.dart';
 import 'animated_neon_border.dart';
 import 'chat_robot_state_mapper.dart';
 import 'digital_space_background.dart';
@@ -191,7 +193,14 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     final maxWidth = MediaQuery.sizeOf(context).width * .79;
-    final chat = ref.watch(chatNotifierProvider);
+    // Narrow selections: the screen rebuilds only when the message list or the
+    // reply flag actually changes, never for unrelated state updates.
+    final messages = ref.watch(
+      chatNotifierProvider.select((state) => state.messages),
+    );
+    final isReplying = ref.watch(
+      chatNotifierProvider.select((state) => state.isReplying),
+    );
 
     ref.listen<ChatState>(chatNotifierProvider, (previous, next) {
       if (previous != null && next.messages.length > previous.messages.length) {
@@ -213,64 +222,28 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         centerTitle: true,
         backgroundColor: const Color(0xDD0B0F19),
         surfaceTintColor: Colors.transparent,
+        actions: [
+          IconButton(
+            tooltip: AppStrings.settingsTooltip,
+            icon: const Icon(Icons.settings, color: _cyan),
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => const SettingsScreen(),
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: DigitalSpaceBackground(
         child: Column(
           children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
-              child: AnimatedNeonBorder(
-                borderRadius: 22,
-                borderWidth: 1.15,
-                backgroundColor: const Color(0xD9101829),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-                  child: Row(
-                    children: [
-                      InteractiveDaskoRobot(
-                        state: mapChatRequestStatusToRobotState(
-                          chat.requestStatus,
-                        ),
-                        size: 82,
-                        modelViewerOverride: widget.robotViewerOverride,
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              AppStrings.robotName,
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                            const SizedBox(height: 3),
-                            Text(
-                              chat.isReplying
-                                  ? AppStrings.thinkingRobot
-                                  : AppStrings.readyRobot,
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: chat.isReplying ? _violet : _cyan,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const Icon(Icons.shield_outlined, color: _cyan),
-                    ],
-                  ),
-                ),
-              ),
+            _RobotStatusHeader(
+              robotViewerOverride: widget.robotViewerOverride,
             ),
             Expanded(
-              child: chat.messages.isEmpty
+              child: messages.isEmpty
                   ? _buildEmptyState()
                   : ListView.builder(
                       controller: _scroll,
@@ -278,13 +251,77 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                         horizontal: 12,
                         vertical: 8,
                       ),
-                      itemCount: chat.messages.length,
+                      itemCount: messages.length,
                       itemBuilder: (context, index) =>
-                          _buildBubble(chat.messages[index], maxWidth),
+                          _buildBubble(messages[index], maxWidth),
                     ),
             ),
-            _buildInputBar(isReplying: chat.isReplying),
+            _buildInputBar(isReplying: isReplying),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Narrow status header: it selects only [ChatState.requestStatus], so the 3D
+/// robot subtree rebuilds on status transitions instead of every chat update.
+class _RobotStatusHeader extends ConsumerWidget {
+  const _RobotStatusHeader({this.robotViewerOverride});
+
+  final Widget? robotViewerOverride;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final requestStatus = ref.watch(
+      chatNotifierProvider.select((state) => state.requestStatus),
+    );
+    final isReplying = requestStatus == ChatRequestStatus.sending;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+      child: AnimatedNeonBorder(
+        borderRadius: 22,
+        borderWidth: 1.15,
+        backgroundColor: const Color(0xD9101829),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          child: Row(
+            children: [
+              InteractiveDaskoRobot(
+                state: mapChatRequestStatusToRobotState(requestStatus),
+                size: 82,
+                modelViewerOverride: robotViewerOverride,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      AppStrings.robotName,
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      isReplying
+                          ? AppStrings.thinkingRobot
+                          : AppStrings.readyRobot,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: isReplying ? _violet : _cyan,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Icon(Icons.shield_outlined, color: _cyan),
+            ],
+          ),
         ),
       ),
     );
