@@ -45,7 +45,7 @@ lib/
 
 ### Firebase security status
 
-The current prototype initializes Firebase Core on a best-effort basis but does not access Firebase Authentication, Firestore, Realtime Database, Cloud Storage, or callable Functions. No deployable Firebase rules or App Check configuration are included in this repository, so remote console rules and enforcement must be verified before adding any Firebase-backed data or endpoints. Crash reporting is not active yet.
+The prototype initializes Firebase Core on a best-effort basis and wires Firebase Crashlytics for non-fatal Flutter and uncaught asynchronous errors on supported Apple/Android platforms. Reports contain a sanitized error type, a fixed source label, and stack frames; raw exception messages, chat content, API keys, and user identifiers are not forwarded. Crashlytics ingestion and a device/console test have not yet been verified. The app does not access Firebase Authentication, Firestore, Realtime Database, Cloud Storage, or callable Functions. No deployable Firebase rules or App Check configuration are included in this repository, so remote console rules and enforcement must be verified before adding any Firebase-backed data or endpoints.
 
 ### Launcher icon
 

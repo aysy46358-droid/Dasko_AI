@@ -36,7 +36,8 @@
 
 ## حدود التكاملات والأمان بحسب المستودع
 
-- Firebase Core مهيأ اختيارياً عند الإقلاع. وفق حالة الكود الموثقة في README وملفات الاعتماد الحالية، لا يوجد تكامل Auth أو Firestore أو Realtime Database أو Storage أو callable Functions أو App Check أو Crashlytics.
+- Firebase Core مهيأ اختيارياً عند الإقلاع، وCrashlytics مهيأ في `lib/main.dart` لتسجيل الأخطاء غير القاتلة على Android وiOS وmacOS بعد نجاح تهيئة Firebase. يمرر التقرير نوع الخطأ ومصدره الثابت وإطارات المكدس فقط، لا نص الاستثناء الخام أو محتوى المحادثة أو مفاتيح API أو معرّفات المستخدم. لم يُتحقق بعد من وصول التقارير إلى Firebase Console أو اختبارها على جهاز.
+- لا يوجد تكامل Auth أو Firestore أو Realtime Database أو Storage أو callable Functions أو App Check.
 - لا توجد في المستودع قواعد Firebase قابلة للنشر؛ إعدادات القواعد والإنفاذ في Firebase Console خارج نطاق الملفات ويجب التحقق منها هناك قبل إضافة اعتماد على بيانات أو خدمات Firebase.
 - إعداد `google-services.json` هو إعداد عميل Android؛ لا يُعامل كمكان لحفظ أسرار مزود ذكاء اصطناعي.
 
