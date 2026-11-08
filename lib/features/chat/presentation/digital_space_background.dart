@@ -50,9 +50,8 @@ class _DigitalSpaceBackgroundState extends State<DigitalSpaceBackground>
                       Color(0xFF101426),
                       Color(0xFF0B0F19),
                     ],
-              stops: isLight
-                  ? const <double>[0, 1]
-                  : const <double>[0, 0.48, 1],
+              stops:
+                  isLight ? const <double>[0, 1] : const <double>[0, 0.48, 1],
             ),
           ),
         ),
@@ -112,7 +111,7 @@ class _SpacePainter extends CustomPainter {
         ..style = PaintingStyle.stroke
         ..strokeWidth = 0.7
         ..color = (i.isEven ? primary : secondary)
-        .withValues(alpha: (_isLight ? 0.18 : 0.12) + (i % 3) * .035);
+            .withValues(alpha: (_isLight ? 0.18 : 0.12) + (i % 3) * .035);
       canvas.drawOval(
         Rect.fromCenter(
           center: Offset.zero,
