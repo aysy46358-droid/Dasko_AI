@@ -49,7 +49,9 @@ void main() {
     // still shows the old palette; advance past kThemeAnimationDuration. The
     // space background animates forever, so pumpAndSettle would never return.
     await tester.pump();
-    await tester.pump(kThemeAnimationDuration + const Duration(milliseconds: 50));
+    await tester.pump(
+      kThemeAnimationDuration + const Duration(milliseconds: 50),
+    );
 
     final lightBackground = tester.widget<Scaffold>(scaffold).backgroundColor;
     expect(lightBackground, AppTheme.light.scaffoldBackgroundColor);
