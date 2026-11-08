@@ -88,8 +88,12 @@ class _DaskoIntroScreenState extends State<DaskoIntroScreen>
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final isLight = theme.brightness == Brightness.light;
+
     return Scaffold(
-      backgroundColor: const Color(0xFF0B0F19),
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: DigitalSpaceBackground(
           child: AnimatedBuilder(
@@ -114,23 +118,25 @@ class _DaskoIntroScreenState extends State<DaskoIntroScreen>
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               const SizedBox(height: 8),
-                              const Text(
+                              Text(
                                 AppConstants.appWordmark,
                                 style: TextStyle(
                                   fontSize: 30,
                                   fontWeight: FontWeight.w800,
                                   letterSpacing: 4,
-                                  color: Color(0xFF00E5FF),
-                                  shadows: [
-                                    Shadow(
-                                      color: Color(0xAA00E5FF),
-                                      blurRadius: 22,
-                                    ),
-                                    Shadow(
-                                      color: Color(0x887C4DFF),
-                                      blurRadius: 34,
-                                    ),
-                                  ],
+                                  color: colors.primary,
+                                  shadows: isLight
+                                      ? null
+                                      : const [
+                                          Shadow(
+                                            color: Color(0xAA00E5FF),
+                                            blurRadius: 22,
+                                          ),
+                                          Shadow(
+                                            color: Color(0x887C4DFF),
+                                            blurRadius: 34,
+                                          ),
+                                        ],
                                 ),
                               ),
                               const SizedBox(height: 20),
@@ -141,19 +147,21 @@ class _DaskoIntroScreenState extends State<DaskoIntroScreen>
                                 modelViewerOverride: widget.robotViewerOverride,
                               ),
                               const SizedBox(height: 24),
-                              const Text(
+                              Text(
                                 AppStrings.introGreeting,
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontSize: 23,
                                   fontWeight: FontWeight.w700,
-                                  color: Colors.white,
-                                  shadows: [
-                                    Shadow(
-                                      color: Color(0x7700E5FF),
-                                      blurRadius: 16,
-                                    ),
-                                  ],
+                                  color: colors.onSurface,
+                                  shadows: isLight
+                                      ? null
+                                      : const [
+                                          Shadow(
+                                            color: Color(0x7700E5FF),
+                                            blurRadius: 16,
+                                          ),
+                                        ],
                                 ),
                               ),
                               const SizedBox(height: 30),

@@ -1,3 +1,5 @@
+import 'dart:ui' show ImageFilter;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -69,22 +71,32 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         constraints: BoxConstraints(maxWidth: maxWidth),
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 5),
-          child: AnimatedNeonBorder(
-            borderRadius: 18,
-            borderWidth: 1.25,
-            backgroundColor:
-                isUser ? colors.primaryContainer : colors.secondaryContainer,
-            duration: Duration(milliseconds: isUser ? 4200 : 3300),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              child: Text(
-                message.text,
-                style: theme.textTheme.bodyLarge?.copyWith(
-                  fontSize: 16,
-                  height: 1.5,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(18),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
+                decoration: BoxDecoration(
+                  // Frosted glass: the space background shows through.
                   color: isUser
-                      ? colors.onPrimaryContainer
-                      : colors.onSecondaryContainer,
+                      ? colors.primary.withValues(alpha: 0.2)
+                      : colors.surface.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.3),
+                  ),
+                ),
+                child: Text(
+                  message.text,
+                  style: theme.textTheme.bodyLarge?.copyWith(
+                    fontSize: 16,
+                    height: 1.5,
+                    color: colors.onSurface,
+                  ),
                 ),
               ),
             ),
@@ -134,7 +146,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     return Container(
       padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
       decoration: BoxDecoration(
-        color: colors.surface,
+        // Follows the active palette; no hardcoded dark bar in light mode.
+        color: theme.scaffoldBackgroundColor,
         border: Border(top: BorderSide(color: colors.outlineVariant)),
       ),
       child: Row(
