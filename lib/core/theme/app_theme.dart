@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../features/settings/application/theme_provider.dart';
+import 'app_theme_mode.dart';
 
 class AppTheme {
   static const Color primary = Color(0xFF00E5FF);

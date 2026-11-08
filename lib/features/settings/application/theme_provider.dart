@@ -3,11 +3,10 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// Selectable app palettes.
-///
-/// `neon` is the product's signature look: the dark canvas plus cyan/violet
-/// glow accents. `light` and `dark` are the plain Material variants.
-enum AppThemeMode { light, dark, neon }
+import '../../../core/theme/app_theme_mode.dart';
+
+// Re-exported so existing consumers keep importing this module alone.
+export '../../../core/theme/app_theme_mode.dart';
 
 /// Storage key for the persisted palette selection.
 const String themePreferenceKey = 'theme_mode';
