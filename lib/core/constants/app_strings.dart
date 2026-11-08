@@ -16,4 +16,10 @@ class AppStrings {
   static const String cinematicEnter = 'ENTER YOUR SPACE';
   static const String cinematicPrivacy =
       'PRIVATE BY DESIGN  •  READY WHEN YOU ARE';
+  static const String settingsTooltip = 'الإعدادات';
+  static const String settingsTitle = 'الإعدادات';
+  static const String themeSectionTitle = 'المظهر';
+  static const String themeDark = 'داكن';
+  static const String themeLight = 'فاتح';
+  static const String themeSystem = 'حسب النظام';
 }

@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart' show ThemeMode;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../domain/repositories/ai_engine.dart';
@@ -17,3 +18,7 @@ final chatNotifierProvider =
     StateNotifierProvider<ChatNotifier, ChatState>((ref) {
   return ChatNotifier(ref.watch(sendMessageProvider));
 });
+
+/// App-wide theme selection consumed by `MaterialApp.themeMode`.
+/// Defaults to the dark neon palette the product ships with.
+final themeProvider = StateProvider<ThemeMode>((ref) => ThemeMode.dark);
