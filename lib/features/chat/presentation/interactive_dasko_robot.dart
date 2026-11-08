@@ -27,9 +27,17 @@ const _modelBridgeScript = '''
   const report = (value) => {
     try { DaskoModelBridge.postMessage(value); } catch (_) {}
   };
+  const maxAttachAttempts = 150;
+  let attachAttempts = 0;
   const attach = () => {
     const viewer = document.getElementById("$_modelViewerId");
     if (!viewer) {
+      attachAttempts += 1;
+      // 150 attempts at 30ms each give the element about 5 seconds to appear.
+      if (attachAttempts >= maxAttachAttempts) {
+        report("error");
+        return;
+      }
       window.setTimeout(attach, 30);
       return;
     }

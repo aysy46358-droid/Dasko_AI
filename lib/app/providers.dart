@@ -17,13 +17,3 @@ final chatNotifierProvider =
     StateNotifierProvider<ChatNotifier, ChatState>((ref) {
   return ChatNotifier(ref.watch(sendMessageProvider));
 });
-
-/// Selectable app palettes.
-///
-/// `neon` is the product's signature look: the dark canvas plus cyan/violet
-/// glow accents. `light` and `dark` are the plain Material variants.
-enum AppThemeMode { light, dark, neon }
-
-/// App-wide theme selection consumed by `MaterialApp.theme`.
-/// Defaults to [AppThemeMode.neon] because that is the shipped aesthetic.
-final themeProvider = StateProvider<AppThemeMode>((ref) => AppThemeMode.neon);
