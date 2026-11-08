@@ -99,6 +99,7 @@
 - `lib/core/errors/app_exception.dart`
 - `lib/core/errors/failures.dart`
 - `lib/core/theme/app_theme.dart`
+- `lib/core/theme/app_theme_mode.dart`
 - `lib/domain/entities/message.dart`
 - `lib/domain/repositories/ai_engine.dart`
 - `lib/domain/usecases/send_message.dart`
