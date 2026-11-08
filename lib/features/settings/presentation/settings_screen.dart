@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../app/providers.dart';
 import '../../../core/constants/app_strings.dart';
-
-const _cyan = Color(0xFF00E5FF);
+import '../../../core/theme/app_theme.dart';
+import '../application/theme_provider.dart';
 
 /// Available theme choices, each mapping to an [AppThemeMode].
 enum _ThemeOption {
@@ -41,32 +40,29 @@ class SettingsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
     final appThemeMode = ref.watch(themeProvider);
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0B0F19),
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           AppStrings.settingsTitle,
-          style: TextStyle(fontWeight: FontWeight.w700),
+          style: theme.textTheme.titleLarge,
         ),
-        centerTitle: true,
-        backgroundColor: const Color(0xDD0B0F19),
-        surfaceTintColor: Colors.transparent,
-        foregroundColor: Colors.white,
       ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
         children: [
-          const Padding(
-            padding: EdgeInsets.fromLTRB(4, 6, 4, 12),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(4, 6, 4, 12),
             child: Text(
               AppStrings.themeSectionTitle,
-              style: TextStyle(
-                fontSize: 13,
+              style: theme.textTheme.labelMedium?.copyWith(
+                color: colors.primary,
                 fontWeight: FontWeight.w700,
                 letterSpacing: 1.4,
-                color: _cyan,
               ),
             ),
           ),
@@ -86,38 +82,57 @@ class _ThemeOptionTile extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
     final selected = option.mode == selectedMode;
+    final glow = theme.extension<NeonGlow>();
 
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: Material(
-        color: selected ? const Color(0xFF10263A) : const Color(0xFF111827),
+    final tile = Material(
+      color: selected
+          ? colors.primaryContainer
+          : colors.surfaceContainerHighest,
+      borderRadius: BorderRadius.circular(18),
+      child: InkWell(
         borderRadius: BorderRadius.circular(18),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(18),
-          onTap: () => ref.read(themeProvider.notifier).state = option.mode,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            child: Row(
-              children: [
-                Icon(option.icon, color: selected ? _cyan : Colors.white54),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Text(
-                    option.label,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-                      color: Colors.white,
-                    ),
+        onTap: () => ref.read(themeProvider.notifier).setTheme(option.mode),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          child: Row(
+            children: [
+              Icon(
+                option.icon,
+                color: selected ? colors.primary : colors.onSurfaceVariant,
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Text(
+                  option.label,
+                  style: theme.textTheme.bodyLarge?.copyWith(
+                    fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                    color: selected
+                        ? colors.onPrimaryContainer
+                        : colors.onSurface,
                   ),
                 ),
-                if (selected) const Icon(Icons.check_circle, color: _cyan),
-              ],
-            ),
+              ),
+              if (selected) Icon(Icons.check_circle, color: colors.primary),
+            ],
           ),
         ),
       ),
+    );
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: selected && glow != null
+          ? DecoratedBox(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(18),
+                boxShadow: glow.borderGlow,
+              ),
+              child: tile,
+            )
+          : tile,
     );
   }
 }

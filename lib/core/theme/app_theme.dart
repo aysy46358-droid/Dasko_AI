@@ -97,6 +97,13 @@ class AppTheme {
         primary: primary,
         secondary: secondary,
         surface: surface,
+        onSurface: Colors.white,
+        onSurfaceVariant: Color(0xFFB6C2CF),
+        primaryContainer: Color(0xFF103A4A),
+        onPrimaryContainer: Color(0xFFE6FBFF),
+        secondaryContainer: Color(0xFF2A1F4D),
+        onSecondaryContainer: Color(0xFFF0E9FF),
+        surfaceContainerHighest: Color(0xFF1A2233),
       ),
       appBarTheme: AppBarTheme(
         backgroundColor: background,
@@ -115,7 +122,13 @@ class AppTheme {
           backgroundColor: primary,
           foregroundColor: const Color(0xFF061018),
           shadowColor: primary,
-          elevation: 12,
+          // Derive the elevation from the glow itself so the button reads as
+          // one of the neon surfaces rather than a flat Material button.
+          elevation: neonBorderGlow.first.blurRadius * 0.7,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+            side: const BorderSide(color: secondary, width: 1.1),
+          ),
         ),
       ),
       iconButtonTheme: IconButtonThemeData(
@@ -127,6 +140,36 @@ class AppTheme {
         selectionColor: Color(0x5500E5FF),
         selectionHandleColor: primary,
       ),
+      // Widgets that paint their own decoration pick the glow up from here.
+      extensions: const <ThemeExtension<dynamic>>[
+        NeonGlow(borderGlow: neonBorderGlow),
+      ],
+    );
+  }
+}
+
+/// Publishes the signature neon glow through [ThemeData].
+///
+/// `ThemeData` has no slot for a [BoxShadow] list (button and card themes only
+/// expose `shadowColor`/`elevation`), so the glow travels as a theme extension
+/// and any widget can read it with `Theme.of(context).extension<NeonGlow>()`.
+@immutable
+class NeonGlow extends ThemeExtension<NeonGlow> {
+  const NeonGlow({required this.borderGlow});
+
+  final List<BoxShadow> borderGlow;
+
+  @override
+  NeonGlow copyWith({List<BoxShadow>? borderGlow}) {
+    return NeonGlow(borderGlow: borderGlow ?? this.borderGlow);
+  }
+
+  @override
+  NeonGlow lerp(ThemeExtension<NeonGlow>? other, double t) {
+    if (other is! NeonGlow) return this;
+    return NeonGlow(
+      borderGlow: BoxShadow.lerpList(borderGlow, other.borderGlow, t) ??
+          borderGlow,
     );
   }
 }

@@ -115,6 +115,7 @@
 - `lib/features/chat/presentation/robot_animation_name.dart`
 - `lib/features/cinematic_ui/presentation/widgets/audio_waveform_widget.dart`
 - `lib/features/cinematic_ui/presentation/widgets/cinematic_screen.dart`
+- `lib/features/settings/application/theme_provider.dart`
 - `lib/features/settings/presentation/settings_screen.dart`
 - `lib/main.dart`
 - `lib/services/ai_engine/mock_ai_engine.dart`
