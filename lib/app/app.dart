@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/constants/app_constants.dart';
 import '../core/theme/app_theme.dart';
 import '../features/chat/presentation/dasko_intro_screen.dart';
-import 'providers.dart';
+import '../features/settings/application/theme_provider.dart';
 
 class DaskoApp extends StatelessWidget {
   const DaskoApp({super.key, this.robotViewerOverride});

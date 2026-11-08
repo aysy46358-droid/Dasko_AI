@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app/providers.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/constants/app_strings.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../domain/entities/message.dart';
 import '../../settings/presentation/settings_screen.dart';
 import '../application/chat_notifier.dart';
@@ -12,9 +13,6 @@ import 'animated_neon_border.dart';
 import 'chat_robot_state_mapper.dart';
 import 'digital_space_background.dart';
 import 'interactive_dasko_robot.dart';
-
-const _cyan = Color(0xFF00E5FF);
-const _violet = Color(0xFF7C4DFF);
 
 class ChatScreen extends ConsumerStatefulWidget {
   const ChatScreen({super.key, this.robotViewerOverride});
@@ -58,8 +56,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     _scrollToEnd();
   }
 
-  Widget _buildBubble(Message message, double maxWidth) {
+  Widget _buildBubble(BuildContext context, Message message, double maxWidth) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
     final isUser = message.isUser;
+
     return Align(
       alignment: isUser
           ? AlignmentDirectional.centerStart
@@ -72,16 +73,18 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             borderRadius: 18,
             borderWidth: 1.25,
             backgroundColor:
-                isUser ? const Color(0xFF10263A) : const Color(0xFF171326),
+                isUser ? colors.primaryContainer : colors.secondaryContainer,
             duration: Duration(milliseconds: isUser ? 4200 : 3300),
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               child: Text(
                 message.text,
-                style: const TextStyle(
+                style: theme.textTheme.bodyLarge?.copyWith(
                   fontSize: 16,
                   height: 1.5,
-                  color: Colors.white,
+                  color: isUser
+                      ? colors.onPrimaryContainer
+                      : colors.onSecondaryContainer,
                 ),
               ),
             ),
@@ -91,28 +94,25 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     );
   }
 
-  Widget _buildEmptyState() {
-    return const Center(
+  Widget _buildEmptyState(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
+    return Center(
       child: Padding(
-        padding: EdgeInsets.all(28),
+        padding: const EdgeInsets.all(28),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              Icons.graphic_eq_rounded,
-              size: 34,
-              color: _cyan,
-              shadows: [Shadow(color: _cyan, blurRadius: 20)],
-            ),
-            SizedBox(height: 16),
+            Icon(Icons.graphic_eq_rounded, size: 34, color: colors.primary),
+            const SizedBox(height: 16),
             Text(
               AppStrings.introGreeting,
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: theme.textTheme.titleLarge?.copyWith(
                 fontSize: 21,
                 fontWeight: FontWeight.w700,
-                color: Colors.white,
-                shadows: [Shadow(color: _violet, blurRadius: 18)],
+                color: colors.onSurface,
               ),
             ),
           ],
@@ -121,12 +121,21 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     );
   }
 
-  Widget _buildInputBar({required bool isReplying}) {
+  Widget _buildInputBar(BuildContext context, {required bool isReplying}) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final glow = theme.extension<NeonGlow>();
+
+    OutlineInputBorder roundedBorder() => OutlineInputBorder(
+          borderRadius: BorderRadius.circular(24),
+          borderSide: BorderSide.none,
+        );
+
     return Container(
       padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
-      decoration: const BoxDecoration(
-        color: Color(0xF20B0F19),
-        border: Border(top: BorderSide(color: Color(0x443C5C80))),
+      decoration: BoxDecoration(
+        color: colors.surface,
+        border: Border(top: BorderSide(color: colors.outlineVariant)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.end,
@@ -135,52 +144,45 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             child: AnimatedNeonBorder(
               borderRadius: 24,
               borderWidth: 1,
-              backgroundColor: const Color(0xFF111827),
+              backgroundColor: colors.surfaceContainerHighest,
               child: TextField(
                 controller: _controller,
                 minLines: 1,
                 maxLines: 5,
-                style: const TextStyle(color: Colors.white, fontSize: 16),
+                style: theme.textTheme.bodyLarge?.copyWith(
+                  fontSize: 16,
+                  color: colors.onSurface,
+                ),
                 decoration: InputDecoration(
                   hintText: AppStrings.chatInputHint,
-                  hintStyle: const TextStyle(color: Colors.white38),
+                  hintStyle: theme.textTheme.bodyLarge?.copyWith(
+                    color: colors.onSurfaceVariant,
+                  ),
                   filled: true,
                   fillColor: Colors.transparent,
                   contentPadding: const EdgeInsets.symmetric(
                     horizontal: 18,
                     vertical: 12,
                   ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(24),
-                    borderSide: BorderSide.none,
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(24),
-                    borderSide: BorderSide.none,
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(24),
-                    borderSide: BorderSide.none,
-                  ),
+                  border: roundedBorder(),
+                  enabledBorder: roundedBorder(),
+                  focusedBorder: roundedBorder(),
                 ),
               ),
             ),
           ),
           const SizedBox(width: 10),
-          Container(
-            decoration: const BoxDecoration(
+          DecoratedBox(
+            decoration: BoxDecoration(
               shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(color: Color(0x6600E5FF), blurRadius: 18),
-                BoxShadow(color: Color(0x447C4DFF), blurRadius: 25),
-              ],
+              boxShadow: glow?.borderGlow ?? const <BoxShadow>[],
             ),
             child: IconButton.filled(
               onPressed: isReplying ? null : _send,
               icon: const Icon(Icons.send_rounded),
               style: IconButton.styleFrom(
-                backgroundColor: _cyan,
-                foregroundColor: const Color(0xFF061018),
+                backgroundColor: colors.primary,
+                foregroundColor: colors.onPrimary,
                 minimumSize: const Size(48, 48),
               ),
             ),
@@ -192,6 +194,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final maxWidth = MediaQuery.sizeOf(context).width * .79;
     // Narrow selections: the screen rebuilds only when the message list or the
     // reply flag actually changes, never for unrelated state updates.
@@ -209,23 +212,13 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     });
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0B0F19),
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        title: const Text(
-          AppConstants.appWordmark,
-          style: TextStyle(
-            fontWeight: FontWeight.w800,
-            letterSpacing: 2,
-            shadows: [Shadow(color: _cyan, blurRadius: 14)],
-          ),
-        ),
-        centerTitle: true,
-        backgroundColor: const Color(0xDD0B0F19),
-        surfaceTintColor: Colors.transparent,
+        title: const Text(AppConstants.appWordmark),
         actions: [
           IconButton(
             tooltip: AppStrings.settingsTooltip,
-            icon: const Icon(Icons.settings, color: _cyan),
+            icon: const Icon(Icons.settings),
             onPressed: () {
               Navigator.of(context).push(
                 MaterialPageRoute<void>(
@@ -244,7 +237,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             ),
             Expanded(
               child: messages.isEmpty
-                  ? _buildEmptyState()
+                  ? _buildEmptyState(context)
                   : ListView.builder(
                       controller: _scroll,
                       padding: const EdgeInsets.symmetric(
@@ -253,10 +246,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                       ),
                       itemCount: messages.length,
                       itemBuilder: (context, index) =>
-                          _buildBubble(messages[index], maxWidth),
+                          _buildBubble(context, messages[index], maxWidth),
                     ),
             ),
-            _buildInputBar(isReplying: isReplying),
+            _buildInputBar(context, isReplying: isReplying),
           ],
         ),
       ),
@@ -273,6 +266,8 @@ class _RobotStatusHeader extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
     final requestStatus = ref.watch(
       chatNotifierProvider.select((state) => state.requestStatus),
     );
@@ -283,7 +278,7 @@ class _RobotStatusHeader extends ConsumerWidget {
       child: AnimatedNeonBorder(
         borderRadius: 22,
         borderWidth: 1.15,
-        backgroundColor: const Color(0xD9101829),
+        backgroundColor: colors.surfaceContainerHighest,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           child: Row(
@@ -298,12 +293,11 @@ class _RobotStatusHeader extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       AppStrings.robotName,
-                      style: TextStyle(
-                        fontSize: 18,
+                      style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                        color: colors.onSurface,
                       ),
                     ),
                     const SizedBox(height: 3),
@@ -311,15 +305,14 @@ class _RobotStatusHeader extends ConsumerWidget {
                       isReplying
                           ? AppStrings.thinkingRobot
                           : AppStrings.readyRobot,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: isReplying ? _violet : _cyan,
+                      style: theme.textTheme.labelMedium?.copyWith(
+                        color: isReplying ? colors.secondary : colors.primary,
                       ),
                     ),
                   ],
                 ),
               ),
-              const Icon(Icons.shield_outlined, color: _cyan),
+              Icon(Icons.shield_outlined, color: colors.primary),
             ],
           ),
         ),
