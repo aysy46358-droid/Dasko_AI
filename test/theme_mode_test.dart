@@ -45,9 +45,11 @@ void main() {
     expect(neonBackground, AppTheme.neon.scaffoldBackgroundColor);
 
     container.read(themeProvider.notifier).setTheme(AppThemeMode.light);
-    // The space background animates forever, so settle manually instead of
-    // using pumpAndSettle.
+    // MaterialApp cross-fades themes through AnimatedTheme, so the first frame
+    // still shows the old palette; advance past kThemeAnimationDuration. The
+    // space background animates forever, so pumpAndSettle would never return.
     await tester.pump();
+    await tester.pump(kThemeAnimationDuration + const Duration(milliseconds: 50));
 
     final lightBackground = tester.widget<Scaffold>(scaffold).backgroundColor;
     expect(lightBackground, AppTheme.light.scaffoldBackgroundColor);
