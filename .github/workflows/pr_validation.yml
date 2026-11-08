@@ -1,0 +1,84 @@
+name: PR validation
+
+on:
+  pull_request:
+    branches:
+      - main
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pr-validation-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  flutter_quality:
+    name: Flutter quality checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: '3.47.8'
+          cache: true
+
+      - name: Resolve dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -s pubspec.lock ]]; then
+            flutter pub get --enforce-lockfile
+          else
+            echo '::warning::pubspec.lock is absent on this branch; resolving dependencies without lock enforcement.'
+            flutter pub get
+          fi
+
+      - name: Check formatting of changed Dart files
+        if: github.event_name == 'pull_request'
+        shell: bash
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          mapfile -t dart_files < <(git diff --name-only --diff-filter=ACMR "${BASE_SHA}...${HEAD_SHA}" -- '*.dart')
+          if [[ ${#dart_files[@]} -eq 0 ]]; then
+            echo 'No Dart files changed in this pull request; format check is not applicable.'
+            exit 0
+          fi
+          dart format --output=none --set-exit-if-changed "${dart_files[@]}"
+
+      - name: Note formatter scope for manual run
+        if: github.event_name == 'workflow_dispatch'
+        run: echo 'Formatting is checked against changed Dart files on pull_request events.'
+
+      - name: Analyze Flutter project
+        run: flutter analyze
+
+      - name: Run Flutter tests when present
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ ! -d test ]] || ! find test -type f -name '*_test.dart' -print -quit | grep -q .; then
+            echo '::warning::No Dart test files exist on this branch; test execution is skipped until tests are added.'
+            exit 0
+          fi
+          flutter test --reporter expanded
