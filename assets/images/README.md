@@ -1,7 +1,5 @@
 # Dasko AI visual assets
 
-The primary holographic robot is currently drawn procedurally by
-`InteractiveDaskoRobot` in Flutter CustomPainter. This keeps the robot
-crisp at every screen density and avoids bundling a static emoji or raster
-face. Optional future artwork, textures, or model preview images may be placed
-in this directory and referenced through the Flutter asset manifest.
+The current robot UI renders the bundled 2D poster at `robot_poster.png` through `InteractiveDaskoRobot` and Flutter's `Image.asset`. Robot status changes are represented by Flutter UI effects; the current app does not load a GLB model, model viewer, or WebView.
+
+Keep image paths centralized in `lib/core/constants/app_assets.dart` and declared in the Flutter asset manifest (`pubspec.yaml`). Update the asset validator and widget tests if the required poster or its loading behavior changes.

@@ -106,7 +106,7 @@ jobs:
           fi
           echo "DASKO_VERSION_CODE=$DASKO_VERSION_CODE" >> "$GITHUB_ENV"
 
-      - name: Validate local 3D model and Android network policy
+      - name: Validate robot poster asset and Android network policy
         run: python3 tooling/validate_dasko_robot_assets.py
 
       - name: Test Android certificate digest verifier

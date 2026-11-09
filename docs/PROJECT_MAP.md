@@ -16,8 +16,16 @@
 - `ChatNotifier` يدير حالة الطلب والرسائل.
 - `SendMessage` في طبقة Domain يستدعي العقد ويحوّل النتيجة إلى رسالة أو `Failure`.
 - `AiEngine` هو العقد؛ التنفيذ الحالي الوهمي موجود في Services.
-- طبقة Presentation تحوّل حالة الطلب إلى تعبير الروبوت وتعرض الواجهة.
+- طبقة Presentation تحوّل حالة الطلب إلى حالة الروبوت المرئية. الروبوت الحالي صورة poster ثنائية الأبعاد وتأثيرات Flutter؛ لا يُحمّل التطبيق GLB أو model viewer أو WebView.
+- العقد يدعم history اختيارياً، لكن مسار `ChatNotifier` الحالي يرسل prompt الحالي فقط؛ المحادثة متعددة الأدوار غير موصولة بعد.
 - استبدال المحرك مستقبلاً يجب أن يحافظ على العقد أو يغيّره مع تحديث الاختبارات والطبقات المتأثرة. لا يوجد حالياً تكامل LLM حقيقي.
+
+## الثيم والروبوت
+
+- نوع `AppThemeMode` وخرائط `ThemeData` موجودة في `lib/core/theme/`.
+- `ThemeModeNotifier` في `lib/features/settings/application/` يحفظ اختيار المظهر best-effort باستخدام `shared_preferences`، ويستهلكه جذر التطبيق.
+- شاشة المحادثة تقرأ provider إعدادات الثيم لتنسيق بعض عناصر العرض؛ أعد تقييم ملكية provider إذا صار الثيم إعداداً مشتركاً لميزات متعددة.
+- صورة الروبوت الحالية هي `assets/images/robot_poster.png`، معرفة مركزياً في `lib/core/constants/app_assets.dart` ومعلنة في `pubspec.yaml`. تفاعل الحالة هو تأثير واجهة وليس مقاطع حركة داخل نموذج ثلاثي الأبعاد.
 
 ## أين أبدأ عند التعديل؟
 
@@ -25,13 +33,14 @@
 - تغيير حالة المحادثة: `lib/features/chat/application/` مع اختبارات `ChatNotifier`.
 - تغيير قواعد إرسال الرسالة: `lib/domain/usecases/send_message.dart` واختباراته.
 - إضافة محرك: تنفيذ `AiEngine` في `lib/services/` ثم تغيير ربطه في `lib/app/providers.dart` واختبارات المحرك؛ لا تضع مفتاح API سرياً داخل التطبيق.
+- إضافة history للمحرك: راجع تحويل الرسائل في `ChatNotifier` وعقد `AiEngine` واختبارات multi-turn قبل ربط مزود حقيقي.
 - تغيير أخطاء المجال أو النصوص المشتركة أو الأصول: راجع `lib/core/` واختبار المتأثر.
 - تغيير بناء Android أو CI: راجع `android/` و`.github/workflows/` و`tooling/` واختبارات التحقق ذات الصلة.
 
 ## الاختبارات والبناء
 
 - اختبارات Dart/Flutter موجودة في `test/` وتُشغّل بواسطة `flutter test`.
-- سير `Build APK` يتضمن تنسيق Dart والتحليل والاختبارات والتحقق من أصول الروبوت وسياسة الشبكة ثم بناء APK والتحقق من بياناته وتوقيعه. نجاحه يثبت اجتياز هذه الفحوص في بيئة CI لذلك الالتزام فقط؛ لا يثبت خلو التطبيق من كل عيب أو اكتمال فحص Firebase الخارجي.
+- سير `Build APK` يتضمن تنسيق Dart والتحليل والاختبارات والتحقق من poster الروبوت وسياسة الشبكة ثم بناء APK والتحقق من بياناته وتوقيعه. نجاحه يثبت اجتياز هذه الفحوص في بيئة CI لذلك الالتزام فقط؛ لا يثبت خلو التطبيق من كل عيب أو اكتمال فحص Firebase الخارجي.
 - فحص اتساق هذه الخريطة له سير CI مستقل، ولا يعتمد عليه سير بناء APK.
 
 ## حدود التكاملات والأمان بحسب المستودع
@@ -86,7 +95,6 @@
 - `assets/sounds/README.md`
 - `assets/sounds/welcome.wav`
 - `docs/ANDROID_SIGNING.md`
-- `docs/DASKO_ROBOT_3D.md`
 - `docs/PROJECT_CONTROL.md`
 - `docs/PROJECT_MAP.md`
 - `google-services.json`
@@ -127,7 +135,6 @@
 - `test/widget_test.dart`
 - `tooling/allocate_android_version.sh`
 - `tooling/android_certificate_verifier.sh`
-- `tooling/create_dasko_robot_model.py`
 - `tooling/project_map.py`
 - `tooling/setup_environment.sh`
 - `tooling/test_allocate_android_version.sh`
