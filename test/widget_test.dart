@@ -1,6 +1,7 @@
 import 'package:dasko_ai/app/app.dart';
 import 'package:dasko_ai/core/constants/app_assets.dart';
 import 'package:dasko_ai/features/chat/presentation/interactive_dasko_robot.dart';
+import 'package:dasko_ai/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -21,6 +22,8 @@ void main() {
       for (final state in DaskoRobotState.values) {
         await tester.pumpWidget(
           MaterialApp(
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
             home: Scaffold(
               body: Center(
                 child: InteractiveDaskoRobot(state: state, size: size),
@@ -43,6 +46,8 @@ void main() {
   ) async {
     await tester.pumpWidget(
       const MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         home: Scaffold(
           body: Center(
             child: InteractiveDaskoRobot(state: DaskoRobotState.ready),

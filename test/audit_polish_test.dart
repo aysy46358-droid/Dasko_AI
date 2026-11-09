@@ -4,6 +4,7 @@ import 'package:dasko_ai/core/theme/app_theme_mode.dart';
 import 'package:dasko_ai/domain/entities/message.dart';
 import 'package:dasko_ai/features/chat/application/chat_notifier.dart';
 import 'package:dasko_ai/features/chat/presentation/chat_screen.dart';
+import 'package:dasko_ai/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -49,6 +50,8 @@ void main() {
       UncontrolledProviderScope(
         container: container,
         child: MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
           theme: AppTheme.dark,
           home: const ChatScreen(),
         ),

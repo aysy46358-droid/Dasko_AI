@@ -2,6 +2,7 @@ import 'package:dasko_ai/core/theme/app_theme.dart';
 import 'package:dasko_ai/features/chat/presentation/chat_screen.dart';
 import 'package:dasko_ai/app/providers.dart';
 import 'package:dasko_ai/core/theme/app_theme_mode.dart';
+import 'package:dasko_ai/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -15,6 +16,8 @@ class _ThemedChatApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       theme: AppTheme.themeDataFor(ref.watch(themeProvider)),
       home: const ChatScreen(),
     );

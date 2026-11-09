@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 
 import '../../../core/constants/app_constants.dart';
-import '../../../core/constants/app_strings.dart';
+import '../../../l10n/app_localizations.dart';
 import 'chat_screen.dart';
 import 'digital_space_background.dart';
 import 'interactive_dasko_robot.dart';
@@ -29,10 +29,13 @@ class _DaskoIntroScreenState extends State<DaskoIntroScreen>
   bool _openingChat = false;
   bool _welcomeAttempted = false;
 
+  AppLocalizations? _l10n;
+
   @override
-  void initState() {
-    super.initState();
-    unawaited(_playWelcome());
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _l10n = AppLocalizations.of(context);
+    if (_l10n != null) unawaited(_playWelcome());
   }
 
   Future<void> _playWelcome() async {
@@ -49,11 +52,13 @@ class _DaskoIntroScreenState extends State<DaskoIntroScreen>
     }
 
     try {
-      await _tts.setLanguage('ar');
+      await _tts.setLanguage(
+        _l10n?.localeName == 'en' ? 'en-US' : 'ar',
+      );
       await _tts.setSpeechRate(0.43);
       await _tts.setVolume(0.9);
       await _tts.setPitch(1.0);
-      await _tts.speak(AppStrings.introGreeting);
+      await _tts.speak(_l10n!.introGreeting);
     } catch (_) {
       // Android needs an installed Arabic TTS voice. Fail silently and keep
       // the welcome screen usable when that voice is unavailable.
@@ -88,6 +93,7 @@ class _DaskoIntroScreenState extends State<DaskoIntroScreen>
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final isLight = theme.brightness == Brightness.light;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -143,7 +149,7 @@ class _DaskoIntroScreenState extends State<DaskoIntroScreen>
                               ),
                               const SizedBox(height: 24),
                               Text(
-                                AppStrings.introGreeting,
+                                l10n.introGreeting,
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontSize: 23,
@@ -165,7 +171,7 @@ class _DaskoIntroScreenState extends State<DaskoIntroScreen>
                                 child: FilledButton.icon(
                                   onPressed: _openingChat ? null : _startChat,
                                   icon: const Icon(Icons.arrow_forward_rounded),
-                                  label: const Text(AppStrings.startChat),
+                                  label: Text(l10n.startChat),
                                   style: FilledButton.styleFrom(
                                     backgroundColor: const Color(0xFF00D4E8),
                                     foregroundColor: const Color(0xFF061018),

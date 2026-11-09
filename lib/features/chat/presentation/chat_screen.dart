@@ -5,9 +5,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/providers.dart';
 import '../../../core/constants/app_constants.dart';
-import '../../../core/constants/app_strings.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../domain/entities/message.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../core/theme/app_theme_mode.dart';
 import '../../settings/presentation/settings_screen.dart';
 import '../application/chat_notifier.dart';
@@ -48,11 +48,14 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   }
 
   Future<void> _send() async {
+    final l10n = AppLocalizations.of(context)!;
     final text = _controller.text.trim();
     if (text.isEmpty) return;
 
     _controller.clear();
-    await ref.read(chatNotifierProvider.notifier).send(text);
+    await ref
+        .read(chatNotifierProvider.notifier)
+        .send(text, errorText: l10n.errorUnknown);
     if (!mounted) return;
     _scrollToEnd();
   }
@@ -118,6 +121,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   }
 
   Widget _buildEmptyState(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
 
@@ -130,7 +134,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             Icon(Icons.graphic_eq_rounded, size: 34, color: colors.primary),
             const SizedBox(height: 16),
             Text(
-              AppStrings.introGreeting,
+              l10n.introGreeting,
               textAlign: TextAlign.center,
               style: theme.textTheme.titleLarge?.copyWith(
                 fontSize: 21,
@@ -145,6 +149,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   }
 
   Widget _buildInputBar(BuildContext context, {required bool isReplying}) {
+    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final glow = theme.extension<NeonGlow>();
@@ -182,7 +187,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                   color: colors.onSurface,
                 ),
                 decoration: InputDecoration(
-                  hintText: AppStrings.chatInputHint,
+                  hintText: l10n.chatInputHint,
                   hintStyle: theme.textTheme.bodyLarge?.copyWith(
                     color: colors.onSurfaceVariant,
                   ),
@@ -223,6 +228,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final maxWidth = MediaQuery.sizeOf(context).width * .79;
     // Narrow selections: the screen rebuilds only when the message list or the
     // reply flag actually changes, never for unrelated state updates.
@@ -245,7 +251,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         title: const Text(AppConstants.appWordmark),
         actions: [
           IconButton(
-            tooltip: AppStrings.settingsTooltip,
+            tooltip: l10n.settingsTooltip,
             icon: const Icon(Icons.settings),
             onPressed: () {
               Navigator.of(context).push(
@@ -290,6 +296,7 @@ class _RobotStatusHeader extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final requestStatus = ref.watch(
@@ -317,7 +324,7 @@ class _RobotStatusHeader extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      AppStrings.robotName,
+                      l10n.robotName,
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: colors.onSurface,
@@ -326,8 +333,8 @@ class _RobotStatusHeader extends ConsumerWidget {
                     const SizedBox(height: 3),
                     Text(
                       isReplying
-                          ? AppStrings.thinkingRobot
-                          : AppStrings.readyRobot,
+                          ? l10n.thinkingRobot
+                          : l10n.readyRobot,
                       style: theme.textTheme.labelMedium?.copyWith(
                         color: isReplying ? colors.secondary : colors.primary,
                       ),

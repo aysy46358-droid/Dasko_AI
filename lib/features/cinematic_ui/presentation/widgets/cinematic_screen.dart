@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_constants.dart';
-import '../../../../core/constants/app_strings.dart';
+import '../../../../l10n/app_localizations.dart';
 import 'audio_waveform_widget.dart';
 
 /// Cinematic landing surface for the Dasko AI companion.
@@ -17,6 +17,7 @@ class CinematicScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: _navy,
       body: Stack(
@@ -79,7 +80,7 @@ class CinematicScreen extends StatelessWidget {
                             Icon(Icons.circle, color: _cyan, size: 6),
                             SizedBox(width: 7),
                             Text(
-                              AppStrings.cinematicLocalCore,
+                              l10n.cinematicLocalCore,
                               style: TextStyle(
                                 color: Color(0xFFB7C9E8),
                                 fontSize: 9,
@@ -109,8 +110,8 @@ class CinematicScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  const Text(
-                    AppStrings.cinematicTagline,
+                  Text(
+                    l10n.cinematicTagline,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: Color(0xFFB7C8E9),
@@ -120,8 +121,8 @@ class CinematicScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  const Text(
-                    AppStrings.cinematicWelcome,
+                  Text(
+                    l10n.cinematicWelcome,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: Colors.white,
@@ -132,7 +133,7 @@ class CinematicScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    AppStrings.cinematicDescription,
+                    l10n.cinematicDescription,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: const Color(0xFFB9C5E0).withValues(alpha: 0.78),
@@ -163,9 +164,9 @@ class CinematicScreen extends StatelessWidget {
                         ),
                       ],
                     ),
-                    child: const Center(
+                    child: Center(
                       child: Text(
-                        AppStrings.cinematicEnter,
+                        l10n.cinematicEnter,
                         style: TextStyle(
                           color: Color(0xFF061026),
                           fontWeight: FontWeight.w800,
@@ -177,7 +178,7 @@ class CinematicScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    AppStrings.cinematicPrivacy,
+                    l10n.cinematicPrivacy,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: Colors.white.withValues(alpha: 0.38),
