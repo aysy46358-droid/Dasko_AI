@@ -9,6 +9,8 @@
 3. يُشغّل `DaskoApp` من `lib/app/app.dart`.
 4. تُسجّل الاعتمادات في `lib/app/providers.dart` باستخدام Riverpod؛ والربط الحالي لـ `AiEngine` هو `MockAiEngine`.
 
+`DaskoApp` يفتح `DaskoIntroScreen` حالياً. `CinematicScreen` في `lib/features/cinematic_ui/presentation/widgets/cinematic_screen.dart` غير مستوردة في مسار التطبيق أو الاختبارات؛ مرجعها الوحيد لـ`AudioWaveformWidget` داخلي ضمن الشاشة نفسها، وزر الدخول فيها عرضي ولا ينفّذ تنقلاً. اعتبر الحزمة نموذج واجهة غير نشط، لا جزءاً من التدفق الحالي. لا تربطها ولا تحذفها قبل قرار منتج منفصل.
+
 ## تدفق إرسال رسالة
 
 `ChatScreen` → `ChatNotifier` → `SendMessage` → عقد `AiEngine` → `MockAiEngine` حالياً.

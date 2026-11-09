@@ -49,9 +49,11 @@ lib/
 ├── features/
 │   ├── chat/                # application state and presentation
 │   ├── settings/            # persisted appearance preference and settings UI
-│   └── cinematic_ui/        # presentation-only widgets
+│   └── cinematic_ui/        # dormant presentation experiment; not routed at startup
 └── services/ai_engine/     # MockAiEngine adapter
 ```
+
+`DaskoApp` currently starts at `DaskoIntroScreen`. The separate `CinematicScreen` is not wired into the app or tests; keep it out of claims about the active UI until a product decision explicitly activates or removes that prototype.
 
 ### Firebase security status
 
