@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
@@ -7,12 +9,13 @@ import '../../../domain/usecases/send_message.dart';
 import 'chat_request_status.dart';
 
 class ChatState {
-  const ChatState({
-    this.messages = const [],
+  ChatState({
+    List<Message> messages = const [],
     this.requestStatus = ChatRequestStatus.idle,
     this.errorMessage,
-  });
+  }) : messages = UnmodifiableListView<Message>(messages);
 
+  /// Read-only view: callers cannot mutate the notifier's list in place.
   final List<Message> messages;
   final ChatRequestStatus requestStatus;
   final String? errorMessage;
@@ -36,7 +39,7 @@ class ChatState {
 class ChatNotifier extends StateNotifier<ChatState> {
   ChatNotifier(this._sendMessage, {Uuid? uuid})
       : _uuid = uuid ?? const Uuid(),
-        super(const ChatState());
+        super(ChatState());
 
   final SendMessage _sendMessage;
   final Uuid _uuid;

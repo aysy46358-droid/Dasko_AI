@@ -3,7 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/constants/app_strings.dart';
 import '../../../core/theme/app_theme.dart';
-import '../application/theme_provider.dart';
+import '../../../app/providers.dart';
+import '../../../core/theme/app_theme_mode.dart';
 
 /// Available theme choices, each mapping to an [AppThemeMode].
 enum _ThemeOption {

@@ -1,8 +1,8 @@
-/// Visual states understood by the Dasko 3D presentation layer.
+/// Presentation-only states for the Dasko robot artwork.
 enum DaskoRobotState {
-  /// Play the normal holographic floating loop.
+  /// Steady glow; the robot is idle.
   ready,
 
-  /// Play the thinking loop while a chat request is in flight.
+  /// Pulsing glow while a chat request is in flight.
   thinking,
 }
