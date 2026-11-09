@@ -5,7 +5,7 @@
 ## لقطة التنفيذ الحالية
 
 - تاريخ المراجعة: 2026-11-09.
-- فرع العمل: `experimental-work` عند الالتزام المدمج `a14712793f2b3958a83365b57175551e2c1859ca` عبر [PR #11](https://github.com/aysy46358-droid/Dasko_AI/pull/11). بدأ فرع الإصلاح من `bcd3d593e0c385d616c4d7e33b110d7894a1a479` ثم حُذف بعد الدمج.
+- التغيير البرمجي مدمج إلى `experimental-work` عبر [PR #11](https://github.com/aysy46358-droid/Dasko_AI/pull/11)؛ الالتزام البرمجي الذي اجتاز CI هو `a14712793f2b3958a83365b57175551e2c1859ca`. بدأ فرع الإصلاح من `bcd3d593e0c385d616c4d7e33b110d7894a1a479` ثم حُذف بعد الدمج. قد يحتوي رأس الفرع بعد ذلك على تحديثات توثيقية فقط.
 - اجتاز الالتزام `a147127` فحوص GitHub: [Build APK #42614908099](https://github.com/aysy46358-droid/Dasko_AI/actions/runs/42614908099)، [Format Dart #42614908193](https://github.com/aysy46358-droid/Dasko_AI/actions/runs/42614908193)، و[Project map consistency #42614908176](https://github.com/aysy46358-droid/Dasko_AI/actions/runs/42614908176). كما نجح Build APK يدوياً على فرع الإصلاح عند `7441beb` في [التشغيل #42613846623](https://github.com/aysy46358-droid/Dasko_AI/actions/runs/42613846623). اجتازت الفحوص المحلية `flutter pub get --enforce-lockfile` و`flutter gen-l10n` و`dart format` و`flutter analyze` و`flutter test`، بما فيها اختبارات التوطين الأربعة.
 - `generate: true` كان موجوداً أصلاً في `pubspec.yaml` على نقطة الأساس؛ تم التحقق منه والإبقاء عليه. عُدّل قيد `intl` من `any` إلى `^0.20.3`؛ نسخة `pubspec.lock` المحلولة `0.20.3` وتطابق قيد Flutter 3.47.8.
 
