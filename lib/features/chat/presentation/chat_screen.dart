@@ -8,6 +8,7 @@ import '../../../core/constants/app_constants.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../domain/entities/message.dart';
+import '../../settings/application/theme_provider.dart';
 import '../../settings/presentation/settings_screen.dart';
 import '../application/chat_notifier.dart';
 import '../application/chat_request_status.dart';
@@ -17,9 +18,7 @@ import 'digital_space_background.dart';
 import 'interactive_dasko_robot.dart';
 
 class ChatScreen extends ConsumerStatefulWidget {
-  const ChatScreen({super.key, this.robotViewerOverride});
-
-  final Widget? robotViewerOverride;
+  const ChatScreen({super.key});
 
   @override
   ConsumerState<ChatScreen> createState() => _ChatScreenState();
@@ -62,6 +61,34 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final isUser = message.isUser;
+    // LED borders belong to the pitch-black Dark palette only.
+    final isLedMode = ref.watch(themeProvider) == AppThemeMode.dark;
+
+    final bubble = ClipRRect(
+      borderRadius: BorderRadius.circular(18),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            // Frosted glass: the space background shows through.
+            color: isUser
+                ? colors.primary.withValues(alpha: 0.2)
+                : colors.surface.withValues(alpha: 0.2),
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
+          ),
+          child: Text(
+            message.text,
+            style: theme.textTheme.bodyLarge?.copyWith(
+              fontSize: 16,
+              height: 1.5,
+              color: colors.onSurface,
+            ),
+          ),
+        ),
+      ),
+    );
 
     return Align(
       alignment: isUser
@@ -71,36 +98,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         constraints: BoxConstraints(maxWidth: maxWidth),
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 5),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(18),
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
-                ),
-                decoration: BoxDecoration(
-                  // Frosted glass: the space background shows through.
-                  color: isUser
-                      ? colors.primary.withValues(alpha: 0.2)
-                      : colors.surface.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(18),
-                  border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.3),
-                  ),
-                ),
-                child: Text(
-                  message.text,
-                  style: theme.textTheme.bodyLarge?.copyWith(
-                    fontSize: 16,
-                    height: 1.5,
-                    color: colors.onSurface,
-                  ),
-                ),
-              ),
-            ),
-          ),
+          child: isLedMode ? _LedGlow(child: bubble) : bubble,
         ),
       ),
     );
@@ -245,9 +243,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       body: DigitalSpaceBackground(
         child: Column(
           children: [
-            _RobotStatusHeader(
-              robotViewerOverride: widget.robotViewerOverride,
-            ),
+            const _RobotStatusHeader(),
             Expanded(
               child: messages.isEmpty
                   ? _buildEmptyState(context)
@@ -273,9 +269,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 /// Narrow status header: it selects only [ChatState.requestStatus], so the 3D
 /// robot subtree rebuilds on status transitions instead of every chat update.
 class _RobotStatusHeader extends ConsumerWidget {
-  const _RobotStatusHeader({this.robotViewerOverride});
-
-  final Widget? robotViewerOverride;
+  const _RobotStatusHeader();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -299,7 +293,6 @@ class _RobotStatusHeader extends ConsumerWidget {
               InteractiveDaskoRobot(
                 state: mapChatRequestStatusToRobotState(requestStatus),
                 size: 82,
-                modelViewerOverride: robotViewerOverride,
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -330,6 +323,70 @@ class _RobotStatusHeader extends ConsumerWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Cyan LED halo wrapped around chat bubbles for the pitch-black Dark palette.
+///
+/// `AnimatedContainer` smooths each step of the pulse, and the slower
+/// controller sweep produces the breathing "LED" rhythm.
+class _LedGlow extends StatefulWidget {
+  const _LedGlow({required this.child});
+
+  final Widget child;
+
+  @override
+  State<_LedGlow> createState() => _LedGlowState();
+}
+
+class _LedGlowState extends State<_LedGlow>
+    with SingleTickerProviderStateMixin {
+  static const Color _led = Color(0xFF00E5FF);
+
+  late final AnimationController _pulse = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 1600),
+  )..repeat(reverse: true);
+
+  @override
+  void dispose() {
+    _pulse.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _pulse,
+      builder: (context, child) {
+        final intensity = Curves.easeInOut.transform(_pulse.value);
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 90),
+          curve: Curves.linear,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(
+              color: _led.withValues(alpha: 0.45 + intensity * 0.45),
+            ),
+            boxShadow: [
+              // Two layers: a tight rim plus a wide bloom for the LED feel.
+              BoxShadow(
+                color: _led.withValues(alpha: 0.35 + intensity * 0.35),
+                blurRadius: 14 + intensity * 18,
+                spreadRadius: 0.5 + intensity * 2,
+              ),
+              BoxShadow(
+                color: _led.withValues(alpha: 0.12 + intensity * 0.22),
+                blurRadius: 34 + intensity * 30,
+                spreadRadius: 1 + intensity * 4,
+              ),
+            ],
+          ),
+          child: child,
+        );
+      },
+      child: widget.child,
     );
   }
 }

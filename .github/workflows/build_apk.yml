@@ -146,8 +146,7 @@ jobs:
             android/gradle/wrapper/gradle-wrapper.jar
             android/gradlew
             android/gradlew.bat
-            assets/models/dasko_robot.glb
-            assets/images/dasko_robot_poster.png
+            assets/images/robot_poster.png
             tooling/validate_dasko_robot_assets.py
           )
           for file in "${required_files[@]}"; do

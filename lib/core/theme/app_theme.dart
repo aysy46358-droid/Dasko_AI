@@ -6,6 +6,8 @@ class AppTheme {
   static const Color primary = Color(0xFF00E5FF);
   static const Color secondary = Color(0xFF7C4DFF);
   static const Color background = Color(0xFF0B0F19);
+  // Pitch-black canvas used by the plain Dark palette (Neon keeps 0xFF0B0F19).
+  static const Color darkBackground = Color(0xFF050505);
   static const Color surface = Color(0xFF111827);
   static const Color userBubble = Color(0xFF10263A);
   static const Color aiBubble = Color(0xFF171326);
@@ -18,14 +20,14 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
-      scaffoldBackgroundColor: background,
+      scaffoldBackgroundColor: darkBackground,
       colorScheme: const ColorScheme.dark(
         primary: primary,
         secondary: secondary,
         surface: surface,
       ),
       appBarTheme: const AppBarTheme(
-        backgroundColor: background,
+        backgroundColor: darkBackground,
         surfaceTintColor: Colors.transparent,
         centerTitle: true,
       ),

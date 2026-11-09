@@ -47,7 +47,7 @@ void main() {
           chatNotifierProvider.overrideWith((ref) => notifier),
         ],
         child: const MaterialApp(
-          home: ChatScreen(robotViewerOverride: SizedBox.shrink()),
+          home: const ChatScreen(),
         ),
       ),
     );
