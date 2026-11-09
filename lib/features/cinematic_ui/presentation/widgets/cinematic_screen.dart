@@ -55,7 +55,7 @@ class CinematicScreen extends StatelessWidget {
                       const SizedBox(width: 10),
                       const Text(
                         AppConstants.appWordmark,
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: Colors.white,
                           fontSize: 13,
                           letterSpacing: 4,
