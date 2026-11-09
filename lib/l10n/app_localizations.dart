@@ -140,11 +140,11 @@ abstract class AppLocalizations {
   /// **'Ready to help'**
   String get readyRobot;
 
-  /// No description provided for @introGreeting.
+  /// Greeting shown on the intro screen and spoken by text-to-speech.
   ///
   /// In en, this message translates to:
-  /// **'Welcome, Dasko.'**
-  String get introGreeting;
+  /// **'Welcome, {name}.'**
+  String introGreeting(String name);
 
   /// No description provided for @startChat.
   ///

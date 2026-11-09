@@ -30,7 +30,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get readyRobot => 'Ready to help';
 
   @override
-  String get introGreeting => 'Welcome, Dasko.';
+  String introGreeting(String name) {
+    return 'Welcome, $name.';
+  }
 
   @override
   String get startChat => 'Start the conversation';
