@@ -13,7 +13,6 @@ import 'interactive_dasko_robot.dart';
 class DaskoIntroScreen extends StatefulWidget {
   const DaskoIntroScreen({super.key});
 
-
   @override
   State<DaskoIntroScreen> createState() => _DaskoIntroScreenState();
 }
@@ -77,8 +76,7 @@ class _DaskoIntroScreenState extends State<DaskoIntroScreen>
     Navigator.of(context).pushReplacement(
       PageRouteBuilder<void>(
         transitionDuration: const Duration(milliseconds: 420),
-        pageBuilder: (_, animation, __) =>
-            const ChatScreen(),
+        pageBuilder: (_, animation, __) => const ChatScreen(),
         transitionsBuilder: (_, animation, __, child) =>
             FadeTransition(opacity: animation, child: child),
       ),
