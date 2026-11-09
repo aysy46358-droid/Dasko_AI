@@ -1,4 +1,9 @@
 # Dasko AI launcher icon
 
-The launcher icon configuration expects `dasko_icon.png` (512x512 PNG).
-Add the final approved DASKO AI icon here before running `dart run flutter_launcher_icons`.
+The approved launcher artwork is `app_icon.png` (converted from the supplied 1220×1220 JPEG without cropping or pixel changes after decoding).
+
+`flutter_launcher_icons` is configured in the root `pubspec.yaml` to generate Android legacy-density and adaptive launcher resources with background color `#0F1830`. iOS icon generation is disabled. Regenerate with:
+
+```sh
+dart run flutter_launcher_icons
+```
