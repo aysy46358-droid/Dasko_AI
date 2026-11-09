@@ -48,6 +48,7 @@ void main() {
           chatNotifierProvider.overrideWith((ref) => notifier),
         ],
         child: const MaterialApp(
+          locale: Locale('ar'),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           home: ChatScreen(),
