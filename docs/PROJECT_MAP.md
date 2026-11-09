@@ -16,7 +16,7 @@
 - `ChatNotifier` يدير حالة الطلب والرسائل.
 - `SendMessage` في طبقة Domain يستدعي العقد ويحوّل النتيجة إلى رسالة أو `Failure`.
 - `AiEngine` هو العقد؛ التنفيذ الحالي الوهمي موجود في Services.
-- طبقة Presentation تحوّل حالة الطلب إلى حالة الروبوت المرئية. الروبوت الحالي صورة poster ثنائية الأبعاد وتأثيرات Flutter؛ لا يُحمّل التطبيق GLB أو model viewer أو WebView.
+- طبقة Presentation تحوّل حالة الطلب إلى حالة عرض للروبوت. المقصود هنا **صورة poster ثابتة ثنائية الأبعاد** مع تأثيرات Flutter، وليس مجسماً أو نموذجاً ثلاثي الأبعاد. `DaskoRobotState` يملك حالتي عرض فقط: `ready` (توهج ثابت) و`thinking` (نبض التوهج أثناء الطلب). لا يوجد GLB/GLTF أو model viewer أو WebView أو مقاطع حركة 3D في التنفيذ الحالي.
 - العقد يدعم history اختيارياً، لكن مسار `ChatNotifier` الحالي يرسل prompt الحالي فقط؛ المحادثة متعددة الأدوار غير موصولة بعد.
 - استبدال المحرك مستقبلاً يجب أن يحافظ على العقد أو يغيّره مع تحديث الاختبارات والطبقات المتأثرة. لا يوجد حالياً تكامل LLM حقيقي.
 
@@ -25,7 +25,13 @@
 - نوع `AppThemeMode` وخرائط `ThemeData` موجودة في `lib/core/theme/`.
 - `ThemeModeNotifier` في `lib/app/providers.dart` يحفظ اختيار المظهر best-effort باستخدام `shared_preferences`، ويستهلكه جذر التطبيق.
 - شاشة المحادثة تقرأ provider إعدادات الثيم لتنسيق بعض عناصر العرض؛ أعد تقييم ملكية provider إذا صار الثيم إعداداً مشتركاً لميزات متعددة.
-- صورة الروبوت الحالية هي `assets/images/robot_poster.png`، معرفة مركزياً في `lib/core/constants/app_assets.dart` ومعلنة في `pubspec.yaml`. تفاعل الحالة هو تأثير واجهة وليس مقاطع حركة داخل نموذج ثلاثي الأبعاد.
+- صورة الروبوت الحالية هي `assets/images/robot_poster.png`، معرفة مركزياً في `lib/core/constants/app_assets.dart` ومعلنة في `pubspec.yaml`. تفاعل الحالة هو نبض توهج الصورة عند `thinking` والعودة إلى التوهج الثابت عند `ready`؛ لا تتحرك الصورة نفسها ولا يوجد نموذج 3D.
+
+## أيقونة التطبيق
+
+- مصادر الأيقونة الأصلية غير المعدلة موجودة في `assets/icon/`: `dasko_icon_full_1024.png` و`dasko_foreground_1024.png` و`dasko_background_1024.png`.
+- إعداد `flutter_launcher_icons` يولد الأيقونات القياسية والتكيفية لأندرويد من الأيقونة الكاملة وطبقتي foreground/background. يربط `AndroidManifest.xml` المورد `@mipmap/launcher_icon`.
+- لا يوجد مجلد `ios/` أو مشروع Xcode حالياً، ولذلك `ios: false` ولا توجد أيقونة iOS مولدة/مفعلة. `remove_alpha_ios` لا يعني أن دعم iOS قد أُنجز.
 
 ## التوطين واتجاه العرض
 
