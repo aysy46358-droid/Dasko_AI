@@ -7,11 +7,17 @@ import '../l10n/app_localizations.dart';
 import 'providers.dart';
 
 class DaskoApp extends StatelessWidget {
-  const DaskoApp({super.key});
+  const DaskoApp({super.key, this.home, this.overrides = const []});
+
+  final Widget? home;
+  final List<Override> overrides;
 
   @override
   Widget build(BuildContext context) {
-    return const ProviderScope(child: _DaskoAppShell());
+    return ProviderScope(
+      overrides: overrides,
+      child: _DaskoAppShell(home: home ?? const DaskoIntroScreen()),
+    );
   }
 }
 
@@ -21,21 +27,37 @@ class DaskoApp extends StatelessWidget {
 /// through `AppLocalizations.localizationsDelegates`, derives text direction
 /// from the active locale (RTL for Arabic, LTR for English).
 class _DaskoAppShell extends ConsumerWidget {
-  const _DaskoAppShell();
+  const _DaskoAppShell({required this.home});
+
+  final Widget home;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final appThemeMode = ref.watch(themeProvider);
-    final locale = ref.watch(localeProvider);
+    final localeState = ref.watch(localeProvider);
+
+    if (!localeState.isInitialized) {
+      return MaterialApp(
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.themeDataFor(appThemeMode),
+        home: const Scaffold(
+          body: Center(
+            child: CircularProgressIndicator(
+              key: ValueKey<String>('locale-restoring'),
+            ),
+          ),
+        ),
+      );
+    }
 
     return MaterialApp(
       onGenerateTitle: (context) => AppLocalizations.of(context)!.appName,
       debugShowCheckedModeBanner: false,
       theme: AppTheme.themeDataFor(appThemeMode),
-      locale: locale,
+      locale: localeState.locale,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
-      home: const DaskoIntroScreen(),
+      home: home,
     );
   }
 }

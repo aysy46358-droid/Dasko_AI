@@ -30,7 +30,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get readyRobot => 'جاهز لمساعدتك';
 
   @override
-  String get introGreeting => 'أهلاً بك يا داسكو.';
+  String introGreeting(String name) {
+    return 'أهلاً بك يا $name.';
+  }
 
   @override
   String get startChat => 'ابدأ المحادثة';

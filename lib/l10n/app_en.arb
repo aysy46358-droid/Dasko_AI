@@ -7,7 +7,16 @@
   "chatInputHint": "Type your message...",
   "thinkingRobot": "Thinking...",
   "readyRobot": "Ready to help",
-  "introGreeting": "Welcome, Dasko.",
+  "introGreeting": "Welcome, {name}.",
+  "@introGreeting": {
+    "description": "Greeting shown on the intro screen and spoken by text-to-speech.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Dasko"
+      }
+    }
+  },
   "startChat": "Start the conversation",
   "errorUnknown": "Could not complete your request. Please try again later.",
   "settingsTitle": "Settings",

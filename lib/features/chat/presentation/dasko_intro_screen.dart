@@ -58,7 +58,7 @@ class _DaskoIntroScreenState extends State<DaskoIntroScreen>
       await _tts.setSpeechRate(0.43);
       await _tts.setVolume(0.9);
       await _tts.setPitch(1.0);
-      await _tts.speak(_l10n!.introGreeting);
+      await _tts.speak(_l10n!.introGreeting(_l10n!.robotName));
     } catch (_) {
       // Android needs an installed Arabic TTS voice. Fail silently and keep
       // the welcome screen usable when that voice is unavailable.
@@ -149,7 +149,7 @@ class _DaskoIntroScreenState extends State<DaskoIntroScreen>
                               ),
                               const SizedBox(height: 24),
                               Text(
-                                l10n.introGreeting,
+                                l10n.introGreeting(l10n.robotName),
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontSize: 23,

@@ -134,7 +134,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             Icon(Icons.graphic_eq_rounded, size: 34, color: colors.primary),
             const SizedBox(height: 16),
             Text(
-              l10n.introGreeting,
+              l10n.introGreeting(l10n.robotName),
               textAlign: TextAlign.center,
               style: theme.textTheme.titleLarge?.copyWith(
                 fontSize: 21,

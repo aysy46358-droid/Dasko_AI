@@ -7,7 +7,16 @@
   "chatInputHint": "اكتب رسالتك...",
   "thinkingRobot": "أفكر بالرد...",
   "readyRobot": "جاهز لمساعدتك",
-  "introGreeting": "أهلاً بك يا داسكو.",
+  "introGreeting": "أهلاً بك يا {name}.",
+  "@introGreeting": {
+    "description": "تحية تظهر في شاشة الترحيب ويقرأها تحويل النص إلى كلام.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "داسكو"
+      }
+    }
+  },
   "startChat": "ابدأ المحادثة",
   "errorUnknown": "تعذر إكمال طلبك. يرجى المحاولة لاحقاً.",
   "settingsTitle": "الإعدادات",

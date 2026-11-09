@@ -35,7 +35,7 @@ class SettingsScreen extends ConsumerWidget {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
     final appThemeMode = ref.watch(themeProvider);
-    final locale = ref.watch(localeProvider);
+    final locale = ref.watch(localeProvider).locale;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,

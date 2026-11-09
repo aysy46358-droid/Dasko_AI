@@ -14,6 +14,7 @@ This branch is the active experimental line. It extends the Phase 0 foundation w
 - Presentation maps request status to robot UI status
 - Robot UI displays the bundled 2D poster at `assets/images/robot_poster.png`; status effects are Flutter UI effects, not GLB/model-viewer animations
 - Light, Dark, and Neon theme choices with best-effort persistence
+- Arabic and English localization generated with Flutter `gen-l10n`; language choice is persisted and restored before localized UI is shown
 - Intro screen with optional welcome audio and TTS; failures are non-fatal
 - Firebase Core initialization is optional at runtime; Crashlytics handlers are wired for non-fatal Flutter and uncaught asynchronous errors on supported platforms, but report ingestion has not been verified
 - CI checks formatting, analysis, tests, assets, Android configuration, and signed release APK metadata
@@ -30,6 +31,12 @@ This branch is the active experimental line. It extends the Phase 0 foundation w
 1. `DaskoIntroScreen` (welcome)
 2. `ChatScreen` (conversation UI)
 
+### Localization
+
+The app supports Arabic (`ar`, RTL) and English (`en`, LTR) through Flutter's official `gen-l10n` generator. Source strings and placeholder metadata live in `lib/l10n/app_en.arb` and `lib/l10n/app_ar.arb`; generated Dart localization classes are committed under `lib/l10n/`. `l10n.yaml` defines the generator inputs, and `flutter: generate: true` is enabled in `pubspec.yaml`. The `intl` constraint is `^0.20.3` (resolved to `0.20.3` in `pubspec.lock`, matching the Flutter 3.47.8 `flutter_localizations` constraint).
+
+After editing an ARB file, run `flutter gen-l10n`, review the generated diff, then run `flutter analyze` and `flutter test`. CI resolves dependencies from the lockfile and runs `flutter gen-l10n` before formatting, analysis, and tests. `LocaleNotifier` in `lib/app/providers.dart` restores and persists the language; the app shell waits for restoration before showing localized content to avoid a first-frame language flash.
+
 ### Structure (current)
 
 ```text
@@ -38,6 +45,7 @@ lib/
 ├── app/                    # app shell and composition root
 ├── core/                   # constants, errors, and theme types
 ├── domain/                 # entities, repository contracts, use cases
+├── l10n/                   # ARB sources and committed generated localizations
 ├── features/
 │   ├── chat/                # application state and presentation
 │   ├── settings/            # persisted appearance preference and settings UI

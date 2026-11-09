@@ -6,8 +6,6 @@ import 'dasko_robot_state.dart';
 
 export 'dasko_robot_state.dart';
 
-const _neon = Color(0xFF00E5FF);
-const _violet = Color(0xFF7C4DFF);
 const _pulseDuration = Duration(milliseconds: 1400);
 
 /// Renders the robot artwork and pulses a cyan glow while Dasko is thinking.
@@ -65,6 +63,8 @@ class _InteractiveDaskoRobotState extends State<InteractiveDaskoRobot>
 
   @override
   Widget build(BuildContext context) {
+    final glowColor = Theme.of(context).colorScheme.primary;
+
     return RepaintBoundary(
       child: SizedBox.square(
         dimension: widget.size,
@@ -73,9 +73,8 @@ class _InteractiveDaskoRobotState extends State<InteractiveDaskoRobot>
           builder: (context, child) {
             final pulse = _pulse.value;
             final isThinking = widget.state == DaskoRobotState.thinking;
-            final glowColor = isThinking ? _neon : _violet;
 
-            return DecoratedBox(
+            return Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(widget.size * 0.28),
                 boxShadow: [
@@ -83,8 +82,7 @@ class _InteractiveDaskoRobotState extends State<InteractiveDaskoRobot>
                     color: glowColor.withValues(
                       alpha: 0.28 + (isThinking ? pulse * 0.45 : 0),
                     ),
-                    blurRadius:
-                        widget.size * (0.12 + (isThinking ? pulse * 0.22 : 0)),
+                    blurRadius: 25,
                     spreadRadius: isThinking ? pulse * 2.5 : 0.5,
                   ),
                 ],
@@ -92,10 +90,17 @@ class _InteractiveDaskoRobotState extends State<InteractiveDaskoRobot>
               child: child,
             );
           },
-          child: Image.asset(
-            AppAssets.robotPoster,
-            fit: BoxFit.contain,
-            semanticLabel: AppLocalizations.of(context)!.robotAlt,
+          child: ShaderMask(
+            blendMode: BlendMode.dstIn,
+            shaderCallback: (bounds) => const RadialGradient(
+              colors: [Colors.white, Colors.transparent],
+              stops: [0.5, 1.0],
+            ).createShader(bounds),
+            child: Image.asset(
+              AppAssets.robotPoster,
+              fit: BoxFit.contain,
+              semanticLabel: AppLocalizations.of(context)!.robotAlt,
+            ),
           ),
         ),
       ),
