@@ -7,23 +7,17 @@ import '../features/chat/presentation/dasko_intro_screen.dart';
 import '../features/settings/application/theme_provider.dart';
 
 class DaskoApp extends StatelessWidget {
-  const DaskoApp({super.key, this.robotViewerOverride});
-
-  final Widget? robotViewerOverride;
+  const DaskoApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return ProviderScope(
-      child: _DaskoAppShell(robotViewerOverride: robotViewerOverride),
-    );
+    return const ProviderScope(child: _DaskoAppShell());
   }
 }
 
 /// Consumes [themeProvider] so `MaterialApp.theme` follows the settings.
 class _DaskoAppShell extends ConsumerWidget {
-  const _DaskoAppShell({this.robotViewerOverride});
-
-  final Widget? robotViewerOverride;
+  const _DaskoAppShell();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -40,7 +34,7 @@ class _DaskoAppShell extends ConsumerWidget {
           child: child ?? const SizedBox.shrink(),
         );
       },
-      home: DaskoIntroScreen(robotViewerOverride: robotViewerOverride),
+      home: const DaskoIntroScreen(),
     );
   }
 }

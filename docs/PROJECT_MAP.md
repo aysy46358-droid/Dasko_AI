@@ -81,8 +81,7 @@
 - `assets/icon/README.md`
 - `assets/icon/dasko_icon.svg`
 - `assets/images/README.md`
-- `assets/images/dasko_robot_poster.png`
-- `assets/models/dasko_robot.glb`
+- `assets/images/robot_poster.png`
 - `assets/persona/dasko_constitution.yaml`
 - `assets/sounds/README.md`
 - `assets/sounds/welcome.wav`
@@ -112,8 +111,6 @@
 - `lib/features/chat/presentation/dasko_robot_state.dart`
 - `lib/features/chat/presentation/digital_space_background.dart`
 - `lib/features/chat/presentation/interactive_dasko_robot.dart`
-- `lib/features/chat/presentation/model_viewer_bridge_event.dart`
-- `lib/features/chat/presentation/robot_animation_name.dart`
 - `lib/features/cinematic_ui/presentation/widgets/audio_waveform_widget.dart`
 - `lib/features/cinematic_ui/presentation/widgets/cinematic_screen.dart`
 - `lib/features/settings/application/theme_provider.dart`
@@ -125,7 +122,6 @@
 - `test/chat_notifier_test.dart`
 - `test/chat_robot_state_mapper_test.dart`
 - `test/chat_screen_robot_state_test.dart`
-- `test/model_viewer_bridge_event_test.dart`
 - `test/send_message_test.dart`
 - `test/theme_mode_test.dart`
 - `test/widget_test.dart`

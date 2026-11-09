@@ -15,7 +15,7 @@ class _ThemedChatApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return MaterialApp(
       theme: AppTheme.themeDataFor(ref.watch(themeProvider)),
-      home: const ChatScreen(robotViewerOverride: SizedBox.shrink()),
+      home: const ChatScreen(),
     );
   }
 }

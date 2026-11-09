@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
-"""Validate the bundled Dasko GLB and its narrowly scoped Android transport."""
+"""Validate the bundled robot artwork and its narrowly scoped Android transport."""
 
 from __future__ import annotations
 
-import json
 import struct
 import sys
 import xml.etree.ElementTree as ET
@@ -11,33 +10,15 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-MODEL_PATH = ROOT / "assets/models/dasko_robot.glb"
-POSTER_PATH = ROOT / "assets/images/dasko_robot_poster.png"
+POSTER_PATH = ROOT / "assets/images/robot_poster.png"
 MANIFEST_PATH = ROOT / "android/app/src/main/AndroidManifest.xml"
 NETWORK_CONFIG_PATH = ROOT / "android/app/src/main/res/xml/network_security_config.xml"
 ANDROID_NS = "http://schemas.android.com/apk/res/android"
-REQUIRED_ANIMATIONS = {"wave_hand", "idle_float", "thinking_loop"}
-REQUIRED_NODES = {
-    "Dasko_RootMotion",
-    "Dasko_ModelCoordinateFrame",
-    "Arm_Left_FloatingShell",
-    "Arm_Left_StaticPivot",
-    "Arm_Right_FloatingShell",
-    "Arm_Right_WavePivot",
-    "Head_PorcelainHelmet",
-    "Head_TiltPivot",
-    "Torso_TaperedShell",
-}
-ANIMATION_TARGETS = {
-    "wave_hand": "Arm_Right_WavePivot",
-    "idle_float": "Dasko_RootMotion",
-    "thinking_loop": "Head_TiltPivot",
-}
-ANIMATION_REQUIRED_PATHS = {
-    "wave_hand": {"rotation"},
-    "idle_float": {"translation"},
-    "thinking_loop": {"rotation"},
-}
+
+PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
+JPEG_SIGNATURE = b"\xff\xd8\xff"
+MIN_POSTER_EDGE = 512
+MAX_POSTER_BYTES = 4 * 1024 * 1024
 
 
 def fail(message: str) -> None:
@@ -45,132 +26,57 @@ def fail(message: str) -> None:
     raise SystemExit(1)
 
 
-def read_glb(path: Path) -> dict:
-    data = path.read_bytes()
-    if len(data) < 20:
-        fail(f"GLB is too small: {path}")
-    magic, version, declared_length = struct.unpack_from("<4sII", data, 0)
-    if magic != b"glTF" or version != 2 or declared_length != len(data):
-        fail("GLB header/version/length is invalid")
-
-    offset = 12
-    json_document = None
-    while offset < len(data):
-        if offset + 8 > len(data):
-            fail("GLB has a truncated chunk header")
-        chunk_length, chunk_type = struct.unpack_from("<I4s", data, offset)
-        offset += 8
-        chunk_end = offset + chunk_length
-        if chunk_end > len(data):
-            fail("GLB has a truncated chunk")
-        if chunk_type == b"JSON":
-            if json_document is not None:
-                fail("GLB contains more than one JSON chunk")
-            chunk = data[offset:chunk_end].decode("utf-8").rstrip("\x00 \t\r\n")
-            json_document = json.loads(chunk)
-        offset = chunk_end
-
-    if offset != len(data) or json_document is None:
-        fail("GLB is missing its JSON chunk or has trailing bytes")
-    return json_document
+def png_size(data: bytes) -> tuple[int, int]:
+    return struct.unpack_from(">II", data, 16)
 
 
-def validate_model() -> None:
-    if not MODEL_PATH.is_file():
-        fail(f"Missing local GLB: {MODEL_PATH.relative_to(ROOT)}")
-    if MODEL_PATH.stat().st_size > 5 * 1024 * 1024:
-        fail("GLB exceeds the 5 MiB app-asset budget")
+def jpeg_size(data: bytes) -> tuple[int, int]:
+    index = 2
+    while index + 9 < len(data):
+        if data[index] != 0xFF:
+            index += 1
+            continue
+        marker = data[index + 1]
+        if marker in (0xC0, 0xC1, 0xC2, 0xC3):
+            height, width = struct.unpack_from(">HH", data, index + 5)
+            return width, height
+        if marker in (0xD8, 0xD9) or 0xD0 <= marker <= 0xD7:
+            index += 2
+            continue
+        segment_length = struct.unpack_from(">H", data, index + 2)[0]
+        index += 2 + segment_length
+    fail("JPEG poster has no SOF frame header")
 
-    document = read_glb(MODEL_PATH)
-    animations = {item.get("name") for item in document.get("animations", [])}
-    if animations != REQUIRED_ANIMATIONS:
-        fail(f"Unexpected GLB animation names: {sorted(animations)}")
 
-    nodes = document.get("nodes", [])
-    node_names = {node.get("name", "") for node in nodes}
-    missing_nodes = REQUIRED_NODES - node_names
-    if missing_nodes:
-        fail(f"Missing required model nodes: {sorted(missing_nodes)}")
+def validate_poster() -> None:
+    if not POSTER_PATH.is_file():
+        fail(f"Missing robot poster: {POSTER_PATH.relative_to(ROOT)}")
 
-    node_indices = {node.get("name", ""): index for index, node in enumerate(nodes)}
-    root_scale = nodes[node_indices["Dasko_RootMotion"]].get(
-        "scale", [1.0, 1.0, 1.0]
-    )
-    if (
-        not isinstance(root_scale, list)
-        or len(root_scale) != 3
-        or any(
-            not isinstance(value, (int, float)) or abs(value - 1.0) > 1e-6
-            for value in root_scale
-        )
-    ):
-        fail("Dasko_RootMotion scale must remain fixed at 1 1 1")
+    data = POSTER_PATH.read_bytes()
+    if not data:
+        fail("Robot poster is empty")
+    if len(data) > MAX_POSTER_BYTES:
+        fail("Robot poster exceeds the 4 MiB app-asset budget")
 
-    def require_child(parent_name: str, child_name: str) -> None:
-        parent_index = node_indices[parent_name]
-        child_index = node_indices[child_name]
-        if child_index not in nodes[parent_index].get("children", []):
-            fail(f"Model hierarchy must place {child_name} under {parent_name}")
+    # The asset is a raster image; PNG and JPEG are both accepted because the
+    # Flutter engine decodes by content, not by file extension.
+    if data.startswith(PNG_SIGNATURE):
+        width, height = png_size(data)
+    elif data.startswith(JPEG_SIGNATURE):
+        width, height = jpeg_size(data)
+    else:
+        fail("Robot poster is neither a PNG nor a JPEG image")
 
-    require_child("Dasko_RootMotion", "Dasko_ModelCoordinateFrame")
-    for child_name in (
-        "Arm_Left_StaticPivot",
-        "Arm_Right_WavePivot",
-        "Head_TiltPivot",
-        "Torso_TaperedShell",
-    ):
-        require_child("Dasko_ModelCoordinateFrame", child_name)
-    require_child("Head_TiltPivot", "Head_PorcelainHelmet")
-    if any("neck" in name.casefold() for name in node_names):
-        fail("A physical neck node is not allowed in the floating-head design")
-
-    for visible_node in (
-        "Arm_Left_FloatingShell",
-        "Arm_Right_FloatingShell",
-        "Head_PorcelainHelmet",
-        "Torso_TaperedShell",
-    ):
-        node = next(item for item in nodes if item.get("name") == visible_node)
-        if not isinstance(node.get("mesh"), int):
-            fail(f"Required visible model node has no mesh: {visible_node}")
-
-    for animation in document.get("animations", []):
-        name = animation.get("name")
-        if not animation.get("channels") or not animation.get("samplers"):
-            fail(f"Animation has no playable channels: {name}")
-        target_paths: dict[str, set[str]] = {}
-        for channel in animation["channels"]:
-            target_info = channel.get("target", {})
-            target = target_info.get("node")
-            if not isinstance(target, int) or target < 0 or target >= len(nodes):
-                fail(f"Animation targets an invalid node: {name}")
-            if target_info.get("path") == "scale":
-                fail(f"Animation must not change model scale: {name}")
-            target_name = nodes[target].get("name", "")
-            target_paths.setdefault(target_name, set()).add(target_info.get("path", ""))
-        expected_target = ANIMATION_TARGETS[name]
-        if expected_target not in target_paths:
-            fail(f"Animation {name} does not animate {expected_target}")
-        required_paths = ANIMATION_REQUIRED_PATHS[name]
-        if not required_paths.issubset(target_paths[expected_target]):
-            fail(
-                f"Animation {name} is missing required paths on "
-                f"{expected_target}: {sorted(required_paths)}"
-            )
-
-    external_uris = [
-        item.get("uri")
-        for section in ("buffers", "images")
-        for item in document.get(section, [])
-        if item.get("uri")
-    ]
-    if external_uris:
-        fail(f"GLB must be self-contained; external URIs found: {external_uris}")
+    if min(width, height) < MIN_POSTER_EDGE:
+        fail(f"Robot poster is too small: {width}x{height} (min {MIN_POSTER_EDGE}px)")
 
     pubspec = (ROOT / "pubspec.yaml").read_text(encoding="utf-8")
-    if "    - assets/models/" not in pubspec:
-        fail("pubspec.yaml does not include assets/models/")
-    print("GLB valid: self-contained asset, required nodes, and mapped animation clips")
+    if "    - assets/images/" not in pubspec:
+        fail("pubspec.yaml does not include assets/images/")
+    if "assets/models/" in pubspec:
+        fail("pubspec.yaml still declares the retired assets/models/ folder")
+
+    print(f"Robot poster valid: {width}x{height} raster asset within budget")
 
 
 def validate_android_network_policy() -> None:
@@ -202,23 +108,9 @@ def validate_android_network_policy() -> None:
     print("Android network policy valid: cleartext denied except loopback 127.0.0.1")
 
 
-def validate_poster() -> None:
-    if not POSTER_PATH.is_file():
-        fail(f"Missing robot poster fallback: {POSTER_PATH.relative_to(ROOT)}")
-    data = POSTER_PATH.read_bytes()
-    if len(data) < 33 or data[:8] != b"\x89PNG\r\n\x1a\n":
-        fail("Robot poster is not a valid PNG")
-    width, height = struct.unpack_from(">II", data, 16)
-    color_type = data[25]
-    if (width, height) != (512, 640) or color_type != 6:
-        fail("Robot poster must be a 512x640 RGBA PNG")
-    print("Robot poster valid: 512x640 RGBA fallback image")
-
-
 def main() -> None:
-    validate_model()
-    validate_android_network_policy()
     validate_poster()
+    validate_android_network_policy()
 
 
 if __name__ == "__main__":

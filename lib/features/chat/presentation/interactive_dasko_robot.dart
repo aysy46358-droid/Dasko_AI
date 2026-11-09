@@ -1,280 +1,102 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
-import 'package:model_viewer_plus/model_viewer_plus.dart';
-import 'package:webview_flutter/webview_flutter.dart';
 
-import 'dasko_robot_state.dart';
-import 'model_viewer_bridge_event.dart';
-import 'robot_animation_name.dart';
 import '../../../core/constants/app_assets.dart';
 import '../../../core/constants/app_strings.dart';
+import 'dasko_robot_state.dart';
 
 export 'dasko_robot_state.dart';
 
-const _modelScale = '1 1 1';
-// Locking min/max prevents model-viewer's default auto radius from overriding it.
-const _cameraOrbit = '0deg 90deg 2m';
-const _cameraOrbitLimit = 'auto auto 2m';
-const _cameraTarget = '0m 0.52m 0m';
-const _fieldOfView = '35deg';
-const _modelViewerId = 'dasko_robot_model';
-const _bridgeName = 'DaskoModelBridge';
-const _waveHandDuration = Duration(milliseconds: 2167);
-// Poster -> WebView cross-fade; matches model-viewer's own reveal smoothness.
-const _revealDuration = Duration(milliseconds: 320);
+const _neon = Color(0xFF00E5FF);
+const _violet = Color(0xFF7C4DFF);
+const _pulseDuration = Duration(milliseconds: 1400);
 
-const _modelBridgeScript = '''
-(() => {
-  // Guarantee the hosting WebView page has no opaque backdrop of its own, so
-  // the transparent model-viewer composites over the app's own background.
-  try {
-    document.documentElement.style.backgroundColor = "transparent";
-    if (document.body) document.body.style.backgroundColor = "transparent";
-  } catch (_) {}
-  const report = (value) => {
-    try { DaskoModelBridge.postMessage(value); } catch (_) {}
-  };
-  const maxAttachAttempts = 150;
-  let attachAttempts = 0;
-  const attach = () => {
-    const viewer = document.getElementById("$_modelViewerId");
-    if (!viewer) {
-      attachAttempts += 1;
-      // 150 attempts at 30ms each give the element about 5 seconds to appear.
-      if (attachAttempts >= maxAttachAttempts) {
-        report("error");
-        return;
-      }
-      window.setTimeout(attach, 30);
-      return;
-    }
-    const prepareAndReveal = () => {
-      if (!viewer.loaded || viewer.dataset.daskoPrepared === "true") return;
-      viewer.dataset.daskoPrepared = "true";
-      viewer.scale = "$_modelScale";
-      viewer.minCameraOrbit = "$_cameraOrbitLimit";
-      viewer.maxCameraOrbit = "$_cameraOrbitLimit";
-      viewer.cameraTarget = "$_cameraTarget";
-      viewer.cameraOrbit = "$_cameraOrbit";
-      viewer.minFieldOfView = "$_fieldOfView";
-      viewer.maxFieldOfView = "$_fieldOfView";
-      viewer.fieldOfView = "$_fieldOfView";
-      viewer.updateComplete.then(() => {
-        viewer.jumpCameraToGoal();
-        viewer.dismissPoster();
-        report("loaded");
-      }).catch(() => report("error"));
-    };
-    viewer.addEventListener("load", prepareAndReveal, { once: true });
-    viewer.addEventListener("error", () => report("error"), { once: true });
-    if (viewer.loaded) prepareAndReveal();
-  };
-  customElements.whenDefined("model-viewer").then(attach).catch(() => report("error"));
-})();
-''';
-
-/// Builder seam used by deterministic widget tests instead of a native WebView.
-typedef RobotModelViewerOverride = Widget;
-
-/// Displays the procedural GLB and maps chat state to named model animations.
+/// Renders the robot artwork and pulses a cyan glow while Dasko is thinking.
+///
+/// The former WebView/model-viewer implementation is gone: the poster image is
+/// the single source of truth, which removes the platform view, the JS bridge
+/// and the load-time camera jump entirely.
 class InteractiveDaskoRobot extends StatefulWidget {
   const InteractiveDaskoRobot({
     super.key,
     required this.state,
     this.size = 112,
-    this.playGreetingOnStart = false,
-    this.modelViewerOverride,
   }) : assert(size > 0);
 
   final DaskoRobotState state;
   final double size;
-  final bool playGreetingOnStart;
-
-  /// Optional static replacement for the platform WebView in widget tests.
-  final RobotModelViewerOverride? modelViewerOverride;
 
   @override
   State<InteractiveDaskoRobot> createState() => _InteractiveDaskoRobotState();
 }
 
 class _InteractiveDaskoRobotState extends State<InteractiveDaskoRobot>
-    with AutomaticKeepAliveClientMixin<InteractiveDaskoRobot> {
-  WebViewController? _webViewController;
-  Timer? _greetingTimer;
-  bool _bridgeReportedLoaded = false;
-  bool _modelLoaded = false;
-  bool _modelFailed = false;
-  bool _greetingStarted = false;
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _pulse = AnimationController(
+    vsync: this,
+    duration: _pulseDuration,
+  );
 
-  /// Keeps the platform WebView (and its loaded GLB) attached while the widget
-  /// scrolls out of view or the parent rebuilds, instead of paying for a
-  /// teardown/recreate cycle that makes the robot visibly shake.
   @override
-  bool get wantKeepAlive => true;
+  void initState() {
+    super.initState();
+    _syncPulse();
+  }
 
   @override
   void didUpdateWidget(covariant InteractiveDaskoRobot oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.state != widget.state && _modelLoaded) {
-      _greetingTimer?.cancel();
-      unawaited(_playCurrentState());
-    }
+    if (oldWidget.state != widget.state) _syncPulse();
   }
 
   @override
   void dispose() {
-    _greetingTimer?.cancel();
+    _pulse.dispose();
     super.dispose();
   }
 
-  void _onWebViewCreated(WebViewController controller) {
-    _webViewController = controller;
-    if (_bridgeReportedLoaded) {
-      _markModelLoaded();
-    }
-  }
-
-  void _onBridgeMessage(JavaScriptMessage message) {
-    switch (parseModelViewerBridgeEvent(message)) {
-      case ModelViewerBridgeEvent.loaded:
-        _bridgeReportedLoaded = true;
-        _markModelLoaded();
-      case ModelViewerBridgeEvent.error:
-        if (mounted) setState(() => _modelFailed = true);
-      case ModelViewerBridgeEvent.unknown:
-        break;
-    }
-  }
-
-  void _markModelLoaded() {
-    if (!mounted || _modelLoaded || _webViewController == null) return;
-    setState(() => _modelLoaded = true);
-    if (widget.playGreetingOnStart && !_greetingStarted) {
-      _greetingStarted = true;
-      unawaited(_playAnimation('wave_hand', repetitions: 1));
-      _greetingTimer = Timer(_waveHandDuration, () {
-        if (mounted) unawaited(_playCurrentState());
-      });
+  /// Only the thinking state animates; every other state shows a steady glow.
+  void _syncPulse() {
+    if (widget.state == DaskoRobotState.thinking) {
+      if (!_pulse.isAnimating) _pulse.repeat(reverse: true);
     } else {
-      unawaited(_playCurrentState());
+      _pulse.stop();
+      _pulse.value = 0;
     }
-  }
-
-  Future<void> _playCurrentState() {
-    final animation = animationNameForRobotState(widget.state);
-    return _playAnimation(animation, repetitions: null);
-  }
-
-  Future<void> _playAnimation(
-    String animation, {
-    required int? repetitions,
-  }) async {
-    final controller = _webViewController;
-    if (controller == null || !_modelLoaded) return;
-
-    // Animation names are fixed allowlisted constants from our local GLB.
-    final repetitionExpression = repetitions?.toString() ?? 'Infinity';
-    final script = '''
-      (() => {
-        const viewer = document.getElementById("$_modelViewerId");
-        if (!viewer || !viewer.loaded) return;
-        viewer.pause();
-        viewer.animationName = "$animation";
-        viewer.updateComplete.then(() => {
-          viewer.play({ repetitions: $repetitionExpression });
-        });
-      })();
-    ''';
-
-    try {
-      await controller.runJavaScript(script);
-    } catch (_) {
-      if (mounted) setState(() => _modelFailed = true);
-    }
-  }
-
-  Widget _buildModelViewer() {
-    if (widget.modelViewerOverride case final override?) {
-      return override;
-    }
-
-    return ModelViewer(
-      // Stable identity keeps the platform WebView attached to this subtree:
-      // without it, rebuilds can spawn a second WebView behind the first.
-      key: const ValueKey('dasko_3d_webview'),
-      src: AppAssets.robotModel,
-      id: _modelViewerId,
-      alt: AppStrings.robotAlt,
-      backgroundColor: Colors.transparent,
-      loading: Loading.eager,
-      reveal: Reveal.manual,
-      ar: false,
-      cameraControls: false,
-      autoPlay: false,
-      autoRotate: false,
-      disableTap: true,
-      interactionPrompt: InteractionPrompt.none,
-      animationCrossfadeDuration: 320,
-      cameraOrbit: _cameraOrbit,
-      minCameraOrbit: _cameraOrbitLimit,
-      maxCameraOrbit: _cameraOrbitLimit,
-      cameraTarget: _cameraTarget,
-      fieldOfView: _fieldOfView,
-      minFieldOfView: _fieldOfView,
-      maxFieldOfView: _fieldOfView,
-      scale: _modelScale,
-      exposure: 1.0,
-      shadowIntensity: 0.35,
-      debugLogging: false,
-      relatedJs: _modelBridgeScript,
-      javascriptChannels: <JavascriptChannel>{
-        JavascriptChannel(
-          _bridgeName,
-          onMessageReceived: _onBridgeMessage,
-        ),
-      },
-      onWebViewCreated: _onWebViewCreated,
-    );
   }
 
   @override
   Widget build(BuildContext context) {
-    // Required by AutomaticKeepAliveClientMixin; its return value is a
-    // placeholder and must be ignored.
-    super.build(context);
-
-    // The WebView is only revealed once the GLB has loaded and the camera has
-    // been jumped to its final pose, so the default model-viewer scale/pose is
-    // never visible and the robot no longer "snaps" into shape.
-    final modelVisible = _modelLoaded && !_modelFailed;
-
     return RepaintBoundary(
       child: SizedBox.square(
         dimension: widget.size,
-        child: ClipRect(
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              AnimatedOpacity(
-                opacity: modelVisible ? 1 : 0,
-                duration: _revealDuration,
-                curve: Curves.easeOut,
-                child: _buildModelViewer(),
-              ),
-              IgnorePointer(
-                child: AnimatedOpacity(
-                  opacity: modelVisible ? 0 : 1,
-                  duration: _revealDuration,
-                  curve: Curves.easeIn,
-                  child: Image.asset(
-                    AppAssets.robotPoster,
-                    fit: BoxFit.contain,
-                    semanticLabel: AppStrings.robotAlt,
+        child: AnimatedBuilder(
+          animation: _pulse,
+          builder: (context, child) {
+            final pulse = _pulse.value;
+            final isThinking = widget.state == DaskoRobotState.thinking;
+            final glowColor = isThinking ? _neon : _violet;
+
+            return DecoratedBox(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(widget.size * 0.28),
+                boxShadow: [
+                  BoxShadow(
+                    color: glowColor.withValues(
+                      alpha: 0.28 + (isThinking ? pulse * 0.45 : 0),
+                    ),
+                    blurRadius:
+                        widget.size * (0.12 + (isThinking ? pulse * 0.22 : 0)),
+                    spreadRadius: isThinking ? pulse * 2.5 : 0.5,
                   ),
-                ),
+                ],
               ),
-            ],
+              child: child,
+            );
+          },
+          child: Image.asset(
+            AppAssets.robotPoster,
+            fit: BoxFit.contain,
+            semanticLabel: AppStrings.robotAlt,
           ),
         ),
       ),
