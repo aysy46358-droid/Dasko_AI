@@ -49,7 +49,8 @@ flutter:
 flutter_launcher_icons:
   android: "launcher_icon"
   ios: false
-  image_path: "assets/icon/app_icon.png"
+  image_path: "assets/icon/dasko_icon_full_1024.png"
   min_sdk_android: 21
-  adaptive_icon_background: "#0F1830"
-  adaptive_icon_foreground: "assets/icon/app_icon.png"
+  adaptive_icon_background: "assets/icon/dasko_background_1024.png"
+  adaptive_icon_foreground: "assets/icon/dasko_foreground_1024.png"
+  remove_alpha_ios: true

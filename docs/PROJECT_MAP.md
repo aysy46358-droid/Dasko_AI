@@ -77,11 +77,16 @@
 - `android/app/src/debug/AndroidManifest.xml`
 - `android/app/src/main/AndroidManifest.xml`
 - `android/app/src/main/kotlin/com/dasko/dasko_ai/MainActivity.kt`
+- `android/app/src/main/res/drawable-hdpi/ic_launcher_background.png`
 - `android/app/src/main/res/drawable-hdpi/ic_launcher_foreground.png`
+- `android/app/src/main/res/drawable-mdpi/ic_launcher_background.png`
 - `android/app/src/main/res/drawable-mdpi/ic_launcher_foreground.png`
 - `android/app/src/main/res/drawable-v21/launch_background.xml`
+- `android/app/src/main/res/drawable-xhdpi/ic_launcher_background.png`
 - `android/app/src/main/res/drawable-xhdpi/ic_launcher_foreground.png`
+- `android/app/src/main/res/drawable-xxhdpi/ic_launcher_background.png`
 - `android/app/src/main/res/drawable-xxhdpi/ic_launcher_foreground.png`
+- `android/app/src/main/res/drawable-xxxhdpi/ic_launcher_background.png`
 - `android/app/src/main/res/drawable-xxxhdpi/ic_launcher_foreground.png`
 - `android/app/src/main/res/drawable/launch_background.xml`
 - `android/app/src/main/res/mipmap-anydpi-v26/launcher_icon.xml`
@@ -104,7 +109,10 @@
 - `android/settings.gradle.kts`
 - `assets/icon/README.md`
 - `assets/icon/app_icon.png`
+- `assets/icon/dasko_background_1024.png`
+- `assets/icon/dasko_foreground_1024.png`
 - `assets/icon/dasko_icon.svg`
+- `assets/icon/dasko_icon_full_1024.png`
 - `assets/images/README.md`
 - `assets/images/robot_poster.png`
 - `assets/persona/dasko_constitution.yaml`
