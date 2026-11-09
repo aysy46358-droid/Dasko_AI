@@ -55,7 +55,7 @@ class CinematicScreen extends StatelessWidget {
                       const SizedBox(width: 10),
                       const Text(
                         AppConstants.appWordmark,
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 13,
                           letterSpacing: 4,
@@ -75,13 +75,13 @@ class CinematicScreen extends StatelessWidget {
                             color: Colors.white.withValues(alpha: 0.12),
                           ),
                         ),
-                        child: const Row(
+                        child: Row(
                           children: [
-                            Icon(Icons.circle, color: _cyan, size: 6),
-                            SizedBox(width: 7),
+                            const Icon(Icons.circle, color: _cyan, size: 6),
+                            const SizedBox(width: 7),
                             Text(
                               l10n.cinematicLocalCore,
-                              style: TextStyle(
+                              style: const TextStyle(
                                 color: Color(0xFFB7C9E8),
                                 fontSize: 9,
                                 letterSpacing: 1.5,
@@ -113,7 +113,7 @@ class CinematicScreen extends StatelessWidget {
                   Text(
                     l10n.cinematicTagline,
                     textAlign: TextAlign.center,
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: Color(0xFFB7C8E9),
                       fontSize: 10,
                       letterSpacing: 3.1,
@@ -124,7 +124,7 @@ class CinematicScreen extends StatelessWidget {
                   Text(
                     l10n.cinematicWelcome,
                     textAlign: TextAlign.center,
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 25,
                       fontWeight: FontWeight.w600,
@@ -167,7 +167,7 @@ class CinematicScreen extends StatelessWidget {
                     child: Center(
                       child: Text(
                         l10n.cinematicEnter,
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: Color(0xFF061026),
                           fontWeight: FontWeight.w800,
                           fontSize: 11,
