@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/constants/app_assets.dart';
-import '../../../core/constants/app_strings.dart';
+import '../../../l10n/app_localizations.dart';
 import 'dasko_robot_state.dart';
 
 export 'dasko_robot_state.dart';
@@ -95,7 +95,7 @@ class _InteractiveDaskoRobotState extends State<InteractiveDaskoRobot>
           child: Image.asset(
             AppAssets.robotPoster,
             fit: BoxFit.contain,
-            semanticLabel: AppStrings.robotAlt,
+            semanticLabel: AppLocalizations.of(context)!.robotAlt,
           ),
         ),
       ),

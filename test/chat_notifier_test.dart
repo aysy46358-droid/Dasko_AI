@@ -1,13 +1,15 @@
 import 'dart:async';
-
 import 'package:dartz/dartz.dart';
-import 'package:dasko_ai/core/constants/app_strings.dart';
+
 import 'package:dasko_ai/core/errors/failures.dart';
 import 'package:dasko_ai/domain/repositories/ai_engine.dart';
 import 'package:dasko_ai/domain/usecases/send_message.dart';
 import 'package:dasko_ai/features/chat/application/chat_notifier.dart';
 import 'package:dasko_ai/features/chat/application/chat_request_status.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+// Stand-in for the localized failure copy the UI injects at send time.
+const _errorText = 'Could not complete your request.';
 
 class _CompleterEngine implements AiEngine {
   final Completer<Either<Failure, String>> completer =
@@ -32,7 +34,7 @@ void main() {
       expect(notifier.state.requestStatus, ChatRequestStatus.idle);
       expect(notifier.state.isReplying, isFalse);
 
-      final request = notifier.send('hello');
+      final request = notifier.send('hello', errorText: _errorText);
       expect(notifier.state.requestStatus, ChatRequestStatus.sending);
       expect(notifier.state.isReplying, isTrue);
 
@@ -53,7 +55,7 @@ void main() {
       final engine = _CompleterEngine();
       final notifier = ChatNotifier(SendMessage(engine));
 
-      final request = notifier.send('hello');
+      final request = notifier.send('hello', errorText: _errorText);
       engine.completer.complete(
         const Left<Failure, String>(ServerFailure('unavailable')),
       );
@@ -61,9 +63,9 @@ void main() {
 
       expect(notifier.state.requestStatus, ChatRequestStatus.failed);
       expect(notifier.state.isReplying, isFalse);
-      expect(notifier.state.errorMessage, AppStrings.unknownError);
+      expect(notifier.state.errorMessage, _errorText);
       expect(notifier.state.messages, hasLength(2));
-      expect(notifier.state.messages.last.text, AppStrings.unknownError);
+      expect(notifier.state.messages.last.text, _errorText);
       expect(notifier.state.messages.last.text, isNot(contains('unavailable')));
 
       notifier.dispose();

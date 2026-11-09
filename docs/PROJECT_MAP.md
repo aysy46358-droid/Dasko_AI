@@ -98,11 +98,11 @@
 - `docs/PROJECT_CONTROL.md`
 - `docs/PROJECT_MAP.md`
 - `google-services.json`
+- `l10n.yaml`
 - `lib/app/app.dart`
 - `lib/app/providers.dart`
 - `lib/core/constants/app_assets.dart`
 - `lib/core/constants/app_constants.dart`
-- `lib/core/constants/app_strings.dart`
 - `lib/core/errors/app_exception.dart`
 - `lib/core/errors/failures.dart`
 - `lib/core/theme/app_theme.dart`
@@ -122,6 +122,11 @@
 - `lib/features/cinematic_ui/presentation/widgets/audio_waveform_widget.dart`
 - `lib/features/cinematic_ui/presentation/widgets/cinematic_screen.dart`
 - `lib/features/settings/presentation/settings_screen.dart`
+- `lib/l10n/app_ar.arb`
+- `lib/l10n/app_en.arb`
+- `lib/l10n/app_localizations.dart`
+- `lib/l10n/app_localizations_ar.dart`
+- `lib/l10n/app_localizations_en.dart`
 - `lib/main.dart`
 - `lib/services/ai_engine/mock_ai_engine.dart`
 - `pubspec.lock`

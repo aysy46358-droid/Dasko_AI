@@ -263,6 +263,9 @@ jobs:
           fi
           flutter pub get --enforce-lockfile
 
+      - name: Generate localizations
+        run: flutter gen-l10n
+
       - name: Verify Dart formatting without modifying files
         shell: bash
         run: |

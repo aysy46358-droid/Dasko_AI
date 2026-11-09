@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../domain/entities/message.dart';
-import '../../../core/constants/app_strings.dart';
 import '../../../domain/usecases/send_message.dart';
 import 'chat_request_status.dart';
 
@@ -44,7 +43,9 @@ class ChatNotifier extends StateNotifier<ChatState> {
   final SendMessage _sendMessage;
   final Uuid _uuid;
 
-  Future<void> send(String rawText) async {
+  /// [errorText] is supplied by the presentation layer so this notifier stays
+  /// free of user-facing copy; it is shown if the engine call fails.
+  Future<void> send(String rawText, {required String errorText}) async {
     final text = rawText.trim();
     if (text.isEmpty || state.isReplying) return;
 
@@ -70,13 +71,13 @@ class ChatNotifier extends StateNotifier<ChatState> {
             ...state.messages,
             Message(
               id: _uuid.v4(),
-              text: AppStrings.unknownError,
+              text: errorText,
               isUser: false,
               createdAt: DateTime.now(),
             ),
           ],
           requestStatus: ChatRequestStatus.failed,
-          errorMessage: AppStrings.unknownError,
+          errorMessage: errorText,
         );
       },
       (assistantMessage) {
