@@ -57,9 +57,9 @@ lib/
 
 The prototype initializes Firebase Core on a best-effort basis and wires Crashlytics for non-fatal Flutter and uncaught asynchronous errors on supported Android/iOS/macOS platforms. The reviewed handlers pass a sanitized error type, fixed source label, and stack frames; they do not pass raw exception messages, chat content, API keys, or user identifiers. This is a source-level statement, not proof of what reaches Firebase in production: no test event has been verified on a device or in Firebase Console. The app does not currently access Firebase Authentication, Firestore, Realtime Database, Cloud Storage, or callable Functions. No deployable Firebase rules or App Check configuration are included in this repository; verify remote console rules and enforcement before adding Firebase-backed data or endpoints.
 
-### Launcher icon
+### Launcher icon status
 
-`assets/icon/dasko_icon.svg` is present. A final `dasko_icon.png` (512x512) is required before running `flutter_launcher_icons`. The generator config is intentionally disabled until that PNG exists.
+The approved 1024×1024 PNG source set is stored unchanged under `assets/icon/`: `dasko_icon_full_1024.png`, `dasko_foreground_1024.png`, and `dasko_background_1024.png`. `flutter_launcher_icons` generates the Android launcher and adaptive icons from these assets. iOS generation is intentionally disabled (`ios: false`) because this repository does not yet contain an `ios/` project; do not report iOS icon support as complete. Regenerate Android resources with `dart run flutter_launcher_icons`.
 
 ### Next hard step
 
@@ -69,3 +69,5 @@ Before wiring a real `AiEngine`, define the server-side credential boundary, dec
 
 - [Project map](docs/PROJECT_MAP.md): architecture overview and generated inventory of Git-tracked files.
 - [Project control register](docs/PROJECT_CONTROL.md): evidence-based status, open risks, and prioritized next steps.
+
+When handing work to another tool or contributor, start with `docs/PROJECT_CONTROL.md`; it records the verified branch/head, current implementation boundaries (including that the robot is a 2D poster, not a 3D model), CI evidence, deferred iOS setup, and remaining security/AI tasks. Then consult `docs/PROJECT_MAP.md` before changing architecture or file ownership.
