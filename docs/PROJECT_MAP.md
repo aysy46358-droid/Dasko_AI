@@ -27,6 +27,13 @@
 - شاشة المحادثة تقرأ provider إعدادات الثيم لتنسيق بعض عناصر العرض؛ أعد تقييم ملكية provider إذا صار الثيم إعداداً مشتركاً لميزات متعددة.
 - صورة الروبوت الحالية هي `assets/images/robot_poster.png`، معرفة مركزياً في `lib/core/constants/app_assets.dart` ومعلنة في `pubspec.yaml`. تفاعل الحالة هو تأثير واجهة وليس مقاطع حركة داخل نموذج ثلاثي الأبعاد.
 
+## التوطين واتجاه العرض
+
+- يدعم التطبيق العربية (`ar`) والإنجليزية (`en`) عبر مولّد Flutter الرسمي `gen-l10n`. ملفات المصدر هي `lib/l10n/app_en.arb` و`lib/l10n/app_ar.arb`؛ ملفات Dart المولدة محفوظة ومتتبعة تحت `lib/l10n/`.
+- `l10n.yaml` يحدد مجلد ARB والقالب واسم ملف الترجمة. `flutter: generate: true` مفعّل في `pubspec.yaml`، وقيد `intl: ^0.20.3` يطابق قيد `flutter_localizations` ضمن Flutter 3.47.8؛ يحل `pubspec.lock` النسخة `0.20.3`.
+- `LocaleNotifier` في `lib/app/providers.dart` يملك اختيار اللغة واستعادته وحفظه. `LocaleState.isInitialized` يمنع إظهار محتوى بلغة افتراضية قبل اكتمال قراءة التفضيل. لا يضيف التطبيق `Directionality` يدوياً؛ تتولى `GlobalWidgetsLocalizations` اختيار RTL للعربية وLTR للإنجليزية من الـlocale النشط.
+- عند تعديل ARB، شغّل `flutter gen-l10n` وراجع الملفات المولدة؛ CI يشغّل التوليد قبل التنسيق والتحليل والاختبارات. اختبارات `test/l10n_test.dart` تغطي الاستعادة دون وميض، واختيار اللغة أثناء الاستعادة، وتبديل الاتجاه، وplaceholder مولداً.
+
 ## أين أبدأ عند التعديل؟
 
 - تغيير شاشة أو سلوك عرض: `lib/features/*/presentation/`، واختبارات الواجهة ذات الصلة.
@@ -35,6 +42,7 @@
 - إضافة محرك: تنفيذ `AiEngine` في `lib/services/` ثم تغيير ربطه في `lib/app/providers.dart` واختبارات المحرك؛ لا تضع مفتاح API سرياً داخل التطبيق.
 - إضافة history للمحرك: راجع تحويل الرسائل في `ChatNotifier` وعقد `AiEngine` واختبارات multi-turn قبل ربط مزود حقيقي.
 - تغيير أخطاء المجال أو النصوص المشتركة أو الأصول: راجع `lib/core/` واختبار المتأثر.
+- إضافة نص للمستخدم أو لغة جديدة: حدّث ملفات ARB المتناظرة وبيانات placeholders ثم شغّل `flutter gen-l10n` واختبر الاتجاه والنصوص في `test/l10n_test.dart`.
 - تغيير بناء Android أو CI: راجع `android/` و`.github/workflows/` و`tooling/` واختبارات التحقق ذات الصلة.
 
 ## الاختبارات والبناء
@@ -135,6 +143,7 @@
 - `test/chat_notifier_test.dart`
 - `test/chat_robot_state_mapper_test.dart`
 - `test/chat_screen_robot_state_test.dart`
+- `test/l10n_test.dart`
 - `test/send_message_test.dart`
 - `test/theme_mode_test.dart`
 - `test/widget_test.dart`
