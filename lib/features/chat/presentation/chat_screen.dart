@@ -94,12 +94,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     final decorated = switch (appThemeMode) {
       AppThemeMode.dark => _LedGlow(child: bubble),
       AppThemeMode.neon => AnimatedNeonBorder(
-        borderRadius: 18,
-        borderWidth: 2,
-        backgroundColor: Colors.transparent,
-        duration: Duration(milliseconds: isUser ? 4200 : 3300),
-        child: bubble,
-      ),
+          borderRadius: 18,
+          borderWidth: 2,
+          backgroundColor: Colors.transparent,
+          duration: Duration(milliseconds: isUser ? 4200 : 3300),
+          child: bubble,
+        ),
       AppThemeMode.light => bubble,
     };
 

@@ -23,8 +23,7 @@ class DigitalSpaceBackground extends ConsumerStatefulWidget {
       _DigitalSpaceBackgroundState();
 }
 
-class _DigitalSpaceBackgroundState
-    extends ConsumerState<DigitalSpaceBackground>
+class _DigitalSpaceBackgroundState extends ConsumerState<DigitalSpaceBackground>
     with SingleTickerProviderStateMixin {
   late final AnimationController _motion = AnimationController(
     vsync: this,
