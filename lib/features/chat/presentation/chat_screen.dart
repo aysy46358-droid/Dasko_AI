@@ -332,9 +332,7 @@ class _RobotStatusHeader extends ConsumerWidget {
                     ),
                     const SizedBox(height: 3),
                     Text(
-                      isReplying
-                          ? l10n.thinkingRobot
-                          : l10n.readyRobot,
+                      isReplying ? l10n.thinkingRobot : l10n.readyRobot,
                       style: theme.textTheme.labelMedium?.copyWith(
                         color: isReplying ? colors.secondary : colors.primary,
                       ),
