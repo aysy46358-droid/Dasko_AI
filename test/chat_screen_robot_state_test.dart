@@ -47,7 +47,7 @@ void main() {
           chatNotifierProvider.overrideWith((ref) => notifier),
         ],
         child: const MaterialApp(
-          home: const ChatScreen(),
+          home: ChatScreen(),
         ),
       ),
     );
