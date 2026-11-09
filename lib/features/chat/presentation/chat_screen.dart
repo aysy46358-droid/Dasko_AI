@@ -8,7 +8,7 @@ import '../../../core/constants/app_constants.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../domain/entities/message.dart';
-import '../../settings/application/theme_provider.dart';
+import '../../../core/theme/app_theme_mode.dart';
 import '../../settings/presentation/settings_screen.dart';
 import '../application/chat_notifier.dart';
 import '../application/chat_request_status.dart';
@@ -61,8 +61,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final isUser = message.isUser;
-    // LED borders belong to the pitch-black Dark palette only.
-    final isLedMode = ref.watch(themeProvider) == AppThemeMode.dark;
+    // Borders are palette-specific: LED glow for Dark, animated neon for Neon,
+    // plain frosted glass for Light.
+    final appThemeMode = ref.watch(themeProvider);
 
     final bubble = ClipRRect(
       borderRadius: BorderRadius.circular(18),
@@ -90,6 +91,18 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       ),
     );
 
+    final decorated = switch (appThemeMode) {
+      AppThemeMode.dark => _LedGlow(child: bubble),
+      AppThemeMode.neon => AnimatedNeonBorder(
+        borderRadius: 18,
+        borderWidth: 2,
+        backgroundColor: Colors.transparent,
+        duration: Duration(milliseconds: isUser ? 4200 : 3300),
+        child: bubble,
+      ),
+      AppThemeMode.light => bubble,
+    };
+
     return Align(
       alignment: isUser
           ? AlignmentDirectional.centerStart
@@ -98,7 +111,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         constraints: BoxConstraints(maxWidth: maxWidth),
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 5),
-          child: isLedMode ? _LedGlow(child: bubble) : bubble,
+          child: decorated,
         ),
       ),
     );
@@ -160,6 +173,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                 controller: _controller,
                 minLines: 1,
                 maxLines: 5,
+                // Dark/Neon draw a dark keyboard, Light draws a light one.
+                keyboardAppearance: theme.brightness == Brightness.dark
+                    ? Brightness.dark
+                    : Brightness.light,
                 style: theme.textTheme.bodyLarge?.copyWith(
                   fontSize: 16,
                   color: colors.onSurface,
@@ -266,7 +283,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   }
 }
 
-/// Narrow status header: it selects only [ChatState.requestStatus], so the 3D
+/// Narrow status header: it selects only [ChatState.requestStatus], so the
 /// robot subtree rebuilds on status transitions instead of every chat update.
 class _RobotStatusHeader extends ConsumerWidget {
   const _RobotStatusHeader();
@@ -367,19 +384,19 @@ class _LedGlowState extends State<_LedGlow>
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(18),
             border: Border.all(
-              color: _led.withValues(alpha: 0.45 + intensity * 0.45),
+              color: _led.withValues(alpha: 0.18 + intensity * 0.12),
             ),
             boxShadow: [
               // Two layers: a tight rim plus a wide bloom for the LED feel.
               BoxShadow(
-                color: _led.withValues(alpha: 0.35 + intensity * 0.35),
-                blurRadius: 14 + intensity * 18,
-                spreadRadius: 0.5 + intensity * 2,
+                color: _led.withValues(alpha: 0.12 + intensity * 0.18),
+                blurRadius: 6 + intensity * 4,
+                spreadRadius: 0.25 + intensity * 0.5,
               ),
               BoxShadow(
-                color: _led.withValues(alpha: 0.12 + intensity * 0.22),
-                blurRadius: 34 + intensity * 30,
-                spreadRadius: 1 + intensity * 4,
+                color: _led.withValues(alpha: 0.06 + intensity * 0.09),
+                blurRadius: 16 + intensity * 8,
+                spreadRadius: 1 + intensity * 1.5,
               ),
             ],
           ),

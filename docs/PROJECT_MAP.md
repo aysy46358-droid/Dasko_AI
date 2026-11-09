@@ -23,7 +23,7 @@
 ## الثيم والروبوت
 
 - نوع `AppThemeMode` وخرائط `ThemeData` موجودة في `lib/core/theme/`.
-- `ThemeModeNotifier` في `lib/features/settings/application/` يحفظ اختيار المظهر best-effort باستخدام `shared_preferences`، ويستهلكه جذر التطبيق.
+- `ThemeModeNotifier` في `lib/app/providers.dart` يحفظ اختيار المظهر best-effort باستخدام `shared_preferences`، ويستهلكه جذر التطبيق.
 - شاشة المحادثة تقرأ provider إعدادات الثيم لتنسيق بعض عناصر العرض؛ أعد تقييم ملكية provider إذا صار الثيم إعداداً مشتركاً لميزات متعددة.
 - صورة الروبوت الحالية هي `assets/images/robot_poster.png`، معرفة مركزياً في `lib/core/constants/app_assets.dart` ومعلنة في `pubspec.yaml`. تفاعل الحالة هو تأثير واجهة وليس مقاطع حركة داخل نموذج ثلاثي الأبعاد.
 
@@ -121,12 +121,12 @@
 - `lib/features/chat/presentation/interactive_dasko_robot.dart`
 - `lib/features/cinematic_ui/presentation/widgets/audio_waveform_widget.dart`
 - `lib/features/cinematic_ui/presentation/widgets/cinematic_screen.dart`
-- `lib/features/settings/application/theme_provider.dart`
 - `lib/features/settings/presentation/settings_screen.dart`
 - `lib/main.dart`
 - `lib/services/ai_engine/mock_ai_engine.dart`
 - `pubspec.lock`
 - `pubspec.yaml`
+- `test/audit_polish_test.dart`
 - `test/chat_notifier_test.dart`
 - `test/chat_robot_state_mapper_test.dart`
 - `test/chat_screen_robot_state_test.dart`

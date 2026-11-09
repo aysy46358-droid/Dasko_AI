@@ -12,9 +12,8 @@ const _pulseDuration = Duration(milliseconds: 1400);
 
 /// Renders the robot artwork and pulses a cyan glow while Dasko is thinking.
 ///
-/// The former WebView/model-viewer implementation is gone: the poster image is
-/// the single source of truth, which removes the platform view, the JS bridge
-/// and the load-time camera jump entirely.
+/// The poster image is the single source of truth for the robot, so there is
+/// no platform view, no bridge and no load-time camera jump to coordinate.
 class InteractiveDaskoRobot extends StatefulWidget {
   const InteractiveDaskoRobot({
     super.key,

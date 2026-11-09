@@ -1,22 +1,30 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../../app/providers.dart';
+import '../../../core/theme/app_theme.dart';
+import '../../../core/theme/app_theme_mode.dart';
 
 /// Animated starfield, volumetric nebula and perspective grid used behind UI.
 ///
-/// The whole layer is palette-aware: the dark/neon modes keep the deep space
-/// gradient, while light mode swaps in a light wash of the same accents so the
-/// chat and input surfaces are not painted over a dark backdrop.
-class DigitalSpaceBackground extends StatefulWidget {
+/// Palette-aware: [AppThemeMode.dark] renders a flat pitch-black canvas,
+/// [AppThemeMode.neon] keeps the deep space field, and light mode uses a light
+/// wash of the same accents so surfaces are never painted over a dark
+/// backdrop.
+class DigitalSpaceBackground extends ConsumerStatefulWidget {
   const DigitalSpaceBackground({super.key, required this.child});
 
   final Widget child;
 
   @override
-  State<DigitalSpaceBackground> createState() => _DigitalSpaceBackgroundState();
+  ConsumerState<DigitalSpaceBackground> createState() =>
+      _DigitalSpaceBackgroundState();
 }
 
-class _DigitalSpaceBackgroundState extends State<DigitalSpaceBackground>
+class _DigitalSpaceBackgroundState
+    extends ConsumerState<DigitalSpaceBackground>
     with SingleTickerProviderStateMixin {
   late final AnimationController _motion = AnimationController(
     vsync: this,
@@ -34,6 +42,13 @@ class _DigitalSpaceBackgroundState extends State<DigitalSpaceBackground>
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final isLight = theme.brightness == Brightness.light;
+    final appThemeMode = ref.watch(themeProvider);
+
+    // Pitch-black Dark palette: a flat canvas, no gradient, no blue tint and
+    // no starfield -- the LED bubbles are the only light source.
+    if (appThemeMode == AppThemeMode.dark) {
+      return ColoredBox(color: AppTheme.darkBackground, child: widget.child);
+    }
 
     return Stack(
       fit: StackFit.expand,

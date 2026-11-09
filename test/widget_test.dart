@@ -38,7 +38,7 @@ void main() {
     }
   });
 
-  testWidgets('robot renders the poster asset instead of a model viewer', (
+  testWidgets('robot renders the poster asset', (
     tester,
   ) async {
     await tester.pumpWidget(
