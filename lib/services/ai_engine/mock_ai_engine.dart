@@ -6,6 +6,8 @@ import '../../domain/repositories/ai_engine.dart';
 /// Temporary mock implementation.
 /// Will be replaced by real Gemini (or other) provider in Phase 1.
 class MockAiEngine implements AiEngine {
+  const MockAiEngine();
+
   @override
   Future<Either<Failure, String>> generateResponse({
     required String prompt,

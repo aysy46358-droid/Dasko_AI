@@ -1,8 +1,10 @@
 import 'package:dasko_ai/core/theme/app_theme.dart';
 import 'package:dasko_ai/features/chat/presentation/chat_screen.dart';
-import 'package:dasko_ai/app/providers.dart';
+import 'package:dasko_ai/core/providers.dart';
+import 'package:dasko_ai/features/chat/application/chat_providers.dart';
 import 'package:dasko_ai/core/theme/app_theme_mode.dart';
 import 'package:dasko_ai/l10n/app_localizations.dart';
+import 'package:dasko_ai/services/ai_engine/mock_ai_engine.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -32,7 +34,11 @@ void main() {
   testWidgets('switching to light mode changes the Scaffold background', (
     tester,
   ) async {
-    final container = ProviderContainer();
+    final container = ProviderContainer(
+      overrides: [
+        aiEngineProvider.overrideWithValue(const MockAiEngine()),
+      ],
+    );
     addTearDown(container.dispose);
 
     await tester.pumpWidget(

@@ -7,7 +7,7 @@
 1. يبدأ التطبيق من `lib/main.dart`، ويهيئ Flutter bindings.
 2. يحاول تهيئة Firebase Core اختيارياً؛ فشل التهيئة يُسجّل ولا يمنع تشغيل واجهة النموذج الأولي.
 3. يُشغّل `DaskoApp` من `lib/app/app.dart`.
-4. تُسجّل الاعتمادات في `lib/app/providers.dart` باستخدام Riverpod؛ والربط الحالي لـ `AiEngine` هو `MockAiEngine`.
+4. مزودات الحالة المشتركة (الثيم واللغة) في `lib/core/providers.dart`، ومزودات المحادثة في `lib/features/chat/application/chat_providers.dart`. يربط جذر التطبيق `lib/app/app.dart` عقد `AiEngine` بالتنفيذ الحالي `MockAiEngine`.
 
 ## تدفق إرسال رسالة
 
@@ -23,8 +23,8 @@
 ## الثيم والروبوت
 
 - نوع `AppThemeMode` وخرائط `ThemeData` موجودة في `lib/core/theme/`.
-- `ThemeModeNotifier` في `lib/app/providers.dart` يحفظ اختيار المظهر best-effort باستخدام `shared_preferences`، ويستهلكه جذر التطبيق.
-- شاشة المحادثة تقرأ provider إعدادات الثيم لتنسيق بعض عناصر العرض؛ أعد تقييم ملكية provider إذا صار الثيم إعداداً مشتركاً لميزات متعددة.
+- `ThemeModeNotifier` في `lib/core/providers.dart` يحفظ اختيار المظهر best-effort باستخدام `shared_preferences`، ويستهلكه جذر التطبيق والميزات عبر مزود مشترك لا يعتمد على طبقة `app`.
+- شاشة المحادثة وخلفيتها تقرآن إعداد الثيم من المزود المشترك؛ لا يوجد استيراد من Presentation إلى composition root.
 - صورة الروبوت الحالية هي `assets/images/robot_poster.png`، معرفة مركزياً في `lib/core/constants/app_assets.dart` ومعلنة في `pubspec.yaml`. تفاعل الحالة هو نبض توهج الصورة عند `thinking` والعودة إلى التوهج الثابت عند `ready`؛ لا تتحرك الصورة نفسها ولا يوجد نموذج 3D.
 
 ## أيقونة التطبيق
@@ -37,7 +37,7 @@
 
 - يدعم التطبيق العربية (`ar`) والإنجليزية (`en`) عبر مولّد Flutter الرسمي `gen-l10n`. ملفات المصدر هي `lib/l10n/app_en.arb` و`lib/l10n/app_ar.arb`؛ ملفات Dart المولدة محفوظة ومتتبعة تحت `lib/l10n/`.
 - `l10n.yaml` يحدد مجلد ARB والقالب واسم ملف الترجمة. `flutter: generate: true` مفعّل في `pubspec.yaml`، وقيد `intl: ^0.20.3` يطابق قيد `flutter_localizations` ضمن Flutter 3.47.8؛ يحل `pubspec.lock` النسخة `0.20.3`.
-- `LocaleNotifier` في `lib/app/providers.dart` يملك اختيار اللغة واستعادته وحفظه. `LocaleState.isInitialized` يمنع إظهار محتوى بلغة افتراضية قبل اكتمال قراءة التفضيل. لا يضيف التطبيق `Directionality` يدوياً؛ تتولى `GlobalWidgetsLocalizations` اختيار RTL للعربية وLTR للإنجليزية من الـlocale النشط.
+- `LocaleNotifier` في `lib/core/providers.dart` يملك اختيار اللغة واستعادته وحفظه. `LocaleState.isInitialized` يمنع إظهار محتوى بلغة افتراضية قبل اكتمال قراءة التفضيل. لا يضيف التطبيق `Directionality` يدوياً؛ تتولى `GlobalWidgetsLocalizations` اختيار RTL للعربية وLTR للإنجليزية من الـlocale النشط.
 - عند تعديل ARB، شغّل `flutter gen-l10n` وراجع الملفات المولدة؛ CI يشغّل التوليد قبل التنسيق والتحليل والاختبارات. اختبارات `test/l10n_test.dart` تغطي الاستعادة دون وميض، واختيار اللغة أثناء الاستعادة، وتبديل الاتجاه، وplaceholder مولداً.
 
 ## أين أبدأ عند التعديل؟
@@ -45,7 +45,7 @@
 - تغيير شاشة أو سلوك عرض: `lib/features/*/presentation/`، واختبارات الواجهة ذات الصلة.
 - تغيير حالة المحادثة: `lib/features/chat/application/` مع اختبارات `ChatNotifier`.
 - تغيير قواعد إرسال الرسالة: `lib/domain/usecases/send_message.dart` واختباراته.
-- إضافة محرك: تنفيذ `AiEngine` في `lib/services/` ثم تغيير ربطه في `lib/app/providers.dart` واختبارات المحرك؛ لا تضع مفتاح API سرياً داخل التطبيق.
+- إضافة محرك: تنفيذ `AiEngine` في `lib/services/` ثم تغيير ربطه في جذر التطبيق `lib/app/app.dart` مع إبقاء provider العقدي في `lib/features/chat/application/chat_providers.dart` وتحديث اختبارات المحرك؛ لا تضع مفتاح API سرياً داخل التطبيق.
 - إضافة history للمحرك: راجع تحويل الرسائل في `ChatNotifier` وعقد `AiEngine` واختبارات multi-turn قبل ربط مزود حقيقي.
 - تغيير أخطاء المجال أو النصوص المشتركة أو الأصول: راجع `lib/core/` واختبار المتأثر.
 - إضافة نص للمستخدم أو لغة جديدة: حدّث ملفات ARB المتناظرة وبيانات placeholders ثم شغّل `flutter gen-l10n` واختبر الاتجاه والنصوص في `test/l10n_test.dart`.
@@ -54,8 +54,9 @@
 ## الاختبارات والبناء
 
 - اختبارات Dart/Flutter موجودة في `test/` وتُشغّل بواسطة `flutter test`.
-- سير `Build APK` يتضمن تنسيق Dart والتحليل والاختبارات والتحقق من poster الروبوت وسياسة الشبكة ثم بناء APK والتحقق من بياناته وتوقيعه. نجاحه يثبت اجتياز هذه الفحوص في بيئة CI لذلك الالتزام فقط؛ لا يثبت خلو التطبيق من كل عيب أو اكتمال فحص Firebase الخارجي.
-- فحص اتساق هذه الخريطة له سير CI مستقل، ولا يعتمد عليه سير بناء APK.
+- `pr_validation.yml` يفحص PRs إلى `experimental-work` بـ`flutter pub get --enforce-lockfile` و`gen-l10n` وformat وanalyze وtests وخريطة الملفات، دون بناء APK أو تعديل المستودع. لا يجعل هذا الفحص إلزامياً للدمج ما لم يُضف اسمه إلى إعدادات حماية الفرع.
+- `format_experimental.yml` فحص تنسيق فقط ولا يكتب أو يدفع أي commit. سير `Build APK` يبني APK على push إلى الفروع المحددة أو عند تشغيله يدوياً؛ يحجز versionCode جديداً عند `workflow_dispatch` فقط، بينما يستخدم push القيمة الموجودة في `pubspec.yaml` دون تغييرها.
+- نجاح أي سير يثبت اجتياز فحوصه في بيئة CI لذلك الالتزام فقط؛ لا يثبت خلو التطبيق من كل عيب أو اكتمال فحص Firebase الخارجي. فحص خريطة المشروع واختبار مولدها يعملان ضمن بوابة PR.
 
 ## حدود التكاملات والأمان بحسب المستودع
 
@@ -72,6 +73,7 @@
 - `.gitattributes`
 - `.github/workflows/build_apk.yml`
 - `.github/workflows/format_experimental.yml`
+- `.github/workflows/pr_validation.yml`
 - `.github/workflows/project_map.yml`
 - `.gitignore`
 - `.metadata`
@@ -125,22 +127,25 @@
 - `assets/sounds/README.md`
 - `assets/sounds/welcome.wav`
 - `docs/ANDROID_SIGNING.md`
+- `docs/DASHBOARD.md`
 - `docs/PROJECT_CONTROL.md`
 - `docs/PROJECT_MAP.md`
 - `google-services.json`
 - `l10n.yaml`
 - `lib/app/app.dart`
-- `lib/app/providers.dart`
 - `lib/core/constants/app_assets.dart`
 - `lib/core/constants/app_constants.dart`
 - `lib/core/errors/app_exception.dart`
 - `lib/core/errors/failures.dart`
+- `lib/core/navigation/app_routes.dart`
+- `lib/core/providers.dart`
 - `lib/core/theme/app_theme.dart`
 - `lib/core/theme/app_theme_mode.dart`
 - `lib/domain/entities/message.dart`
 - `lib/domain/repositories/ai_engine.dart`
 - `lib/domain/usecases/send_message.dart`
 - `lib/features/chat/application/chat_notifier.dart`
+- `lib/features/chat/application/chat_providers.dart`
 - `lib/features/chat/application/chat_request_status.dart`
 - `lib/features/chat/presentation/animated_neon_border.dart`
 - `lib/features/chat/presentation/chat_robot_state_mapper.dart`
@@ -161,6 +166,7 @@
 - `lib/services/ai_engine/mock_ai_engine.dart`
 - `pubspec.lock`
 - `pubspec.yaml`
+- `test/app_routes_test.dart`
 - `test/audit_polish_test.dart`
 - `test/chat_notifier_test.dart`
 - `test/chat_robot_state_mapper_test.dart`

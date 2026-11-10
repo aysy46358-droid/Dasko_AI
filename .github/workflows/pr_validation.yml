@@ -1,0 +1,82 @@
+name: Experimental PR validation
+
+on:
+  pull_request:
+    branches:
+      - experimental-work
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
+
+permissions:
+  contents: read
+
+concurrency:
+  group: experimental-pr-validation-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  flutter_quality:
+    name: Experimental Flutter quality checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: '3.47.8'
+          cache: true
+
+      - name: Resolve dependencies with the committed lockfile
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ ! -s pubspec.lock ]]; then
+            echo '::error::pubspec.lock is required for reproducible PR validation.'
+            exit 1
+          fi
+          flutter pub get --enforce-lockfile
+
+      - name: Generate localizations
+        run: flutter gen-l10n
+
+      - name: Verify generated localization files are committed
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! git diff --exit-code -- 'lib/l10n/app_localizations*.dart'; then
+            echo '::error::Generated localization files are out of date. Run flutter gen-l10n and commit the generated changes.'
+            exit 1
+          fi
+
+      - name: Check Dart formatting without modifying files
+        run: dart format --output=none --set-exit-if-changed lib test
+
+      - name: Analyze Flutter project
+        run: flutter analyze
+
+      - name: Run Flutter tests (required)
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ ! -d test ]] || ! find test -type f -name '*_test.dart' -print -quit | grep -q .; then
+            echo '::error::At least one Flutter test file is required; refusing to skip tests.'
+            exit 1
+          fi
+          flutter test --reporter expanded
+
+      - name: Test project-map generator
+        run: python3 -m unittest tooling.test_project_map
+
+      - name: Check generated project inventory
+        run: python3 tooling/project_map.py --check
