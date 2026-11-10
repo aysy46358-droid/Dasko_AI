@@ -6,9 +6,10 @@
 
 - تاريخ التحقق: 2026-11-10.
 - الفرع الأساسي لهذا العمل: `experimental-work` عند `5090a9b121085620d0a0e6afb75d943e25093957` وقت جلب المراجع وإنشاء فرع المهمة.
-- فرع المهمة: `agent/phase-0-infra-fixes`، منشأ من رأس `experimental-work` المذكور أعلاه. رأس الفرع الحالي عند هذا التحديث: `103384d2641bd40f704105d2bc70f841d443b092`.
+- فرع المهمة: `agent/phase-0-infra-fixes`، منشأ من رأس `experimental-work` المذكور أعلاه. رأس الفرع عند آخر تحقق: `50069ddedd38f4c0e70b85797576fdfb6108e5c2`.
 - [مسودة PR #16](https://github.com/aysy46358-droid/Dasko_AI/pull/16) مفتوحة باتجاه `experimental-work`؛ لم تُدمج إلى `experimental-work` أو `main`. نص `AGENTS.md` النهائي لم يصل بعد، فلم يُنشأ الملف؛ سيبقى PR مسودة حتى إضافته وإعادة التحقق.
 - فحص PR Actions [#42769564403](https://github.com/aysy46358-droid/Dasko_AI/actions/runs/42769564403) نجح على الرأس `103384d`، بما في ذلك `flutter analyze` و`flutter test`. فشل التشغيل الأول [#42769407175](https://github.com/aysy46358-droid/Dasko_AI/actions/runs/42769407175) حصراً بسبب تنسيق `chat_providers.dart`؛ صُحح في التزام منفصل وأعيد الفحص بنجاح.
+- بعد تحديث الوثائق، نجح فحص PR Actions الأحدث [#42769836301](https://github.com/aysy46358-droid/Dasko_AI/actions/runs/42769836301) على الالتزام `50069dd`.
 - فحوص محلية متاحة نجحت: تحليل YAML، اختبارات tooling للإصدار وتهيئة SDK والتحقق من شهادة Android، واختبارات مولد خريطة المشروع. لا يوجد Flutter/Dart SDK في بيئة التنفيذ؛ لذا تحقق Flutter جاء من Actions، لا من تشغيل محلي.
 - **حماية الفروع:** بحسب فحص GitHub API السابق، `experimental-work` يمنع force-push والحذف لكنه لا يفرض PR أو status checks إلزامية. سير PR الجديد لا يصبح شرط دمج تلقائياً قبل ضبط required status check في إعدادات GitHub؛ لم تُغيّر إعدادات الحماية في هذه المهمة.
 

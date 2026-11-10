@@ -7,14 +7,14 @@
 | الدور/الوكيل | الحالة | الملاحظة |
 |---|---|---|
 | المالك | بانتظار المراجعة | يزوّد نص `AGENTS.md` النهائي، ثم يراجع PR وقرار الدمج. |
-| Manus | يعمل على `agent/phase-0-infra-fixes` | مسودة [PR #16](https://github.com/aysy46358-droid/Dasko_AI/pull/16) مفتوحة. فحص PR Actions نجح على الالتزام `103384d`؛ يبقى النص النهائي لـ`AGENTS.md` ثم إعادة تحقق قبل جعل PR جاهزاً للمراجعة. لا دمج. |
+| Manus | يعمل على `agent/phase-0-infra-fixes` | مسودة [PR #16](https://github.com/aysy46358-droid/Dasko_AI/pull/16) مفتوحة. آخر تشغيل PR Actions [#42769836301](https://github.com/aysy46358-droid/Dasko_AI/actions/runs/42769836301) نجح على الالتزام `50069dd`؛ يبقى النص النهائي لـ`AGENTS.md` ثم إعادة تحقق قبل جعل PR جاهزاً للمراجعة. لا دمج. |
 | Claude (مراجع خارجي) | التدقيق مستلم | نتائج التدقيق أُخذت كمدخلات للمهمة، وليست بديلاً عن تحقق الكود والـCI. |
 
 ## تقدم المراحل
 
 | المرحلة | الحالة | معيار الإغلاق |
 |---|---|---|
-| Phase 0.1 — بوابة PR إلى `experimental-work` | منفذة؛ CI ناجح على `103384d` | `pub get --enforce-lockfile`، `gen-l10n`، format، analyze، tests، وفحص خريطة المشروع اجتازت PR Actions؛ تحديث الوثائق سيعيد تشغيل البوابة. |
+| Phase 0.1 — بوابة PR إلى `experimental-work` | منفذة؛ CI ناجح على `50069dd` | `pub get --enforce-lockfile`، `gen-l10n`، format، analyze، tests، وفحص خريطة المشروع اجتازت PR Actions في التشغيل `#42769836301`. |
 | Phase 0.2 — فصل الاعتمادات | منفذة؛ اختبارات PR ناجحة على `103384d` | لا يوجد `app/providers.dart`، ولا يستورد `chat_screen.dart` شاشة الإعدادات؛ مزودات المحادثة في الميزة وربط المحرك في جذر التطبيق. |
 | Phase 0.3 — حجز `versionCode` | منفذة؛ ضوابط workflow اجتازت CI | الحجز وإنشاء tag يحدثان عند `workflow_dispatch` فقط؛ push يستخدم قيمة `pubspec.yaml` الحالية دون تعديلها. |
 | Governance — `AGENTS.md` | معلّق على المالك | لا يُنشأ الملف ولا يُستبدل بمسودة حتى يصل النص النهائي المحدد من المالك. |
@@ -24,6 +24,6 @@
 
 - وجود workflow جديد لا يجعل فحوص PR إلزامية للدمج تلقائياً؛ إعدادات حماية الفرع وrequired status checks في GitHub تحتاج تحققاً/تغييراً منفصلاً وموافقة المالك.
 - `format_experimental.yml` في هذا الفرع فحص تنسيق فقط؛ أي تنسيق غير مطابق يفشل بدلاً من تعديل الفرع أو دفع commit تلقائياً.
-- لا يوجد Flutter SDK في بيئة التنفيذ الحالية؛ لذلك لم يُشغّل محلياً. `flutter analyze` و`flutter test` اجتازا PR Actions على `103384d`، وسيعاد التشغيل بعد تحديث هذه اللوحة وسجل التحكم.
+- لا يوجد Flutter SDK في بيئة التنفيذ الحالية؛ لذلك لم يُشغّل محلياً. `flutter analyze` و`flutter test` اجتازا PR Actions على `50069dd`؛ أي تعديل جديد على PR سيشغّل البوابة مرة أخرى.
 - لا تُعدّل أرقام الإصدار المحفوظة حالياً، ولا يُدمج PR آلياً. إصدار الإنتاج وتحديد `versionCode` النهائي يظلان قراراً لاحقاً.
 - إعداد Firebase Console وApp Check، وسلوك App Check على جهاز حقيقي، وتكامل Gemini الفعلي خارج نطاق Phase 0.
