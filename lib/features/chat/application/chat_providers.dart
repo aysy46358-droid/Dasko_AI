@@ -9,7 +9,9 @@ import 'chat_notifier.dart';
 /// The application composition root must override this provider with an
 /// implementation such as `MockAiEngine`; the feature never imports services.
 final aiEngineProvider = Provider<AiEngine>((ref) {
-  throw StateError('AiEngine must be provided by the application composition root.');
+  throw StateError(
+    'AiEngine must be provided by the application composition root.',
+  );
 });
 
 final sendMessageProvider = Provider<SendMessage>((ref) {
