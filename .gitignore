@@ -45,3 +45,4 @@ app.*.map.json
 
 # Note: google-services.json is committed intentionally for CI builds.
 # It is a Firebase client config restricted by package name.
+flutter/
