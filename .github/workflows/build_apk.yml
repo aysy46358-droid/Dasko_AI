@@ -33,7 +33,49 @@ jobs:
       - name: Test pinned Android SDK setup guards
         run: bash tooling/test_setup_environment.sh
 
+  read_version:
+    name: Use committed version for automated builds
+    needs: test_build_tooling
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      version_name: ${{ steps.current.outputs.version_name }}
+      version_code: ${{ steps.current.outputs.version_code }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - name: Read the committed Flutter version
+        id: current
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import os
+          import re
+          from pathlib import Path
+
+          content = Path("pubspec.yaml").read_text(encoding="utf-8")
+          versions = re.findall(
+              r"(?m)^version:\s*(\d+\.\d+\.\d+\+\d+)\s*$",
+              content,
+          )
+          if len(versions) != 1:
+              raise SystemExit("::error::Expected exactly one valid Flutter version in pubspec.yaml")
+          version_name = versions[0]
+          version_code = version_name.rsplit("+", 1)[1]
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
+              output.write(f"version_name={version_name}\n")
+              output.write(f"version_code={version_code}\n")
+          print(f"Using committed version {version_name} for this automated build.")
+          PY
+
   reserve_version:
+    if: github.event_name == 'workflow_dispatch'
+    name: Reserve release version (manual dispatch only)
     needs: test_build_tooling
     runs-on: ubuntu-latest
     permissions:
@@ -62,7 +104,12 @@ jobs:
           bash tooling/allocate_android_version.sh
 
   build:
-    needs: reserve_version
+    needs: [test_build_tooling, read_version, reserve_version]
+    if: >-
+      ${{ always() && needs.test_build_tooling.result == 'success' &&
+      needs.read_version.result == 'success' &&
+      (needs.reserve_version.result == 'success' ||
+      needs.reserve_version.result == 'skipped') }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -74,11 +121,11 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Apply reserved Android version
+      - name: Apply selected Android build version
         shell: bash
         env:
-          DASKO_VERSION_NAME: ${{ needs.reserve_version.outputs.version_name }}
-          DASKO_VERSION_CODE: ${{ needs.reserve_version.outputs.version_code }}
+          DASKO_VERSION_NAME: ${{ needs.reserve_version.outputs.version_name || needs.read_version.outputs.version_name }}
+          DASKO_VERSION_CODE: ${{ needs.reserve_version.outputs.version_code || needs.read_version.outputs.version_code }}
         run: |
           set -euo pipefail
           python3 - "$DASKO_VERSION_NAME" <<'PY'
@@ -88,7 +135,7 @@ jobs:
 
           version = sys.argv[1]
           if not re.fullmatch(r"\d+\.\d+\.\d+\+\d+", version):
-              raise SystemExit("::error::Reserved Flutter version has invalid format")
+              raise SystemExit("::error::Selected Flutter version has invalid format")
           path = Path("pubspec.yaml")
           content, count = re.subn(
               r"(?m)^version:\s*\d+\.\d+\.\d+\+\d+\s*$",
@@ -361,7 +408,7 @@ jobs:
           APK_CODE="$(sed -n "s/^package:.* versionCode='\([0-9][0-9]*\)'.*/\1/p" <<< "$BADGING" | head -n 1)"
           EXPECTED_CODE="$(sed -nE 's/^version:[[:space:]]*[0-9]+\.[0-9]+\.[0-9]+\+([0-9]+)[[:space:]]*$/\1/p' pubspec.yaml)"
           if [ -z "$APK_CODE" ] || [ "$APK_CODE" != "$EXPECTED_CODE" ] || [ "$APK_CODE" != "$DASKO_VERSION_CODE" ]; then
-            echo "::error::APK versionCode ($APK_CODE) differs from pubspec ($EXPECTED_CODE) or reservation ($DASKO_VERSION_CODE)."
+            echo "::error::APK versionCode ($APK_CODE) differs from pubspec ($EXPECTED_CODE) or selected build version ($DASKO_VERSION_CODE)."
             exit 1
           fi
           SIGNATURE_OUTPUT="$("$APKSIGNER" verify --verbose --print-certs "$APK" 2>&1)"

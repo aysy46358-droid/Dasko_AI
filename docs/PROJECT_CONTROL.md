@@ -4,13 +4,14 @@
 
 ## لقطة المستودع الحالية
 
-- تاريخ التحقق: 2026-11-09.
-- الفرع النشط: `experimental-work`.
-- آخر commit يغيّر تنفيذ التطبيق (بعد PR #13): `365993f76b6e9cfe14e2fecd47b61d83c5ba8e4d`. كان هذا أيضاً رأس `experimental-work` المطابق لـ`origin/experimental-work` عند بدء تحديث سجل التسليم. قد يتقدم رأس الفرع لاحقاً بدمج توثيقي فقط؛ قبل أي عمل جديد، حدّث refs وافحص `git rev-parse HEAD` و`origin/experimental-work` بدلاً من افتراض أن هذا هو الرأس الحالي.
-- آخر تغيير وظيفي: تحديث أيقونة Android عبر [PR #13](https://github.com/aysy46358-droid/Dasko_AI/pull/13)، مدمج إلى `experimental-work`؛ لم يُجر أي تغيير على `main`.
-- فحوص الالتزام الحالي نجحت: [Build APK #42635194928](https://github.com/aysy46358-droid/Dasko_AI/actions/runs/42635194928) و[Project map consistency #42635195168](https://github.com/aysy46358-droid/Dasko_AI/actions/runs/42635195168). نجح أيضاً Build APK على فرع PR قبل الدمج: [#42633848728](https://github.com/aysy46358-droid/Dasko_AI/actions/runs/42633848728).
-- المراجعة المحلية التي سبقت الدمج اجتازت `flutter pub get --enforce-lockfile` و`dart run flutter_launcher_icons` و`flutter analyze` وجميع اختبارات `flutter test` وفحص واختبارات خريطة المشروع. تعذر بناء APK محلياً لعدم وجود Android SDK في بيئة العمل؛ بناء CI نجح.
-- **حماية الفروع (تحقق GitHub API):** `main` يطلب PR وحالة `Flutter quality checks` الصارمة، يمنع force-push والحذف، ويفرض القواعد على المسؤولين؛ عدد الموافقات المطلوبة مضبوط حالياً على 0. `experimental-work` يمنع force-push والحذف وتُفرض قواعده على المسؤولين، لكن لا توجد عليه status checks إلزامية أو شرط مراجعة PR في إعدادات الحماية الحالية. نستخدم PR إلى الفرع التجريبي كمسار العمل الآمن المتفق عليه حتى حيث لا تفرض الحماية ذلك تقنياً.
+- تاريخ التحقق: 2026-11-10.
+- الفرع الأساسي لهذا العمل: `experimental-work` عند `5090a9b121085620d0a0e6afb75d943e25093957` وقت جلب المراجع وإنشاء فرع المهمة.
+- فرع المهمة: `agent/phase-0-infra-fixes`، منشأ من رأس `experimental-work` المذكور أعلاه. رأس الفرع عند آخر تحقق: `1411af2070417f730d5df15a2ebc613e7e933e91`.
+- [مسودة PR #16](https://github.com/aysy46358-droid/Dasko_AI/pull/16) مفتوحة باتجاه `experimental-work`؛ لم تُدمج إلى `experimental-work` أو `main`. نص `AGENTS.md` النهائي لم يصل بعد، فلم يُنشأ الملف؛ سيبقى PR مسودة حتى إضافته وإعادة التحقق.
+- فحص PR Actions [#42769564403](https://github.com/aysy46358-droid/Dasko_AI/actions/runs/42769564403) نجح على الرأس `103384d`، بما في ذلك `flutter analyze` و`flutter test`. فشل التشغيل الأول [#42769407175](https://github.com/aysy46358-droid/Dasko_AI/actions/runs/42769407175) حصراً بسبب تنسيق `chat_providers.dart`؛ صُحح في التزام منفصل وأعيد الفحص بنجاح.
+- بعد تحديث الوثائق، نجح فحص PR Actions الأحدث [#42770029888](https://github.com/aysy46358-droid/Dasko_AI/actions/runs/42770029888) على الالتزام `1411af2`.
+- فحوص محلية متاحة نجحت: تحليل YAML، اختبارات tooling للإصدار وتهيئة SDK والتحقق من شهادة Android، واختبارات مولد خريطة المشروع. لا يوجد Flutter/Dart SDK في بيئة التنفيذ؛ لذا تحقق Flutter جاء من Actions، لا من تشغيل محلي.
+- **حماية الفروع:** بحسب فحص GitHub API السابق، `experimental-work` يمنع force-push والحذف لكنه لا يفرض PR أو status checks إلزامية. سير PR الجديد لا يصبح شرط دمج تلقائياً قبل ضبط required status check في إعدادات GitHub؛ لم تُغيّر إعدادات الحماية في هذه المهمة.
 
 ## تعليمات سريعة لأي أداة أو مساهم
 

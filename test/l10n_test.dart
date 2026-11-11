@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:dasko_ai/app/app.dart';
-import 'package:dasko_ai/app/providers.dart';
 import 'package:dasko_ai/core/constants/app_constants.dart';
+import 'package:dasko_ai/core/providers.dart';
 import 'package:dasko_ai/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

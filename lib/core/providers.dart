@@ -4,25 +4,8 @@ import 'package:flutter/material.dart' show Locale;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../core/constants/app_constants.dart';
-import '../core/theme/app_theme_mode.dart';
-import '../domain/repositories/ai_engine.dart';
-import '../domain/usecases/send_message.dart';
-import '../features/chat/application/chat_notifier.dart';
-import '../services/ai_engine/mock_ai_engine.dart';
-
-/// Composition-root binding for the currently selected local demo engine.
-/// Replace this binding when a real provider is deliberately introduced.
-final aiEngineProvider = Provider<AiEngine>((ref) => MockAiEngine());
-
-final sendMessageProvider = Provider<SendMessage>((ref) {
-  return SendMessage(ref.watch(aiEngineProvider));
-});
-
-final chatNotifierProvider =
-    StateNotifierProvider<ChatNotifier, ChatState>((ref) {
-  return ChatNotifier(ref.watch(sendMessageProvider));
-});
+import 'constants/app_constants.dart';
+import 'theme/app_theme_mode.dart';
 
 /// Storage key for the persisted palette selection.
 const String themePreferenceKey = 'theme_mode';
@@ -95,8 +78,6 @@ final themeProvider =
   return ThemeModeNotifier();
 });
 
-/// Palette + language persistence share the same async-restore pattern.
-///
 /// Supported languages; anything else falls back to Arabic.
 const List<String> supportedLanguageCodes = <String>['ar', 'en'];
 

@@ -1,11 +1,11 @@
 import 'dart:async';
 
 import 'package:dartz/dartz.dart';
-import 'package:dasko_ai/app/providers.dart';
 import 'package:dasko_ai/core/errors/failures.dart';
 import 'package:dasko_ai/domain/repositories/ai_engine.dart';
 import 'package:dasko_ai/domain/usecases/send_message.dart';
 import 'package:dasko_ai/features/chat/application/chat_notifier.dart';
+import 'package:dasko_ai/features/chat/application/chat_providers.dart';
 import 'package:dasko_ai/features/chat/presentation/chat_screen.dart';
 import 'package:dasko_ai/features/chat/presentation/interactive_dasko_robot.dart';
 import 'package:dasko_ai/l10n/app_localizations.dart';

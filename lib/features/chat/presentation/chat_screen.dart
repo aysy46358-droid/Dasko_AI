@@ -3,13 +3,14 @@ import 'dart:ui' show ImageFilter;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../app/providers.dart';
 import '../../../core/constants/app_constants.dart';
+import '../../../core/navigation/app_routes.dart';
+import '../../../core/providers.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../domain/entities/message.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../core/theme/app_theme_mode.dart';
-import '../../settings/presentation/settings_screen.dart';
+import '../application/chat_providers.dart';
 import '../application/chat_notifier.dart';
 import '../application/chat_request_status.dart';
 import 'animated_neon_border.dart';
@@ -254,11 +255,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             tooltip: l10n.settingsTooltip,
             icon: const Icon(Icons.settings),
             onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute<void>(
-                  builder: (_) => const SettingsScreen(),
-                ),
-              );
+              Navigator.of(context).pushNamed(AppRoutes.settings);
             },
           ),
         ],

@@ -1,27 +1,41 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../core/navigation/app_routes.dart';
+import '../core/providers.dart';
 import '../core/theme/app_theme.dart';
+import '../domain/repositories/ai_engine.dart';
+import '../features/chat/application/chat_providers.dart';
 import '../features/chat/presentation/dasko_intro_screen.dart';
+import '../features/settings/presentation/settings_screen.dart';
 import '../l10n/app_localizations.dart';
-import 'providers.dart';
+import '../services/ai_engine/mock_ai_engine.dart';
 
 class DaskoApp extends StatelessWidget {
-  const DaskoApp({super.key, this.home, this.overrides = const []});
+  const DaskoApp({
+    super.key,
+    this.home,
+    this.overrides = const [],
+    this.aiEngine = const MockAiEngine(),
+  });
 
   final Widget? home;
   final List<Override> overrides;
+  final AiEngine aiEngine;
 
   @override
   Widget build(BuildContext context) {
     return ProviderScope(
-      overrides: overrides,
+      overrides: [
+        aiEngineProvider.overrideWithValue(aiEngine),
+        ...overrides,
+      ],
       child: _DaskoAppShell(home: home ?? const DaskoIntroScreen()),
     );
   }
 }
 
-/// Consumes [themeProvider] and [localeProvider] so the shell follows both.
+/// Consumes shared theme and locale state and registers feature routes.
 ///
 /// No explicit `Directionality` wrapper: `GlobalWidgetsLocalizations`, supplied
 /// through `AppLocalizations.localizationsDelegates`, derives text direction
@@ -57,6 +71,9 @@ class _DaskoAppShell extends ConsumerWidget {
       locale: localeState.locale,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
+      routes: <String, WidgetBuilder>{
+        AppRoutes.settings: (_) => const SettingsScreen(),
+      },
       home: home,
     );
   }
