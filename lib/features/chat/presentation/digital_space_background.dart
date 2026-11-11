@@ -64,9 +64,8 @@ class _DigitalSpaceBackgroundState extends ConsumerState<DigitalSpaceBackground>
                       Color(0xFF101426),
                       Color(0xFF0B0F19),
                     ],
-              stops: isLight
-                  ? const <double>[0, 1]
-                  : const <double>[0, 0.48, 1],
+              stops:
+                  isLight ? const <double>[0, 1] : const <double>[0, 0.48, 1],
             ),
           ),
         ),
@@ -172,13 +171,11 @@ class _SpacePainter extends CustomPainter {
       final radius = i % 7 == 0 ? 1.55 : (i % 3 == 0 ? 1.0 : .55);
       starPaint
         ..color = (i.isEven ? primary : secondary).withValues(
-          alpha:
-              (.24 + ((math.sin(phase * math.pi * 2 + i) + 1) * .19)) *
+          alpha: (.24 + ((math.sin(phase * math.pi * 2 + i) + 1) * .19)) *
               starAlphaScale,
         )
-        ..maskFilter = i % 7 == 0
-            ? const MaskFilter.blur(BlurStyle.normal, 2)
-            : null;
+        ..maskFilter =
+            i % 7 == 0 ? const MaskFilter.blur(BlurStyle.normal, 2) : null;
       canvas.drawCircle(Offset(x, y), radius, starPaint);
     }
 

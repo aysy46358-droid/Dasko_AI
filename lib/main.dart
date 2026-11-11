@@ -20,8 +20,7 @@ Future<void> main() async {
     debugPrint('Dasko AI: Firebase initialization skipped.');
   }
 
-  final crashlyticsSupportedPlatform =
-      !kIsWeb &&
+  final crashlyticsSupportedPlatform = !kIsWeb &&
       (defaultTargetPlatform == TargetPlatform.android ||
           defaultTargetPlatform == TargetPlatform.iOS ||
           defaultTargetPlatform == TargetPlatform.macOS);

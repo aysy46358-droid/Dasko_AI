@@ -14,7 +14,7 @@ const _pulseDuration = Duration(milliseconds: 1400);
 /// no platform view, no bridge and no load-time camera jump to coordinate.
 class InteractiveDaskoRobot extends StatefulWidget {
   const InteractiveDaskoRobot({super.key, required this.state, this.size = 112})
-    : assert(size > 0);
+      : assert(size > 0);
 
   final DaskoRobotState state;
   final double size;

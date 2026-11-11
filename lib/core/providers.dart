@@ -96,13 +96,13 @@ typedef SharedPreferencesLoader = Future<SharedPreferences> Function();
 /// choice if it changes before the initial preferences read completes.
 class LocaleNotifier extends StateNotifier<LocaleState> {
   LocaleNotifier({SharedPreferencesLoader? loadPreferences})
-    : _loadPreferences = loadPreferences ?? SharedPreferences.getInstance,
-      super(
-        const LocaleState(
-          locale: Locale(AppConstants.defaultLocale),
-          isInitialized: false,
-        ),
-      ) {
+      : _loadPreferences = loadPreferences ?? SharedPreferences.getInstance,
+        super(
+          const LocaleState(
+            locale: Locale(AppConstants.defaultLocale),
+            isInitialized: false,
+          ),
+        ) {
     unawaited(_restore());
   }
 
@@ -126,8 +126,7 @@ class LocaleNotifier extends StateNotifier<LocaleState> {
 
     final pending = _pending;
     final restored = stored == null ? null : Locale(stored);
-    final locale =
-        pending ??
+    final locale = pending ??
         (restored != null && isSupported(restored) ? restored : state.locale);
 
     _pending = null;
