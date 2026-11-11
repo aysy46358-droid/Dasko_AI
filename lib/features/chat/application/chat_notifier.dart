@@ -37,8 +37,8 @@ class ChatState {
 
 class ChatNotifier extends StateNotifier<ChatState> {
   ChatNotifier(this._sendMessage, {Uuid? uuid})
-      : _uuid = uuid ?? const Uuid(),
-        super(ChatState());
+    : _uuid = uuid ?? const Uuid(),
+      super(ChatState());
 
   final SendMessage _sendMessage;
   final Uuid _uuid;

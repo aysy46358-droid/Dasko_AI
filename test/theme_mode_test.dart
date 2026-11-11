@@ -35,9 +35,7 @@ void main() {
     tester,
   ) async {
     final container = ProviderContainer(
-      overrides: [
-        aiEngineProvider.overrideWithValue(const MockAiEngine()),
-      ],
+      overrides: [aiEngineProvider.overrideWithValue(const MockAiEngine())],
     );
     addTearDown(container.dispose);
 

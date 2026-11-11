@@ -45,9 +45,7 @@ void main() {
 
   testWidgets('Dark palette paints a flat pitch-black canvas', (tester) async {
     final container = ProviderContainer(
-      overrides: [
-        aiEngineProvider.overrideWithValue(const MockAiEngine()),
-      ],
+      overrides: [aiEngineProvider.overrideWithValue(const MockAiEngine())],
     );
     addTearDown(container.dispose);
     container.read(themeProvider.notifier).setTheme(AppThemeMode.dark);

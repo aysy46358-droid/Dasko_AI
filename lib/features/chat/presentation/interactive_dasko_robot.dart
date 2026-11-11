@@ -13,11 +13,8 @@ const _pulseDuration = Duration(milliseconds: 1400);
 /// The poster image is the single source of truth for the robot, so there is
 /// no platform view, no bridge and no load-time camera jump to coordinate.
 class InteractiveDaskoRobot extends StatefulWidget {
-  const InteractiveDaskoRobot({
-    super.key,
-    required this.state,
-    this.size = 112,
-  }) : assert(size > 0);
+  const InteractiveDaskoRobot({super.key, required this.state, this.size = 112})
+    : assert(size > 0);
 
   final DaskoRobotState state;
   final double size;

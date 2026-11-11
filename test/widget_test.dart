@@ -41,9 +41,7 @@ void main() {
     }
   });
 
-  testWidgets('robot renders the poster asset', (
-    tester,
-  ) async {
+  testWidgets('robot renders the poster asset', (tester) async {
     await tester.pumpWidget(
       const MaterialApp(
         localizationsDelegates: AppLocalizations.localizationsDelegates,

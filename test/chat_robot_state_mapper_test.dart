@@ -11,10 +11,7 @@ void main() {
         ChatRequestStatus.succeeded,
         ChatRequestStatus.failed,
       ]) {
-        expect(
-          mapChatRequestStatusToRobotState(status),
-          DaskoRobotState.ready,
-        );
+        expect(mapChatRequestStatusToRobotState(status), DaskoRobotState.ready);
       }
     });
 

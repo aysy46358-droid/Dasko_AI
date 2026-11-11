@@ -18,7 +18,8 @@ final sendMessageProvider = Provider<SendMessage>((ref) {
   return SendMessage(ref.watch(aiEngineProvider));
 });
 
-final chatNotifierProvider =
-    StateNotifierProvider<ChatNotifier, ChatState>((ref) {
+final chatNotifierProvider = StateNotifierProvider<ChatNotifier, ChatState>((
+  ref,
+) {
   return ChatNotifier(ref.watch(sendMessageProvider));
 });

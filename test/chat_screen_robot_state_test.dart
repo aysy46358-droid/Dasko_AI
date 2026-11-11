@@ -29,9 +29,7 @@ class _CompleterEngine implements AiEngine {
 
 DaskoRobotState _robotState(WidgetTester tester) {
   return tester
-      .widget<InteractiveDaskoRobot>(
-        find.byType(InteractiveDaskoRobot),
-      )
+      .widget<InteractiveDaskoRobot>(find.byType(InteractiveDaskoRobot))
       .state;
 }
 
@@ -44,9 +42,7 @@ void main() {
 
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [
-          chatNotifierProvider.overrideWith((ref) => notifier),
-        ],
+        overrides: [chatNotifierProvider.overrideWith((ref) => notifier)],
         child: const MaterialApp(
           locale: Locale('ar'),
           localizationsDelegates: AppLocalizations.localizationsDelegates,

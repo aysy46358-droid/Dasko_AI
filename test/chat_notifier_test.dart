@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:dartz/dartz.dart';
 
 import 'package:dasko_ai/core/errors/failures.dart';
@@ -50,25 +51,30 @@ void main() {
       notifier.dispose();
     });
 
-    test('transitions to failed without labeling the result as visual state',
-        () async {
-      final engine = _CompleterEngine();
-      final notifier = ChatNotifier(SendMessage(engine));
+    test(
+      'transitions to failed without labeling the result as visual state',
+      () async {
+        final engine = _CompleterEngine();
+        final notifier = ChatNotifier(SendMessage(engine));
 
-      final request = notifier.send('hello', errorText: _errorText);
-      engine.completer.complete(
-        const Left<Failure, String>(ServerFailure('unavailable')),
-      );
-      await request;
+        final request = notifier.send('hello', errorText: _errorText);
+        engine.completer.complete(
+          const Left<Failure, String>(ServerFailure('unavailable')),
+        );
+        await request;
 
-      expect(notifier.state.requestStatus, ChatRequestStatus.failed);
-      expect(notifier.state.isReplying, isFalse);
-      expect(notifier.state.errorMessage, _errorText);
-      expect(notifier.state.messages, hasLength(2));
-      expect(notifier.state.messages.last.text, _errorText);
-      expect(notifier.state.messages.last.text, isNot(contains('unavailable')));
+        expect(notifier.state.requestStatus, ChatRequestStatus.failed);
+        expect(notifier.state.isReplying, isFalse);
+        expect(notifier.state.errorMessage, _errorText);
+        expect(notifier.state.messages, hasLength(2));
+        expect(notifier.state.messages.last.text, _errorText);
+        expect(
+          notifier.state.messages.last.text,
+          isNot(contains('unavailable')),
+        );
 
-      notifier.dispose();
-    });
+        notifier.dispose();
+      },
+    );
   });
 }

@@ -20,7 +20,8 @@ Future<void> main() async {
     debugPrint('Dasko AI: Firebase initialization skipped.');
   }
 
-  final crashlyticsSupportedPlatform = !kIsWeb &&
+  final crashlyticsSupportedPlatform =
+      !kIsWeb &&
       (defaultTargetPlatform == TargetPlatform.android ||
           defaultTargetPlatform == TargetPlatform.iOS ||
           defaultTargetPlatform == TargetPlatform.macOS);
@@ -59,8 +60,9 @@ void _recordSanitizedNonFatal({
 }) {
   // Report only the error type, a fixed source label, and stack frames.
   // Never pass exception text, Flutter diagnostics, chat content, or API keys.
-  final safeError =
-      StateError('Unhandled $source error (${error.runtimeType})');
+  final safeError = StateError(
+    'Unhandled $source error (${error.runtimeType})',
+  );
 
   unawaited(
     crashlytics

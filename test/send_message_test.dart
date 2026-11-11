@@ -46,13 +46,10 @@ void main() {
     final useCase = SendMessage(_FakeEngine(const Right('hello')));
     final result = await useCase(prompt: 'hi');
     expect(result.isRight(), isTrue);
-    result.fold(
-      (_) => fail('expected success'),
-      (message) {
-        expect(message.isUser, isFalse);
-        expect(message.text, 'hello');
-      },
-    );
+    result.fold((_) => fail('expected success'), (message) {
+      expect(message.isUser, isFalse);
+      expect(message.text, 'hello');
+    });
   });
 
   test('SendMessage maps engine failure', () async {
@@ -75,12 +72,9 @@ void main() {
     final useCase = SendMessage(_ThrowingEngine(Exception('private detail')));
     final result = await useCase(prompt: 'hi');
 
-    result.fold(
-      (failure) {
-        expect(failure, isA<UnexpectedFailure>());
-        expect(failure.message, isNot(contains('private detail')));
-      },
-      (_) => fail('expected an unexpected failure'),
-    );
+    result.fold((failure) {
+      expect(failure, isA<UnexpectedFailure>());
+      expect(failure.message, isNot(contains('private detail')));
+    }, (_) => fail('expected an unexpected failure'));
   });
 }

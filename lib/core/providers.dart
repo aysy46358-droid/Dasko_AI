@@ -73,8 +73,9 @@ class ThemeModeNotifier extends StateNotifier<AppThemeMode> {
 
 /// App-wide theme selection consumed by `MaterialApp.theme`.
 /// Defaults to [AppThemeMode.neon] because that is the shipped aesthetic.
-final themeProvider =
-    StateNotifierProvider<ThemeModeNotifier, AppThemeMode>((ref) {
+final themeProvider = StateNotifierProvider<ThemeModeNotifier, AppThemeMode>((
+  ref,
+) {
   return ThemeModeNotifier();
 });
 
@@ -83,10 +84,7 @@ const List<String> supportedLanguageCodes = <String>['ar', 'en'];
 
 /// Active app language; defaults to Arabic and rejects unsupported locales.
 class LocaleState {
-  const LocaleState({
-    required this.locale,
-    required this.isInitialized,
-  });
+  const LocaleState({required this.locale, required this.isInitialized});
 
   final Locale locale;
   final bool isInitialized;
@@ -98,13 +96,13 @@ typedef SharedPreferencesLoader = Future<SharedPreferences> Function();
 /// choice if it changes before the initial preferences read completes.
 class LocaleNotifier extends StateNotifier<LocaleState> {
   LocaleNotifier({SharedPreferencesLoader? loadPreferences})
-      : _loadPreferences = loadPreferences ?? SharedPreferences.getInstance,
-        super(
-          const LocaleState(
-            locale: Locale(AppConstants.defaultLocale),
-            isInitialized: false,
-          ),
-        ) {
+    : _loadPreferences = loadPreferences ?? SharedPreferences.getInstance,
+      super(
+        const LocaleState(
+          locale: Locale(AppConstants.defaultLocale),
+          isInitialized: false,
+        ),
+      ) {
     unawaited(_restore());
   }
 
@@ -128,7 +126,8 @@ class LocaleNotifier extends StateNotifier<LocaleState> {
 
     final pending = _pending;
     final restored = stored == null ? null : Locale(stored);
-    final locale = pending ??
+    final locale =
+        pending ??
         (restored != null && isSupported(restored) ? restored : state.locale);
 
     _pending = null;
@@ -167,7 +166,8 @@ class LocaleNotifier extends StateNotifier<LocaleState> {
   }
 }
 
-final localeProvider =
-    StateNotifierProvider<LocaleNotifier, LocaleState>((ref) {
+final localeProvider = StateNotifierProvider<LocaleNotifier, LocaleState>((
+  ref,
+) {
   return LocaleNotifier();
 });

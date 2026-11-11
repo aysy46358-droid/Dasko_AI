@@ -60,17 +60,15 @@ class SettingsScreen extends ConsumerWidget {
             icon: Icons.language,
             label: l10n.languageArabic,
             selected: locale.languageCode == 'ar',
-            onTap: () => ref.read(localeProvider.notifier).setLocale(
-                  const Locale('ar'),
-                ),
+            onTap: () =>
+                ref.read(localeProvider.notifier).setLocale(const Locale('ar')),
           ),
           _OptionTile(
             icon: Icons.translate,
             label: l10n.languageEnglish,
             selected: locale.languageCode == 'en',
-            onTap: () => ref.read(localeProvider.notifier).setLocale(
-                  const Locale('en'),
-                ),
+            onTap: () =>
+                ref.read(localeProvider.notifier).setLocale(const Locale('en')),
           ),
         ],
       ),
@@ -120,8 +118,9 @@ class _OptionTile extends StatelessWidget {
     final glow = theme.extension<NeonGlow>();
 
     final tile = Material(
-      color:
-          selected ? colors.primaryContainer : colors.surfaceContainerHighest,
+      color: selected
+          ? colors.primaryContainer
+          : colors.surfaceContainerHighest,
       borderRadius: BorderRadius.circular(18),
       child: InkWell(
         borderRadius: BorderRadius.circular(18),
@@ -140,8 +139,9 @@ class _OptionTile extends StatelessWidget {
                   label,
                   style: theme.textTheme.bodyLarge?.copyWith(
                     fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-                    color:
-                        selected ? colors.onPrimaryContainer : colors.onSurface,
+                    color: selected
+                        ? colors.onPrimaryContainer
+                        : colors.onSurface,
                   ),
                 ),
               ),

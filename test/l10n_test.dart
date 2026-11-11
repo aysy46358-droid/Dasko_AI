@@ -32,8 +32,10 @@ class _LocaleSwitchProbe extends ConsumerWidget {
     return Scaffold(
       body: Column(
         children: [
-          Text(Directionality.of(context).name,
-              key: const ValueKey('direction')),
+          Text(
+            Directionality.of(context).name,
+            key: const ValueKey('direction'),
+          ),
           TextButton(
             key: _englishButtonKey,
             onPressed: () =>

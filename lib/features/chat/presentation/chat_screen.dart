@@ -98,12 +98,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     final decorated = switch (appThemeMode) {
       AppThemeMode.dark => _LedGlow(child: bubble),
       AppThemeMode.neon => AnimatedNeonBorder(
-          borderRadius: 18,
-          borderWidth: 2,
-          backgroundColor: Colors.transparent,
-          duration: Duration(milliseconds: isUser ? 4200 : 3300),
-          child: bubble,
-        ),
+        borderRadius: 18,
+        borderWidth: 2,
+        backgroundColor: Colors.transparent,
+        duration: Duration(milliseconds: isUser ? 4200 : 3300),
+        child: bubble,
+      ),
       AppThemeMode.light => bubble,
     };
 
@@ -156,9 +156,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     final glow = theme.extension<NeonGlow>();
 
     OutlineInputBorder roundedBorder() => OutlineInputBorder(
-          borderRadius: BorderRadius.circular(24),
-          borderSide: BorderSide.none,
-        );
+      borderRadius: BorderRadius.circular(24),
+      borderSide: BorderSide.none,
+    );
 
     return Container(
       padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),

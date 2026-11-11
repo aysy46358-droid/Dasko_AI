@@ -26,10 +26,7 @@ class DaskoApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ProviderScope(
-      overrides: [
-        aiEngineProvider.overrideWithValue(aiEngine),
-        ...overrides,
-      ],
+      overrides: [aiEngineProvider.overrideWithValue(aiEngine), ...overrides],
       child: _DaskoAppShell(home: home ?? const DaskoIntroScreen()),
     );
   }

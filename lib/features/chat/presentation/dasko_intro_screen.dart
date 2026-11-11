@@ -52,9 +52,7 @@ class _DaskoIntroScreenState extends State<DaskoIntroScreen>
     }
 
     try {
-      await _tts.setLanguage(
-        _l10n?.localeName == 'en' ? 'en-US' : 'ar',
-      );
+      await _tts.setLanguage(_l10n?.localeName == 'en' ? 'en-US' : 'ar');
       await _tts.setSpeechRate(0.43);
       await _tts.setVolume(0.9);
       await _tts.setPitch(1.0);
@@ -109,8 +107,9 @@ class _DaskoIntroScreenState extends State<DaskoIntroScreen>
                   offset: Offset(0, 20 * (1 - entrance)),
                   child: LayoutBuilder(
                     builder: (context, constraints) {
-                      final robotSize =
-                          constraints.maxHeight < 650 ? 205.0 : 245.0;
+                      final robotSize = constraints.maxHeight < 650
+                          ? 205.0
+                          : 245.0;
                       return SingleChildScrollView(
                         padding: const EdgeInsets.fromLTRB(24, 18, 24, 24),
                         child: ConstrainedBox(
