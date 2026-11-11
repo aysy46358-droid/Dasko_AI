@@ -78,6 +78,7 @@
 - `.gitignore`
 - `.metadata`
 - `.vscode/settings.json`
+- `AGENTS.md`
 - `README.md`
 - `analysis_options.yaml`
 - `android/.gitignore`
