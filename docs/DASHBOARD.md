@@ -27,3 +27,6 @@
 - لا يوجد Flutter SDK في بيئة التنفيذ الحالية؛ لذلك لم يُشغّل محلياً. `flutter analyze` و`flutter test` اجتازا PR Actions على `1411af2`؛ أي تعديل جديد على PR سيشغّل البوابة مرة أخرى.
 - لا تُعدّل أرقام الإصدار المحفوظة حالياً، ولا يُدمج PR آلياً. إصدار الإنتاج وتحديد `versionCode` النهائي يظلان قراراً لاحقاً.
 - إعداد Firebase Console وApp Check، وسلوك App Check على جهاز حقيقي، وتكامل Gemini الفعلي خارج نطاق Phase 0.
+
+## Phase 0 Status
+**Completed** (PR #17 merged, CI green).

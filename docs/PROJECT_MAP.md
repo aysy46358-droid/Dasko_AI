@@ -70,6 +70,7 @@
 القائمة التالية تُولّد من فهرس Git للملفات المتتبعة فقط. لا تُدرج ملفات غير متتبعة أو متجاهلة، ولا يقرأ المولّد محتوى الملفات. بعد إضافة/حذف ملف: أضف/سجّل التغيير في Git، ثم شغّل `python3 tooling/project_map.py --write`، وراجع التغيير. فحص CI يستخدم `--check` ولا يكتب إلى المستودع.
 
 <!-- BEGIN AUTO-GENERATED FILE INVENTORY -->
+- `.fvmrc`
 - `.gitattributes`
 - `.github/workflows/build_apk.yml`
 - `.github/workflows/format_experimental.yml`
