@@ -5,7 +5,7 @@
 ## الحالة الحالية — 2026-11-15
 
 - **التحقق المحلي على Codespaces:** Flutter 3.47.8 / Dart 3.13.7؛ `flutter analyze` بلا مشاكل؛ `flutter test` نجح مع 21 اختباراً؛ `git diff HEAD --exit-code` بلا فرق؛ و`git status --porcelain` فارغ.
-- **CI على PR #19:** نجح تشغيل GitHub Actions ‏[Experimental PR validation #18](https://github.com/aysy46358-droid/Dasko_AI/actions/runs/43813782964) على رأس PR `0f3c1c814437387cb40e68a732974debe9dffb18`؛ اكتملت جميع خطوات التنسيق والتحليل والاختبارات وفحص خريطة المشروع بنجاح. تشغيل #17 على الرأس السابق `c974645e` تحقق سابق.
+- **CI على PR #19:** آخر تشغيل CI مكتمل قبل هذا التحديث هو [Experimental PR validation #20](https://github.com/aysy46358-droid/Dasko_AI/actions/runs/43814010945)، ونجح على الرأس السابق `e9476757fc0a676e668f4947e1e99e7f9f0473dd`. هذا التوثيق ينشئ رأساً أحدث، ويحتاج CI جديداً عليه قبل اعتباره متحققاً.
 - **قرار Phase 0:** أُغلقت سابقاً عبر PR #17؛ هذا التحديث يوثق تحققاً لاحقاً ولا يعيد فتح المرحلة. PR #19 ما زال مفتوحاً وينتظر مراجعة المالك وقراره بشأن الدمج.
 - **الاعتمادات:** ظهرت 28 حزمة بإصدارات أحدث غير متوافقة مع قيود المشروع؛ لم تُجرَ ترقية ضمن هذا التحقق.
 
@@ -40,4 +40,4 @@
 - إعداد Firebase Console وApp Check، وسلوك App Check على جهاز حقيقي، وتكامل Gemini الفعلي خارج نطاق Phase 0.
 
 ## Phase 0 Status
-**Phase 0 previously completed (PR #17).** PR #19 documents subsequent local validation and successful CI run #17 on head `c974645e`; PR #19 remains open pending owner review.
+**Phase 0 previously completed (PR #17).** PR #19 documents subsequent local validation. CI run #20 succeeded on prior head `e9476757`; the newer documentation commit requires its own CI run. PR #19 remains open pending owner review.
