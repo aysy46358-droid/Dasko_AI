@@ -1,11 +1,11 @@
 # لوحة متابعة Dasko AI
 
-آخر تحديث: 2026-11-10. هذه لوحة متابعة تشغيلية موجزة؛ المرجع التفصيلي لحالة المشروع هو `docs/PROJECT_CONTROL.md`، ووصف البنية وجرد الملفات في `docs/PROJECT_MAP.md`.
+آخر تحديث: 2026-11-16. هذه لوحة متابعة تشغيلية موجزة؛ المرجع التفصيلي لحالة المشروع هو `docs/PROJECT_CONTROL.md`، ووصف البنية وجرد الملفات في `docs/PROJECT_MAP.md`.
 
 ## الحالة الحالية — 2026-11-15
 
 - **التحقق المحلي على Codespaces:** Flutter 3.47.8 / Dart 3.13.7؛ `flutter analyze` بلا مشاكل؛ `flutter test` نجح مع 21 اختباراً؛ `git diff HEAD --exit-code` بلا فرق؛ و`git status --porcelain` فارغ.
-- **CI على PR #19:** نجح تشغيل GitHub Actions ‏#15 على رأس PR `036d1d1`؛ اكتملت خطوات التنسيق والتحليل والاختبارات وفحص خريطة المشروع بنجاح.
+- **CI على PR #19:** نجح تشغيل GitHub Actions ‏[Experimental PR validation #17](https://github.com/aysy46358-droid/Dasko_AI/actions/runs/43812910592) على رأس PR `c974645e8a4c49f52f3e166b1a56e183164794d3`؛ اكتملت جميع خطوات التنسيق والتحليل والاختبارات وفحص خريطة المشروع بنجاح. تشغيل #15 تحقق سابق على رأس أقدم.
 - **قرار Phase 0:** أُغلقت سابقاً عبر PR #17؛ هذا التحديث يوثق تحققاً لاحقاً ولا يعيد فتح المرحلة. PR #19 ما زال مفتوحاً وينتظر مراجعة المالك وقراره بشأن الدمج.
 - **الاعتمادات:** ظهرت 28 حزمة بإصدارات أحدث غير متوافقة مع قيود المشروع؛ لم تُجرَ ترقية ضمن هذا التحقق.
 
@@ -40,4 +40,4 @@
 - إعداد Firebase Console وApp Check، وسلوك App Check على جهاز حقيقي، وتكامل Gemini الفعلي خارج نطاق Phase 0.
 
 ## Phase 0 Status
-**Phase 0 previously completed (PR #17).** PR #19 documents subsequent local validation and successful CI run #15; PR #19 remains open pending owner review.
+**Phase 0 previously completed (PR #17).** PR #19 documents subsequent local validation and successful CI run #17 on head `c974645e`; PR #19 remains open pending owner review.
