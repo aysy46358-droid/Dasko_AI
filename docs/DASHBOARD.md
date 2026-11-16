@@ -5,8 +5,8 @@
 ## الحالة الحالية — 2026-11-15
 
 - **التحقق المحلي على Codespaces:** Flutter 3.47.8 / Dart 3.13.7؛ `flutter analyze` بلا مشاكل؛ `flutter test` نجح مع 21 اختباراً؛ `git diff HEAD --exit-code` بلا فرق؛ و`git status --porcelain` فارغ.
-- **CI على رأس الفرع الحالي:** غير متحقق بعد من GitHub؛ لا توجد بيانات تشغيل PR أو status checks مرتبطة بالالتزام المفحوص في نتيجة المراجعة الحالية.
-- **قرار Phase 0:** الفحوص المحلية ناجحة؛ الإغلاق الرسمي ينتظر إثبات CI على الالتزام المرشح ومراجعة المالك.
+- **CI على PR #19:** نجح تشغيل GitHub Actions ‏#15 على رأس PR `036d1d1`؛ اكتملت خطوات التنسيق والتحليل والاختبارات وفحص خريطة المشروع بنجاح.
+- **قرار Phase 0:** أُغلقت سابقاً عبر PR #17؛ هذا التحديث يوثق تحققاً لاحقاً ولا يعيد فتح المرحلة. PR #19 ما زال مفتوحاً وينتظر مراجعة المالك وقراره بشأن الدمج.
 - **الاعتمادات:** ظهرت 28 حزمة بإصدارات أحدث غير متوافقة مع قيود المشروع؛ لم تُجرَ ترقية ضمن هذا التحقق.
 
 السجلات التشغيلية أدناه تعكس لقطة 2026-11-10، وتُحفظ كتاريخ سابق لا كحالة راهنة.
@@ -40,4 +40,4 @@
 - إعداد Firebase Console وApp Check، وسلوك App Check على جهاز حقيقي، وتكامل Gemini الفعلي خارج نطاق Phase 0.
 
 ## Phase 0 Status
-**Local checks passed; current-head CI is not yet verified.**
+**Phase 0 previously completed (PR #17).** PR #19 documents subsequent local validation and successful CI run #15; PR #19 remains open pending owner review.
