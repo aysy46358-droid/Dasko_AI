@@ -13,7 +13,7 @@
 - `git status --short --branch`: أظهر أن فرع المهمة يتتبع `origin/agent/phase-0-local-validation-docs` دون تغييرات محلية غير محفوظة.
 - ظهرت 28 حزمة بإصدارات أحدث غير متوافقة مع قيود الاعتمادات الحالية؛ لم تُحدّث أي حزمة ضمن هذا التحقق.
 
-**CI على PR #19:** نجح تشغيل GitHub Actions ‏[Experimental PR validation #18](https://github.com/aysy46358-droid/Dasko_AI/actions/runs/43813782964) على رأس PR `0f3c1c814437387cb40e68a732974debe9dffb18`. اكتمل job `Experimental Flutter quality checks` بنجاح، بما في ذلك إعداد Flutter، حل الاعتمادات من lockfile، توليد وفحص ملفات الترجمة، Dart format، Flutter analyze، Flutter tests، واختبارات/فحص Project Map. تشغيل #17 على الرأس السابق `c974645e8a4c49f52f3e166b1a56e183164794d3` تحقق سابق، وتشغيل #15 على الرأس الأقدم `036d1d1f131934acbe7d4e06ef63d3971adb7670` تحقق تاريخي.
+**CI على PR #19:** آخر تشغيل CI مكتمل قبل هذا التحديث هو [Experimental PR validation #20](https://github.com/aysy46358-droid/Dasko_AI/actions/runs/43814010945)، ونجح على رأس PR `e9476757fc0a676e668f4947e1e99e7f9f0473dd`. اكتمل job `Experimental Flutter quality checks` بنجاح، بما في ذلك إعداد Flutter، حل الاعتمادات من lockfile، توليد وفحص ملفات الترجمة، Dart format، Flutter analyze، Flutter tests، واختبارات/فحص Project Map. تشغيل #18 على الرأس السابق `0f3c1c81` و#17 على `c974645e` و#15 على `036d1d1f` سجلات تحقق سابقة. هذا التحديث ينشئ رأساً أحدث ويستلزم CI جديداً عليه.
 
 **القرار:** Phase 0 أُغلقت سابقاً عبر PR #17؛ نتائج هذا السجل تحقق لاحق ولا تعيد فتح المرحلة. PR #19 مفتوح وقابل للدمج حسب بيانات GitHub وقت المراجعة، لكنه لم يُدمج. يبقى قرار المراجعة والدمج للمالك. هذه النتائج لا تعني اكتمال التدقيق الأمني أو خلو التطبيق من كل العيوب.
 ---
