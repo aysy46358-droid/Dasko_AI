@@ -13,7 +13,7 @@
 - `git status --short --branch`: أظهر أن فرع المهمة يتتبع `origin/agent/phase-0-local-validation-docs` دون تغييرات محلية غير محفوظة.
 - ظهرت 28 حزمة بإصدارات أحدث غير متوافقة مع قيود الاعتمادات الحالية؛ لم تُحدّث أي حزمة ضمن هذا التحقق.
 
-**CI على PR #19:** نجح تشغيل GitHub Actions ‏[Experimental PR validation #15](https://github.com/aysy46358-droid/Dasko_AI/actions/runs/43709515826) على رأس PR `036d1d1f131934acbe7d4e06ef63d3971adb7670`. اكتمل job `Experimental Flutter quality checks` بنجاح، بما في ذلك إعداد Flutter، حل الاعتمادات من lockfile، توليد وفحص ملفات الترجمة، Dart format، Flutter analyze، Flutter tests، واختبارات/فحص Project Map. لم تُرجع واجهة combined status checks حالات منفصلة؛ دليل نجاح CI هنا هو تشغيل Actions والـjob أعلاه.
+**CI على PR #19:** نجح تشغيل GitHub Actions ‏[Experimental PR validation #17](https://github.com/aysy46358-droid/Dasko_AI/actions/runs/43812910592) على رأس PR `c974645e8a4c49f52f3e166b1a56e183164794d3`. اكتمل job `Experimental Flutter quality checks` بنجاح، بما في ذلك إعداد Flutter، حل الاعتمادات من lockfile، توليد وفحص ملفات الترجمة، Dart format، Flutter analyze، Flutter tests، واختبارات/فحص Project Map. تشغيل #15 على الرأس الأقدم `036d1d1f131934acbe7d4e06ef63d3971adb7670` تحقق سابق ولا يمثل أحدث CI.
 
 **القرار:** Phase 0 أُغلقت سابقاً عبر PR #17؛ نتائج هذا السجل تحقق لاحق ولا تعيد فتح المرحلة. PR #19 مفتوح وقابل للدمج حسب بيانات GitHub وقت المراجعة، لكنه لم يُدمج. يبقى قرار المراجعة والدمج للمالك. هذه النتائج لا تعني اكتمال التدقيق الأمني أو خلو التطبيق من كل العيوب.
 ---
